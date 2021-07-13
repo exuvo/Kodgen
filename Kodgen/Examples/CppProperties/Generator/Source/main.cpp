@@ -7,7 +7,19 @@
 
 #include "GetSetCGM.h"
 
-void initGenerationSettings(fs::path const& workingDirectory, kodgen::CodeGenManagerSettings& out_generatorSettings, kodgen::MacroCodeGenUnitSettings& out_cguSettings)
+void initCodeGenUnitSettings(fs::path const& workingDirectory, kodgen::MacroCodeGenUnitSettings& out_cguSettings)
+{
+	//All generated files will be located in WorkingDir/Include/Generated
+	out_cguSettings.setOutputDirectory(workingDirectory / "Include" / "Generated");
+	
+	//Setup generated files name pattern
+	out_cguSettings.setGeneratedHeaderFileNamePattern("##FILENAME##.h.h");
+	out_cguSettings.setGeneratedSourceFileNamePattern("##FILENAME##.src.h");
+	out_cguSettings.setClassFooterMacroPattern("##CLASSFULLNAME##_GENERATED");
+	out_cguSettings.setHeaderFileFooterMacroPattern("File_##FILENAME##_GENERATED");
+}
+
+void initCodeGenManagerSettings(fs::path const& workingDirectory, kodgen::CodeGenManagerSettings& out_generatorSettings)
 {
 	fs::path includeDirectory	= workingDirectory / "Include";
 	fs::path generatedDirectory	= includeDirectory / "Generated";
@@ -20,15 +32,6 @@ void initGenerationSettings(fs::path const& workingDirectory, kodgen::CodeGenMan
 
 	//Only parse .h files
 	out_generatorSettings.addSupportedExtension(".h");
-
-	//All generated files will be located in WorkingDir/Include/Generated
-	out_cguSettings.setOutputDirectory(generatedDirectory);
-	
-	//Setup generated files name pattern
-	out_cguSettings.setGeneratedHeaderFileNamePattern("##FILENAME##.h.h");
-	out_cguSettings.setGeneratedSourceFileNamePattern("##FILENAME##.src.h");
-	out_cguSettings.setClassFooterMacroPattern("##CLASSFULLNAME##_GENERATED");
-	out_cguSettings.setHeaderFileFooterMacroPattern("File_##FILENAME##_GENERATED");
 }
 
 bool initParsingSettings(kodgen::ParsingSettings& parsingSettings)
@@ -101,21 +104,23 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	//Setup manager
-	kodgen::CodeGenManager codeGenMgr;
-	codeGenMgr.logger = &logger;
-
-	kodgen::MacroCodeGenUnitSettings cguSettings;
-
-	initGenerationSettings(workingDirectory, codeGenMgr.settings, cguSettings);
-
 	//Setup code generation unit
 	kodgen::MacroCodeGenUnit codeGenUnit;
 	codeGenUnit.logger = &logger;
+
+	kodgen::MacroCodeGenUnitSettings cguSettings;
+	initCodeGenUnitSettings(workingDirectory, cguSettings);
 	codeGenUnit.setSettings(&cguSettings);
 
+	//Add code generation modules
 	GetSetCGM getSetCodeGenModule;
 	codeGenUnit.addModule(getSetCodeGenModule);
+
+	//Setup CodeGenManager
+	kodgen::CodeGenManager codeGenMgr;
+	codeGenMgr.logger = &logger;
+
+	initCodeGenManagerSettings(workingDirectory, codeGenMgr.settings);
 
 	//Kick-off code generation
 	kodgen::CodeGenResult genResult = codeGenMgr.run(fileParser, codeGenUnit, true);
