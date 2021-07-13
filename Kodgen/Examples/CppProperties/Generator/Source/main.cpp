@@ -1,13 +1,13 @@
-#include <Kodgen/Misc/Filesystem.h>
-#include <Kodgen/Misc/DefaultLogger.h>
 #include <Kodgen/Parsing/FileParser.h>
-#include <Kodgen/CodeGen/FileGenerator.h>
+#include <Kodgen/CodeGen/CodeGenManager.h>
 #include <Kodgen/CodeGen/Macro/MacroCodeGenUnit.h>
 #include <Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h>
+#include <Kodgen/Misc/Filesystem.h>
+#include <Kodgen/Misc/DefaultLogger.h>
 
 #include "GetSetCGM.h"
 
-void initGenerationSettings(fs::path const& workingDirectory, kodgen::FileGeneratorSettings& out_generatorSettings, kodgen::MacroCodeGenUnitSettings& out_cguSettings)
+void initGenerationSettings(fs::path const& workingDirectory, kodgen::CodeGenManagerSettings& out_generatorSettings, kodgen::MacroCodeGenUnitSettings& out_cguSettings)
 {
 	fs::path includeDirectory	= workingDirectory / "Include";
 	fs::path generatedDirectory	= includeDirectory / "Generated";
@@ -61,9 +61,9 @@ bool initParsingSettings(kodgen::ParsingSettings& parsingSettings)
 	//In reality, the compiler used by the user machine running the generator should be set.
 	//It has nothing to see with the compiler used to compile the generator.
 #if defined(__GNUC__)
-	return parsingSettings.setCompilerExeName("gcc");
+	return parsingSettings.setCompilerExeName("g++");
 #elif defined(__clang__)
-	return parsingSettings.setCompilerExeName("clang");
+	return parsingSettings.setCompilerExeName("clang++");
 #elif defined(_MSC_VER)
 	return parsingSettings.setCompilerExeName("msvc");
 #else
@@ -101,13 +101,13 @@ int main(int argc, char** argv)
 		return EXIT_FAILURE;
 	}
 
-	//Setup file generator
-	kodgen::FileGenerator fileGenerator;
-	fileGenerator.logger = &logger;
+	//Setup manager
+	kodgen::CodeGenManager codeGenMgr;
+	codeGenMgr.logger = &logger;
 
 	kodgen::MacroCodeGenUnitSettings cguSettings;
 
-	initGenerationSettings(workingDirectory, fileGenerator.settings, cguSettings);
+	initGenerationSettings(workingDirectory, codeGenMgr.settings, cguSettings);
 
 	//Setup code generation unit
 	kodgen::MacroCodeGenUnit codeGenUnit;
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 	codeGenUnit.addModule(getSetCodeGenModule);
 
 	//Kick-off code generation
-	kodgen::FileGenerationResult genResult = fileGenerator.generateFiles(fileParser, codeGenUnit, true);
+	kodgen::CodeGenResult genResult = codeGenMgr.run(fileParser, codeGenUnit, true);
 
 	if (genResult.completed)
 	{

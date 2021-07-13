@@ -1,8 +1,8 @@
-#include "Kodgen/CodeGen/FileGenerationResult.h"
+#include "Kodgen/CodeGen/CodeGenResult.h"
 
 using namespace kodgen;
 
-void FileGenerationResult::mergeResult(FileGenerationResult&& otherResult) noexcept
+void CodeGenResult::mergeResult(CodeGenResult&& otherResult) noexcept
 {
 	parsedFiles.insert(parsedFiles.cend(), std::make_move_iterator(otherResult.parsedFiles.cbegin()), std::make_move_iterator(otherResult.parsedFiles.cend()));
 	upToDateFiles.insert(upToDateFiles.cend(), std::make_move_iterator(otherResult.upToDateFiles.cbegin()), std::make_move_iterator(otherResult.upToDateFiles.cend()));

@@ -15,11 +15,11 @@
 
 namespace kodgen
 {
-	class FileGeneratorSettings : public Settings
+	class CodeGenManagerSettings : public Settings
 	{
 		private:
-			/** Section name used in the toml file for FileGenerator settings. */
-			static constexpr char const*	_tomlSectionName	= "FileGenerator";
+			/** Section name used in the toml file for CodeGenManager settings. */
+			static constexpr char const*	_tomlSectionName	= "CodeGenManagerSettings";
 
 			/**
 			*	Collection of files to parse.
@@ -60,7 +60,7 @@ namespace kodgen
 			*	@return true if no error occured during loading, else false.
 			*/
 			virtual bool	loadSettingsValues(toml::value const&	tomlData,
-											   ILogger*			logger)		noexcept override;
+											   ILogger*			logger)							noexcept	override;
 
 			/**
 			*	@brief	Load the supportedExtensions setting from toml.
@@ -69,8 +69,8 @@ namespace kodgen
 			*	@param generationSettings	Toml content.
 			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
 			*/
-			void	loadSupportedExtensions(toml::value const&	generationSettings,
-											ILogger*			logger)					noexcept;
+			void			loadSupportedExtensions(toml::value const&	generationSettings,
+													ILogger*			logger)					noexcept;
 
 			/**
 			*	@brief	Load the toParseFiles setting from toml.
@@ -79,8 +79,8 @@ namespace kodgen
 			*	@param generationSettings	Toml content.
 			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
 			*/
-			void	loadToParseFiles(toml::value const&	generationSettings,
-									 ILogger*			logger)							noexcept;
+			void			loadToParseFiles(toml::value const&	generationSettings,
+											 ILogger*			logger)							noexcept;
 
 			/**
 			*	@brief	Load the toParseDirectories setting from toml.
@@ -89,8 +89,8 @@ namespace kodgen
 			*	@param generationSettings	Toml content.
 			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
 			*/
-			void	loadToParseDirectories(toml::value const&	generationSettings,
-										   ILogger*				logger)					noexcept;
+			void			loadToParseDirectories(toml::value const&	generationSettings,
+												   ILogger*				logger)					noexcept;
 
 			/**
 			*	@brief	Load the ignoredFiles setting from toml.
@@ -99,8 +99,8 @@ namespace kodgen
 			*	@param generationSettings	Toml content.
 			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
 			*/
-			void	loadIgnoredFiles(toml::value const&	generationSettings,
-									 ILogger*			logger)							noexcept;
+			void			loadIgnoredFiles(toml::value const&	generationSettings,
+											 ILogger*			logger)							noexcept;
 
 			/**
 			*	@brief	Load the ignoredDirectories setting from toml.
@@ -109,8 +109,8 @@ namespace kodgen
 			*	@param generationSettings	Toml content.
 			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
 			*/
-			void	loadIgnoredDirectories(toml::value const&	generationSettings,
-										   ILogger*				logger)					noexcept;
+			void			loadIgnoredDirectories(toml::value const&	generationSettings,
+												   ILogger*				logger)					noexcept;
 
 		public:
 			/**

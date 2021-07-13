@@ -53,12 +53,12 @@ add_library(${KodgenTargetLibrary}
 					Source/Misc/Settings.cpp
 	
 					Source/CodeGen/CodeGenUnit.cpp
-					Source/CodeGen/FileGenerationResult.cpp
-					Source/CodeGen/FileGenerator.cpp
+					Source/CodeGen/CodeGenResult.cpp
+					Source/CodeGen/CodeGenManager.cpp
 					Source/CodeGen/GeneratedFile.cpp
 					Source/CodeGen/CodeGenModule.cpp
 					Source/CodeGen/CodeGenUnitSettings.cpp
-					Source/CodeGen/FileGeneratorSettings.cpp
+					Source/CodeGen/CodeGenManagerSettings.cpp
 					Source/CodeGen/CodeGenHelpers.cpp
 					Source/CodeGen/PropertyCodeGen.cpp
 

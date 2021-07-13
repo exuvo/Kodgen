@@ -10,20 +10,19 @@
 #include <set>
 #include <cassert>
 #include <type_traits>	//std::is_base_of
-#include <chrono>
+#include <chrono>		//std::chrono::high_resolution_clock
 
 #include "Kodgen/Misc/ILogger.h"
-#include "Kodgen/Misc/Settings.h"
-#include "Kodgen/CodeGen/FileGenerationResult.h"
+#include "Kodgen/CodeGen/CodeGenResult.h"
 #include "Kodgen/CodeGen/CodeGenUnit.h"
-#include <Kodgen/CodeGen/FileGeneratorSettings.h>
+#include <Kodgen/CodeGen/CodeGenManagerSettings.h>
 #include "Kodgen/Parsing/FileParser.h"
 #include "Kodgen/Threading/ThreadPool.h"
 #include "Kodgen/Threading/TaskHelper.h"
 
 namespace kodgen
 {
-	class FileGenerator
+	class CodeGenManager
 	{
 		private:
 			/**
@@ -39,7 +38,7 @@ namespace kodgen
 			void	processFilesMultithread(FileParserType&				fileParser,
 											CodeGenUnitType&			codeGenUnit,
 											std::set<fs::path> const&	toProcessFiles,
-											FileGenerationResult&		out_genResult,
+											CodeGenResult&				out_genResult,
 											uint32						threadCount)					const	noexcept;
 
 			/**
@@ -54,20 +53,20 @@ namespace kodgen
 			void	processFilesMonothread(FileParserType&				fileParser,
 										   CodeGenUnitType&				codeGenUnit,
 										   std::set<fs::path> const&	toProcessFiles,
-										   FileGenerationResult&		out_genResult)					const	noexcept;
+										   CodeGenResult&				out_genResult)					const	noexcept;
 
 			/**
 			*	@brief Identify all files which will be parsed & regenerated.
 			*	
 			*	@param codeGenUnit			Generation unit used to determine whether a file should be reparsed/regenerated or not.
 			*	@param out_genResult		Reference to the generation result to fill during file generation.
-			*	@param forceRegenerateAll	Should all files be regenerated or not (regardless of FileGenerator::shouldRegenerateFile() returned value).
+			*	@param forceRegenerateAll	Should all files be regenerated or not (regardless of CodeGenManager::shouldRegenerateFile() returned value).
 			*
 			*	@return A collection of all files which will be regenerated.
 			*/
-			std::set<fs::path>		identifyFilesToProcess(CodeGenUnit const&		codeGenUnit,
-														   FileGenerationResult&	out_genResult,
-														   bool						forceRegenerateAll)	const	noexcept;
+			std::set<fs::path>		identifyFilesToProcess(CodeGenUnit const&	codeGenUnit,
+														   CodeGenResult&		out_genResult,
+														   bool					forceRegenerateAll)		const	noexcept;
 
 			/**
 			*	@brief	Get the number of threads to use based on the provided thread count.
@@ -101,11 +100,11 @@ namespace kodgen
 														 CodeGenUnit const& codeGenUnit)				const	noexcept;
 
 		public:
-			/** Logger used to issue logs from the FileGenerator. */
+			/** Logger used to issue logs from the CodeGenManager. */
 			ILogger*				logger		= nullptr;
 
 			/** Struct containing all generation settings. */
-			FileGeneratorSettings	settings;
+			CodeGenManagerSettings	settings;
 
 			/**
 			*	@brief	Parse registered files if they were modified since last generation (or don't exist)
@@ -121,11 +120,11 @@ namespace kodgen
 			*	@return Structure containing file generation report.
 			*/
 			template <typename FileParserType, typename CodeGenUnitType>
-			FileGenerationResult generateFiles(FileParserType&	fileParser,
-											   CodeGenUnitType&	codeGenUnit,
-											   bool				forceRegenerateAll	= false,
-											   uint32			threadCount			= 0)	noexcept;
+			CodeGenResult run(FileParserType&	fileParser,
+							  CodeGenUnitType&	codeGenUnit,
+							  bool				forceRegenerateAll	= false,
+							  uint32				threadCount		= 0)		noexcept;
 	};
 
-	#include "Kodgen/CodeGen/FileGenerator.inl"
+	#include "Kodgen/CodeGen/CodeGenManager.inl"
 }

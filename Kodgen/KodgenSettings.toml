@@ -1,4 +1,4 @@
-[FileGenerationSettings]
+[CodeGenManagerSettings]
 # Generated files will use this extension
 generatedFilesExtension = ".rfk.h"
 
@@ -6,9 +6,6 @@ generatedFilesExtension = ".rfk.h"
 supportedExtensions		= [".h", ".hpp"]
 
 entityMacrosFilename	= "EntityMacros.h"
-
-# Generated files will be located here
-outputDirectory			= '''Path/To/Output/Dir'''
 
 # Files contained in the directories of this list will be parsed
 toParseDirectories		= [
@@ -28,23 +25,27 @@ ignoredDirectories		= [
 ignoredFiles			= []
 
 
-[FileParsingSettings]
-# Abort parsing on first encountered error
-shouldAbortParsingOnFirstError	= true
+[CodeGenUnitSettings]
+# Generated files will be located here
+outputDirectory			= '''Path/To/Output/Dir'''
 
-# Should all entities be parsed whether they are tagged with the macro or not
-shouldParseAllEntities			= false
 
+[ParsingSettings]
 # Include directories of the project
-projectIncludeDirectories		= [
+projectIncludeDirectories = [
 #	'''Path/To/RefurekuLibrary/Include''',
 #	'''Path/To/Your/Project/Include'''
 ]
 
 # Must be one of "msvc", "clang++", "g++"
-compilerExeName					= "clang++"
+compilerExeName = "clang++"
 
-[FileParsingSettings.Properties]
+# Abort parsing on first encountered error
+shouldAbortParsingOnFirstError = true
+
+# Should all entities be parsed whether they are tagged with the macro or not
+shouldParseAllEntities = false
+
 propertySeparator = ","
 subPropertySeparator = ","
 subPropertyStartEncloser = "("

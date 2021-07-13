@@ -6,7 +6,7 @@
 */
 
 template <typename FileParserType, typename CodeGenUnitType>
-void FileGenerator::processFilesMultithread(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, FileGenerationResult& out_genResult, uint32 threadCount) const noexcept
+void CodeGenManager::processFilesMultithread(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, CodeGenResult& out_genResult, uint32 threadCount) const noexcept
 {
 	ThreadPool								threadPool(threadCount, ETerminationMode::FinishAll);
 	std::vector<std::shared_ptr<TaskBase>>	generationTasks;
@@ -31,9 +31,9 @@ void FileGenerator::processFilesMultithread(FileParserType& fileParser, CodeGenU
 													 return parsingResult;
 												  });
 
-		generationTasks.emplace_back(threadPool.submitTask([&](TaskBase* parsingTask) -> FileGenerationResult
+		generationTasks.emplace_back(threadPool.submitTask([&](TaskBase* parsingTask) -> CodeGenResult
 									 {
-										FileGenerationResult out_generationResult;
+										 CodeGenResult out_generationResult;
 										
 										//Copy the generation unit model to have a fresh one for this generation unit
 										CodeGenUnitType	generationUnit = codeGenUnit;
@@ -55,12 +55,12 @@ void FileGenerator::processFilesMultithread(FileParserType& fileParser, CodeGenU
 	//Merge all generation results together
 	for (std::shared_ptr<TaskBase>& generationTask : generationTasks)
 	{
-		out_genResult.mergeResult(TaskHelper::getResult<FileGenerationResult>(generationTask.get()));
+		out_genResult.mergeResult(TaskHelper::getResult<CodeGenResult>(generationTask.get()));
 	}
 }
 
 template <typename FileParserType, typename CodeGenUnitType>
-void FileGenerator::processFilesMonothread(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, FileGenerationResult& out_genResult) const noexcept
+void CodeGenManager::processFilesMonothread(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, CodeGenResult& out_genResult) const noexcept
 {
 	for (fs::path const& file : toProcessFiles)
 	{
@@ -78,7 +78,7 @@ void FileGenerator::processFilesMonothread(FileParserType& fileParser, CodeGenUn
 }
 
 template <typename FileParserType, typename CodeGenUnitType>
-FileGenerationResult FileGenerator::generateFiles(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint32 threadCount) noexcept
+CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint32 threadCount) noexcept
 {
 	//Check FileParser validity
 	static_assert(std::is_base_of_v<FileParser, FileParserType>, "fileParser type must be a derived class of kodgen::FileParser.");
@@ -88,7 +88,7 @@ FileGenerationResult FileGenerator::generateFiles(FileParserType& fileParser, Co
 	static_assert(std::is_base_of_v<CodeGenUnit, CodeGenUnitType>, "codeGenUnit type must be a derived class of kodgen::CodeGenUnit.");
 	static_assert(std::is_copy_constructible_v<CodeGenUnitType>, "The CodeGenUnit you provide must be copy-constructible.");
 
-	FileGenerationResult genResult;
+	CodeGenResult genResult;
 	genResult.completed = true;
 
 	if (!checkGenerationSetup(fileParser, codeGenUnit))

@@ -11,7 +11,6 @@
 
 #include "Kodgen/Parsing/ParsingResults/FileParsingResult.h"
 #include "Kodgen/CodeGen/ETraversalBehaviour.h"
-#include "Kodgen/CodeGen/FileGenerationResult.h"
 #include "Kodgen/CodeGen/CodeGenEnv.h"
 #include "Kodgen/CodeGen/CodeGenUnitSettings.h"
 #include "Kodgen/CodeGen/CodeGenModule.h"

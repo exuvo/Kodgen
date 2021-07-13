@@ -1,12 +1,11 @@
-#include "Kodgen/CodeGen/FileGenerator.h"
+#include "Kodgen/CodeGen/CodeGenManager.h"
 
-#include "Kodgen/CodeGen/FileGeneratorSettings.h"
 #include "Kodgen/CodeGen/GeneratedFile.h"
 #include "Kodgen/Parsing/ParsingSettings.h"	//ParsingSettings::parsingMacro
 
 using namespace kodgen;
 
-std::set<fs::path> FileGenerator::identifyFilesToProcess(CodeGenUnit const& codeGenUnit, FileGenerationResult& out_genResult, bool forceRegenerateAll) const noexcept
+std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& codeGenUnit, CodeGenResult& out_genResult, bool forceRegenerateAll) const noexcept
 {
 	std::set<fs::path> result;
 
@@ -46,7 +45,7 @@ std::set<fs::path> FileGenerator::identifyFilesToProcess(CodeGenUnit const& code
 					if (entry.is_regular_file())
 					{
 						if (settings.getSupportedExtensions().find(entry.path().extension().string()) != settings.getSupportedExtensions().cend() &&	//supported extension
-							settings.getIgnoredFiles().find(entry.path()) == settings.getIgnoredFiles().cend())								//file is not ignored
+							settings.getIgnoredFiles().find(entry.path()) == settings.getIgnoredFiles().cend())											//file is not ignored
 						{
 							if (!codeGenUnit.isUpToDate(entry.path()) || forceRegenerateAll)
 							{
@@ -76,7 +75,7 @@ std::set<fs::path> FileGenerator::identifyFilesToProcess(CodeGenUnit const& code
 	return result;
 }
 
-uint32 FileGenerator::getThreadCount(uint32 initialThreadCount) const noexcept
+uint32 CodeGenManager::getThreadCount(uint32 initialThreadCount) const noexcept
 {
 	if (initialThreadCount == 0)
 	{
@@ -93,7 +92,7 @@ uint32 FileGenerator::getThreadCount(uint32 initialThreadCount) const noexcept
 	return initialThreadCount;
 }
 
-void FileGenerator::generateMacrosFile(ParsingSettings const& parsingSettings, fs::path const& outputDirectory) const noexcept
+void CodeGenManager::generateMacrosFile(ParsingSettings const& parsingSettings, fs::path const& outputDirectory) const noexcept
 {
 	GeneratedFile macrosDefinitionFile(outputDirectory / CodeGenUnitSettings::entityMacrosFilename);
 
@@ -115,7 +114,7 @@ void FileGenerator::generateMacrosFile(ParsingSettings const& parsingSettings, f
 	macrosDefinitionFile.writeLine("\n#endif");
 }
 
-bool FileGenerator::checkGenerationSetup(FileParser const& /* fileParser */, CodeGenUnit const& codeGenUnit) const noexcept
+bool CodeGenManager::checkGenerationSetup(FileParser const& /* fileParser */, CodeGenUnit const& codeGenUnit) const noexcept
 {
 	bool canLog	= logger != nullptr;
 	

@@ -22,7 +22,7 @@ namespace kodgen
 
 		protected:
 			/** Toml section name containing settings for CodeGenUnitSettings. */
-			static constexpr char const*	tomlSectionName = "CodeGenUnit";
+			static constexpr char const*	tomlSectionName = "CodeGenUnitSettings";
 
 			/**
 			*	@brief Load all settings from the provided toml data.

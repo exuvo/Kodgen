@@ -13,7 +13,7 @@
 
 namespace kodgen
 {
-	class FileGenerationResult
+	class CodeGenResult
 	{
 		public:
 			/**
@@ -25,17 +25,16 @@ namespace kodgen
 			*	Even if completed is true, errors might have happened during parsing and/or file generation.
 			*	Make sure to check logs.
 			*/
-			bool								completed	= false;
+			bool					completed	= false;
 
 			/** Time elapsed to discover files to parse, parse, generate and collect results of all files. */
-			float								duration	= 0.0f;
+			float					duration	= 0.0f;
 
 			/** List of paths to files that have been parsed and got their metadata regenerated. */
-			std::vector<fs::path>				parsedFiles;
+			std::vector<fs::path>	parsedFiles;
 
 			/** List of paths to files which metadata are up-to-date. */
-			std::vector<fs::path>				upToDateFiles;
-
+			std::vector<fs::path>	upToDateFiles;
 
 			/**
 			*	@brief Merge a result to this result.
@@ -43,6 +42,6 @@ namespace kodgen
 			*	@param otherResult	The result to merge with this result.
 			*						After the call, otherResult state is UB.
 			*/
-			void mergeResult(FileGenerationResult&& otherResult)		noexcept;
+			void mergeResult(CodeGenResult&& otherResult)	noexcept;
 	};
 }
