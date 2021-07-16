@@ -48,6 +48,38 @@ namespace kodgen
 															  EntityInfo const&	entity,
 															  MacroCodeGenEnv&	env)			noexcept;
 
+			/**
+			*	@brief	(Re)generate the header file.
+			* 
+			*	@param env Generation environment.
+			*/
+			void				generateHeaderFile(MacroCodeGenEnv&	env)						noexcept;
+
+			/**
+			*	@brief	(Re)generate the source file.
+			* 
+			*	@param env Generation environment.
+			*/
+			void				generateSourceFile(MacroCodeGenEnv&	env)						noexcept;
+
+			/**
+			*	@brief Compute the path of the header file generated from the provided source file.
+			* 
+			*	@param sourceFile Path to the source file.
+			* 
+			*	@return the path of the header file generated from the provided source file.
+			*/
+			fs::path			getGeneratedHeaderFilePath(fs::path const& sourceFile)	const	noexcept;
+
+			/**
+			*	@brief Compute the path of the source file generated from the provided source file.
+			* 
+			*	@param sourceFile Path to the source file.
+			* 
+			*	@return the path of the source file generated from the provided source file.
+			*/
+			fs::path			getGeneratedSourceFilePath(fs::path const& sourceFile)	const	noexcept;
+
 		protected:
 			/**
 			*	@brief	Execute the codeGenModule->generateCode method 4 times with the given entity and environment, by
@@ -80,38 +112,6 @@ namespace kodgen
 			*	@return true if the method completed successfully, else false.
 			*/
 			virtual bool				postGenerateCode(CodeGenEnv& env)									noexcept	override;
-
-			/**
-			*	@brief	(Re)generate the header file.
-			* 
-			*	@param env Generation environment.
-			*/
-			void						generateHeaderFile(MacroCodeGenEnv&	env)					const	noexcept;
-
-			/**
-			*	@brief	(Re)generate the source file.
-			* 
-			*	@param env Generation environment.
-			*/
-			void						generateSourceFile(MacroCodeGenEnv&	env)					const	noexcept;
-
-			/**
-			*	@brief Compute the path of the header file generated from the provided source file.
-			* 
-			*	@param sourceFile Path to the source file.
-			* 
-			*	@return the path of the header file generated from the provided source file.
-			*/
-			fs::path					getGeneratedHeaderFilePath(fs::path const& sourceFile)		const	noexcept;
-
-			/**
-			*	@brief Compute the path of the source file generated from the provided source file.
-			* 
-			*	@param sourceFile Path to the source file.
-			* 
-			*	@return the path of the source file generated from the provided source file.
-			*/
-			fs::path					getGeneratedSourceFilePath(fs::path const& sourceFile)		const	noexcept;
 
 		public:
 			/**

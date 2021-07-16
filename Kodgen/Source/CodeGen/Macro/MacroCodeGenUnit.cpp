@@ -75,7 +75,7 @@ bool MacroCodeGenUnit::postGenerateCode(CodeGenEnv& env) noexcept
 	return true;
 }
 
-void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) const noexcept
+void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) noexcept
 {
 	GeneratedFile generatedHeader(getGeneratedHeaderFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
 
@@ -99,7 +99,7 @@ void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) const noexcept
 							   std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileFooter)]));
 }
 
-void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) const noexcept
+void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) noexcept
 {
 	GeneratedFile generatedSource(getGeneratedSourceFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
 
