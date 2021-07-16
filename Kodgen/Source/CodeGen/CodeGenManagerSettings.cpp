@@ -12,8 +12,8 @@ bool CodeGenManagerSettings::loadSettingsValues(toml::value const& tomlData, ILo
 		toml::value const& tomlGeneratorSettings = toml::find(tomlData, _tomlSectionName);
 		
 		loadSupportedExtensions(tomlGeneratorSettings, logger);
-		loadToParseFiles(tomlGeneratorSettings, logger);
-		loadToParseDirectories(tomlGeneratorSettings, logger);
+		loadToProcessFiles(tomlGeneratorSettings, logger);
+		loadToProcessDirectories(tomlGeneratorSettings, logger);
 		loadIgnoredFiles(tomlGeneratorSettings, logger);
 		loadIgnoredDirectories(tomlGeneratorSettings, logger);
 
@@ -27,25 +27,25 @@ bool CodeGenManagerSettings::loadSettingsValues(toml::value const& tomlData, ILo
 	return false;
 }
 
-bool CodeGenManagerSettings::addToParseFile(fs::path const& path) noexcept
+bool CodeGenManagerSettings::addToProcessFile(fs::path const& path) noexcept
 {
 	fs::path sanitizedPath = FilesystemHelpers::sanitizePath(path);
 
 	if (!sanitizedPath.empty() && !fs::is_directory(sanitizedPath))
 	{
-		return _toParseFiles.emplace(std::move(sanitizedPath)).second;
+		return _toProcessFiles.emplace(std::move(sanitizedPath)).second;
 	}
 
 	return false;
 }
 
-bool CodeGenManagerSettings::addToParseDirectory(fs::path const& path) noexcept
+bool CodeGenManagerSettings::addToProcessDirectory(fs::path const& path) noexcept
 {
 	fs::path sanitizedPath = FilesystemHelpers::sanitizePath(path);
 
 	if (!sanitizedPath.empty() && fs::is_directory(sanitizedPath))
 	{
-		return _toParseDirectories.emplace(std::move(sanitizedPath)).second;
+		return _toProcessDirectories.emplace(std::move(sanitizedPath)).second;
 	}
 
 	return false;
@@ -89,14 +89,14 @@ bool CodeGenManagerSettings::addSupportedExtension(fs::path const& extension) no
 	return false;
 }
 
-void CodeGenManagerSettings::removeToParseFile(fs::path const& path) noexcept
+void CodeGenManagerSettings::removeToProcessFile(fs::path const& path) noexcept
 {
-	_toParseFiles.erase(FilesystemHelpers::sanitizePath(path));
+	_toProcessFiles.erase(FilesystemHelpers::sanitizePath(path));
 }
 
-void CodeGenManagerSettings::removeToParseDirectory(fs::path const& path) noexcept
+void CodeGenManagerSettings::removeToProcessDirectory(fs::path const& path) noexcept
 {
-	_toParseDirectories.erase(FilesystemHelpers::sanitizePath(path));
+	_toProcessDirectories.erase(FilesystemHelpers::sanitizePath(path));
 }
 
 void CodeGenManagerSettings::removeIgnoredFile(fs::path const& path) noexcept
@@ -114,14 +114,14 @@ void CodeGenManagerSettings::removeIgnoredDirectory(fs::path const& path) noexce
 	_ignoredDirectories.erase(FilesystemHelpers::sanitizePath(path));
 }
 
-void CodeGenManagerSettings::clearToParseFiles() noexcept
+void CodeGenManagerSettings::clearToProcessFiles() noexcept
 {
-	_toParseFiles.clear();
+	_toProcessFiles.clear();
 }
 
-void CodeGenManagerSettings::clearToParseDirectories() noexcept
+void CodeGenManagerSettings::clearToProcessDirectories() noexcept
 {
-	_toParseDirectories.clear();
+	_toProcessDirectories.clear();
 }
 
 void CodeGenManagerSettings::clearIgnoredFiles() noexcept
@@ -167,19 +167,19 @@ void CodeGenManagerSettings::loadSupportedExtensions(toml::value const& generati
 	}
 }
 
-void CodeGenManagerSettings::loadToParseFiles(toml::value const& generationSettings, ILogger* logger) noexcept
+void CodeGenManagerSettings::loadToProcessFiles(toml::value const& generationSettings, ILogger* logger) noexcept
 {
 	std::unordered_set<fs::path, PathHash> toParseFiles;
 
-	clearToParseFiles();
+	clearToProcessFiles();
 
-	if (TomlUtility::updateSetting(generationSettings, "toParseFiles", toParseFiles, logger))
+	if (TomlUtility::updateSetting(generationSettings, "toProcessFiles", toParseFiles, logger))
 	{
 		bool success;
 
 		for (fs::path const& path : toParseFiles)
 		{
-			success = addToParseFile(path);
+			success = addToProcessFile(path);
 
 			if (logger != nullptr)
 			{
@@ -196,19 +196,19 @@ void CodeGenManagerSettings::loadToParseFiles(toml::value const& generationSetti
 	}
 }
 
-void CodeGenManagerSettings::loadToParseDirectories(toml::value const& generationSettings, ILogger* logger) noexcept
+void CodeGenManagerSettings::loadToProcessDirectories(toml::value const& generationSettings, ILogger* logger) noexcept
 {
 	std::unordered_set<fs::path, PathHash> toParseDirectories;
 
-	clearToParseDirectories();
+	clearToProcessDirectories();
 
-	if (TomlUtility::updateSetting(generationSettings, "toParseDirectories", toParseDirectories, logger))
+	if (TomlUtility::updateSetting(generationSettings, "toProcessDirectories", toParseDirectories, logger))
 	{
 		bool success;
 
 		for (fs::path const& path : toParseDirectories)
 		{
-			success = addToParseDirectory(path);
+			success = addToProcessDirectory(path);
 
 			if (logger != nullptr)
 			{
@@ -283,14 +283,14 @@ void CodeGenManagerSettings::loadIgnoredDirectories(toml::value const& generatio
 	}
 }
 
-std::unordered_set<fs::path, PathHash> const& CodeGenManagerSettings::getToParseFiles() const noexcept
+std::unordered_set<fs::path, PathHash> const& CodeGenManagerSettings::getToProcessFiles() const noexcept
 {
-	return _toParseFiles;
+	return _toProcessFiles;
 }
 
-std::unordered_set<fs::path, PathHash> const& CodeGenManagerSettings::getToParseDirectories() const noexcept
+std::unordered_set<fs::path, PathHash> const& CodeGenManagerSettings::getToProcessDirectories() const noexcept
 {
-	return _toParseDirectories;
+	return _toProcessDirectories;
 }
 
 std::unordered_set<fs::path, PathHash> const& CodeGenManagerSettings::getIgnoredFiles() const noexcept

@@ -5,8 +5,6 @@ generatedFilesExtension = ".rfk.h"
 # List of supported extensions
 supportedExtensions		= [".h", ".hpp"]
 
-entityMacrosFilename	= "EntityMacros.h"
-
 # Files contained in the directories of this list will be parsed
 toParseDirectories		= [
 #	'''Path/To/Directory/To/Parse'''

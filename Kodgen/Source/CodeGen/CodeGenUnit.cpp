@@ -98,14 +98,14 @@ bool CodeGenUnit::isFileNewerThan(fs::path const& file, fs::path const& referenc
 
 bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 {
-	CodeGenEnv codeGenEnv;
-	return generateCodeInternal(parsingResult, codeGenEnv);
-}
+	CodeGenEnv* env = createCodeGenEnv();
+	
+	//If you assert/crash here, means the createCodeGenEnv method returned nullptr
+	//Check the implementation for the CodeGenUnit you use.
+	assert(env != nullptr);
 
-bool CodeGenUnit::generateCodeInternal(FileParsingResult const&	parsingResult, CodeGenEnv& env) noexcept
-{
 	//Pre-generation step
-	bool result = preGenerateCode(parsingResult, env);
+	bool result = preGenerateCode(parsingResult, *env);
 
 	//Generation step (per module/entity pair), runs only if the pre-generation step succeeded
 	if (result)
@@ -114,11 +114,23 @@ bool CodeGenUnit::generateCodeInternal(FileParsingResult const&	parsingResult, C
 		result &= foreachModuleEntityPair([](CodeGenModule& codeGenModule, EntityInfo const& entity, CodeGenUnit& codeGenUnit, CodeGenEnv& env)
 										  {
 											  return codeGenUnit.runCodeGenModuleOnEntity(codeGenModule, entity, env);
-										  }, env) != ETraversalBehaviour::AbortWithFailure;
+										  }, *env) != ETraversalBehaviour::AbortWithFailure;
+
+		//Post-generation step, runs only if both the pre-generation and generation steps succeeded
+		if (result)
+		{
+			result &= postGenerateCode(*env);
+		}
 	}
 
-	//Run post-generation step only if the the pre-generation and generation steps succeeded
-	return result ? postGenerateCode(env) : false;
+	delete env;
+
+	return result;
+}
+
+CodeGenEnv* CodeGenUnit::createCodeGenEnv() const noexcept
+{
+	return new CodeGenEnv();
 }
 
 bool CodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, CodeGenEnv& env) noexcept

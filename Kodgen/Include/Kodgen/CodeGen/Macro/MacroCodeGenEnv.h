@@ -8,8 +8,6 @@
 #pragma once
 
 #include <string>
-#include <array>
-#include <unordered_map>
 
 #include "Kodgen/CodeGen/CodeGenEnv.h"
 #include "Kodgen/CodeGen/Macro/ECodeGenLocation.h"
@@ -26,29 +24,11 @@ namespace kodgen
 		friend MacroCodeGenUnit;
 
 		private:
-			/** Separator used for each code location. */
-			static inline std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const	_separators
-			{
-				"\n",	//HeaderFileHeader is not wrapped inside a macro, so can use \n without breaking the code
-				"\\\n",	//ClassFooter is wrapped in a macro so must use \ to keep multiline generated code valid
-				"\\\n",	//HeaderFileFooter is wrapped in a macro so must use \ to keep multiline generated code valid
-				"\n"	//SourceFileHeader is not wrapped in a macro, so can use \n without breaking the code
-			};
-
-			/** String used internally by the MacroCodeGenUnit to avoid string memory reallocations for each entity iteration. */
-			std::string																_generatedCodeTmp;
-
-			/** Array containing the generated code per location. */
-			std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)>	_generatedCodePerLocation;
-
-			/** Map containing the class footer generated code for each struct/class. */
-			std::unordered_map<StructClassInfo const*, std::string>					_classFooterGeneratedCode;
-
 			/** Location the code should be generated in. */
-			ECodeGenLocation														_codeGenLocation	= ECodeGenLocation::Count;
+			ECodeGenLocation	_codeGenLocation	= ECodeGenLocation::Count;
 
 			/** Separator to use to split the generated code. */
-			std::string																_separator;
+			std::string			_separator;
 
 		public:
 			virtual ~MacroCodeGenEnv() = default;

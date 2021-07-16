@@ -25,7 +25,7 @@ void initCodeGenManagerSettings(fs::path const& workingDirectory, kodgen::CodeGe
 	fs::path generatedDirectory	= includeDirectory / "Generated";
 
 	//Parse WorkingDir/...
-	out_generatorSettings.addToParseDirectory(includeDirectory);
+	out_generatorSettings.addToProcessDirectory(includeDirectory);
 
 	//Ignore generated files...
 	out_generatorSettings.addIgnoredDirectory(generatedDirectory);

@@ -2,17 +2,18 @@
 
 #include "Kodgen/Config.h"
 #include "Kodgen/CodeGen/GeneratedFile.h"
-#include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.h"
 #include "Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h"
 #include "Kodgen/CodeGen/CodeGenHelpers.h"
 
 using namespace kodgen;
 
-bool MacroCodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
+std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const MacroCodeGenUnit::_separators =
 {
-	MacroCodeGenEnv codeGenEnv;
-	return generateCodeInternal(parsingResult, codeGenEnv);
-}
+	"\n",	//HeaderFileHeader is not wrapped inside a macro, so can use \n without breaking the code
+	"\\\n",	//ClassFooter is wrapped in a macro so must use \ to keep multiline generated code valid
+	"\\\n",	//HeaderFileFooter is wrapped in a macro so must use \ to keep multiline generated code valid
+	"\n"	//SourceFileHeader is not wrapped in a macro, so can use \n without breaking the code
+};
 
 ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& codeGenModule, EntityInfo const& entity, CodeGenEnv& env) noexcept
 {
@@ -23,10 +24,10 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& co
 	for (int i = 0u; i < static_cast<int>(ECodeGenLocation::Count); i++)
 	{
 		macroEnv._codeGenLocation = static_cast<ECodeGenLocation>(i);
-		macroEnv._separator = macroEnv._separators[i];
+		macroEnv._separator = _separators[i];
 
 		//Clear the temp string without deallocating underlying memory
-		macroEnv._generatedCodeTmp.clear();
+		_generatedCodeTmp.clear();
 
 		/**
 		*	Forward ECodeGenLocation::ClassFooter generation only if the entity is a
@@ -46,10 +47,10 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& co
 		}
 		else
 		{
-			result = CodeGenHelpers::combineTraversalBehaviours(codeGenModule.generateCode(&entity, env, macroEnv._generatedCodeTmp), result);
+			result = CodeGenHelpers::combineTraversalBehaviours(codeGenModule.generateCode(&entity, env, _generatedCodeTmp), result);
 
 			//Append the generated code to the string
-			macroEnv._generatedCodePerLocation[i] += macroEnv._generatedCodeTmp;
+			_generatedCodePerLocation[i] += _generatedCodeTmp;
 		}
 
 		//Abort the generation if the current result is AbortWithFailure
@@ -58,6 +59,11 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& co
 	}
 
 	return result;
+}
+
+MacroCodeGenEnv* MacroCodeGenUnit::createCodeGenEnv() const noexcept
+{
+	return new MacroCodeGenEnv();
 }
 
 bool MacroCodeGenUnit::postGenerateCode(CodeGenEnv& env) noexcept
@@ -81,16 +87,16 @@ void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) const noexcept
 	generatedHeader.writeLine("#include \"" + CodeGenUnitSettings::entityMacrosFilename.string() + "\"");
 
 	//Write header file header code
-	generatedHeader.writeLine(std::move(env._generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileHeader)]));
+	generatedHeader.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileHeader)]));
 
 	//Write all class footer macros
-	for (auto& [structInfo, generatedCode] : env._classFooterGeneratedCode)
+	for (auto& [structInfo, generatedCode] : _classFooterGeneratedCode)
 	{
 		generatedHeader.writeMacro(castSettings->getClassFooterMacro(*structInfo), std::move(generatedCode));
 	}
 
 	generatedHeader.writeMacro(castSettings->getHeaderFileFooterMacro(env.getFileParsingResult()->parsedFile),
-							   std::move(env._generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileFooter)]));
+							   std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileFooter)]));
 }
 
 void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) const noexcept
@@ -102,7 +108,7 @@ void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) const noexcept
 	//Include the header file
 	generatedSource.writeLine("#include \"" + env.getFileParsingResult()->parsedFile.string() + "\"\n");
 
-	generatedSource.writeLine(std::move(env._generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
+	generatedSource.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
 }
 
 bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
@@ -126,21 +132,21 @@ bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
 
 ETraversalBehaviour MacroCodeGenUnit::generateEntityClassFooterCode(CodeGenModule& codeGenModule, EntityInfo const& entity, MacroCodeGenEnv& env) noexcept
 {
-	ETraversalBehaviour result = codeGenModule.generateCode(&entity, env, env._generatedCodeTmp);
+	ETraversalBehaviour result = codeGenModule.generateCode(&entity, env, _generatedCodeTmp);
 
 	if (result != ETraversalBehaviour::AbortWithFailure)
 	{
 		//Append the generated code to the relevant string
 		if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
 		{
-			env._classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)] += env._generatedCodeTmp;
+			_classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)] += _generatedCodeTmp;
 		}
 		else
 		{
 			assert(entity.outerEntity != nullptr);
 			assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
 
-			env._classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)] += env._generatedCodeTmp;
+			_classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)] += _generatedCodeTmp;
 		}
 	}
 

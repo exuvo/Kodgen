@@ -123,7 +123,7 @@ namespace kodgen
 			CodeGenResult run(FileParserType&	fileParser,
 							  CodeGenUnitType&	codeGenUnit,
 							  bool				forceRegenerateAll	= false,
-							  uint32				threadCount		= 0)		noexcept;
+							  uint32			threadCount			= 0)		noexcept;
 	};
 
 	#include "Kodgen/CodeGen/CodeGenManager.inl"

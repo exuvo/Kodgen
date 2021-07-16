@@ -10,7 +10,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 	std::set<fs::path> result;
 
 	//Iterate over all "toParseFiles"
-	for (fs::path path : settings.getToParseFiles())
+	for (fs::path path : settings.getToProcessFiles())
 	{
 		if (fs::exists(path) && !fs::is_directory(path))
 		{
@@ -23,7 +23,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 				out_genResult.upToDateFiles.push_back(path);
 			}
 		}
-		else
+		else if (logger != nullptr)
 		{
 			//Add FileGenerationFile invalid path
 			logger->log("File " + path.string() + " found in FileGeneratorSettings::toParseFiles doesn't exist. Skip.", ILogger::ELogSeverity::Warning);
@@ -31,7 +31,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 	}
 
 	//Iterate over all "toParseDirectories"
-	for (fs::path pathToIncludedDir : settings.getToParseDirectories())
+	for (fs::path pathToIncludedDir : settings.getToProcessDirectories())
 	{
 		if (fs::exists(pathToIncludedDir) && fs::is_directory(pathToIncludedDir))
 		{
@@ -65,7 +65,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 				}
 			}
 		}
-		else
+		else if (logger != nullptr)
 		{
 			//Add FileGenerationFile invalid path
 			logger->log("Directory " + pathToIncludedDir.string() + " found in FileGeneratorSettings::toParseDirectories doesn't exist. Skip.", ILogger::ELogSeverity::Warning);
@@ -127,7 +127,7 @@ bool CodeGenManager::checkGenerationSetup(FileParser const& /* fileParser */, Co
 			!fs::is_empty(codeGenUnitSettings->getOutputDirectory()) &&											//abort check if the output directory contains no file
 			ignoredDirectories.find(codeGenUnitSettings->getOutputDirectory()) == ignoredDirectories.cend())	//abort check if the output directory is already ignored
 		{
-			for (fs::path const& parsedDirectory : settings.getToParseDirectories())
+			for (fs::path const& parsedDirectory : settings.getToProcessDirectories())
 			{
 				if (FilesystemHelpers::isChildPath(codeGenUnitSettings->getOutputDirectory(), parsedDirectory))
 				{

@@ -36,7 +36,7 @@ namespace kodgen
 			*	@brief	Delete all the registered generation modules. If they have been dynamically instantiated,
 			*			memory is released correctly.
 			*/
-			void clearGenerationModules()					noexcept;
+			void clearGenerationModules()	noexcept;
 
 		protected:
 			/** Settings used for code generation. */
@@ -59,20 +59,12 @@ namespace kodgen
 																 CodeGenEnv&		env)										noexcept	= 0;
 
 			/**
-			*	@brief	This default implementation defines the underlying generation flow.
-			*			It calls preGenerateCode, foreachModuleEntityPair, and postGenerateCode in that order.
-			*			If any of the previously mentioned method returns false, the generation aborts (next methods
-			*			will not be called).
-			*
-			*			ex: If preGenerateCode returns false, both foreachModuleEntityPair and postGenerateCode calls will be skipped.
-			*			
-			*	@param parsingResult	Result of a file parsing used to generate code.
-			*	@param env				Generation environment structure.
+			*	@brief	Instantiate a CodeGenEnv object (using new).
+			*			This method can be overriden to instantiate a child class of CodeGenEnv.
 			* 
-			*	@return true if preGenerateCode, foreachModuleEntityPair and postGenerateCode calls have succeeded, else false.
+			*	@return A dynamically instantiated (new) CodeGenEnv object used during the whole generation process.
 			*/
-			bool						generateCodeInternal(FileParsingResult const&	parsingResult,
-															 CodeGenEnv&				env)									noexcept;
+			virtual CodeGenEnv*			createCodeGenEnv()																const	noexcept;
 
 			/**
 			*	@brief	Called just before FileGenerationUnit::generateCodeInternal.
@@ -203,15 +195,6 @@ namespace kodgen
 			virtual bool				isUpToDate(fs::path const& sourceFile)			const	noexcept = 0;
 
 			/**
-			*	@brief Create a CodeGenEnv object (or derivate) and forward it to generateCodeInternal.
-			*
-			*	@param parsingResult Result of a file parsing used to generate the new file.
-			* 
-			*	@return false if the generation process was aborted prematurely because of any error, else true.
-			*/
-			virtual bool				generateCode(FileParsingResult const& parsingResult)	noexcept;
-
-			/**
 			*	@brief	Check whether all settings are setup correctly for this unit to work.
 			*			If output directory path is valid but doesn't exist yet, it is created.
 			*			This method is internally called by FileGenerator::generateFiles.
@@ -220,6 +203,19 @@ namespace kodgen
 			*			Note that the method will return false if the output directory failed to be created (only if it didn't exist).
 			*/
 			virtual bool				checkSettings()									const	noexcept;
+
+			/**
+			*	@brief	Calls preGenerateCode, foreachModuleEntityPair, and postGenerateCode in that order.
+			*			If any of the previously mentioned method returns false, the generation aborts (next methods
+			*			will not be called).
+			*
+			*			ex: If preGenerateCode returns false, both foreachModuleEntityPair and postGenerateCode calls will be skipped.
+			*			
+			*	@param parsingResult	Result of a file parsing used to generate code.
+			* 
+			*	@return true if preGenerateCode, foreachModuleEntityPair and postGenerateCode calls have succeeded, else false.
+			*/
+			bool						generateCode(FileParsingResult const& parsingResult)	noexcept;
 
 			/**
 			*	@brief Add a module to the internal list of generation modules.

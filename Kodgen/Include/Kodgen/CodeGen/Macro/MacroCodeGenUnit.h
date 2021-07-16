@@ -7,17 +7,33 @@
 
 #pragma once
 
+#include <string>
+#include <array>
+#include <unordered_map>
+
 #include "Kodgen/CodeGen/CodeGenUnit.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.h"
 
 namespace kodgen
 {
 	//Forward declaration
-	class	MacroCodeGenUnitSettings;
-	class	MacroCodeGenEnv;
+	class MacroCodeGenUnitSettings;
 
 	class MacroCodeGenUnit final : public CodeGenUnit
 	{
 		private:
+			/** Separator used for each code location. */
+			static std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const _separators;
+
+			/** String used internally by the MacroCodeGenUnit to avoid string memory reallocations for each entity iteration. */
+			std::string																_generatedCodeTmp;
+
+			/** Array containing the generated code per location. ClassFooter value is not used since code is generated in _classFooterGeneratedCode. */
+			std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)>	_generatedCodePerLocation;
+
+			/** Map containing the class footer generated code for each struct/class. */
+			std::unordered_map<StructClassInfo const*, std::string>					_classFooterGeneratedCode;
+			
 			/**
 			*	@brief Handle the code generation for class footer code gen location.
 			* 
@@ -48,6 +64,13 @@ namespace kodgen
 			virtual ETraversalBehaviour	runCodeGenModuleOnEntity(CodeGenModule&		codeGenModule,
 																 EntityInfo const&	entity,
 																 CodeGenEnv&		env)					noexcept	override;
+
+			/**
+			*	@brief	Instantiate a MacroCodeGenEnv object (using new).
+			* 
+			*	@return A dynamically instantiated (new) MacroCodeGenEnv object used during the whole generation process.
+			*/
+			virtual MacroCodeGenEnv*	createCodeGenEnv()											const	noexcept	override;
 
 			/**
 			*	@brief	Create/update the header and source files and fill them with the generated code.
@@ -102,15 +125,6 @@ namespace kodgen
 			*	@return true if the code generated for sourceFile is up-to-date, else false.
 			*/
 			virtual bool	isUpToDate(fs::path const& sourceFile)				const	noexcept	override;
-
-			/**
-			*	@brief Create a MacroCodeGenEnv object and forward it to generateCodeInternal.
-			*
-			*	@param parsingResult Result of a file parsing used to generate the new file.
-			* 
-			*	@return false if the generation process was aborted prematurely because of any error, else true.
-			*/
-			virtual bool	generateCode(FileParsingResult const&	parsingResult)		noexcept	override;
 
 			/**
 			*	@brief Setter for the inherited settings field with suitable derived settings class.
