@@ -45,7 +45,7 @@ namespace kodgen
 			/**
 			*	@brief	Execute the codeGenModule->generateCode method with the given entity and environment.
 			*			The method is made virtual pure to let the user control in which string the generated code should be appended.
-			*			The implementation is also free to run the module multiple times by altering the environment.
+			*			The implementation is also free to run the codeGenModule->generateCode method multiple times.
 			*
 			*	@param codeGenModule	Module calling the generateCode method.
 			*	@param entity			Target entity for this code generation pass.
@@ -67,7 +67,7 @@ namespace kodgen
 			virtual CodeGenEnv*			createCodeGenEnv()																const	noexcept;
 
 			/**
-			*	@brief	Called just before FileGenerationUnit::generateCodeInternal.
+			*	@brief	Called just before CodeGenUnit::foreachModuleEntityPair.
 			*			Perform all registered modules initialization and initialize CodeGenEnv fields (logger, FileParsingResult...).
 			*			The whole generation process is aborted if the method returns false.
 			*			/!\ Overrides MUST call this base implementation as well through CodeGenUnit::preGenerateCode(parsingResult, env) /!\
@@ -81,7 +81,7 @@ namespace kodgen
 														CodeGenEnv&					env)										noexcept;
 
 			/**
-			*	@brief	Called just after FileGenerationUnit::generateCodeInternal.
+			*	@brief	Called just after CodeGenUnit::foreachModuleEntityPair.
 			*			Can be used to perform any post-generation tasks or cleanup.
 			*			If the unit needs to write the generated code in files, this is typically here
 			*			that files are created and written to.

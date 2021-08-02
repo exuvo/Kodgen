@@ -163,7 +163,7 @@ fs::path MacroCodeGenUnit::getGeneratedSourceFilePath(fs::path const& sourceFile
 	return settings->getOutputDirectory() / static_cast<MacroCodeGenUnitSettings const*>(settings)->getGeneratedSourceFileName(sourceFile);
 }
 
-void MacroCodeGenUnit::setSettings(MacroCodeGenUnitSettings const* cguSettings) noexcept
+void MacroCodeGenUnit::setSettings(MacroCodeGenUnitSettings const& cguSettings) noexcept
 {
-	settings = cguSettings;
+	settings = &cguSettings;
 }

@@ -101,7 +101,7 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	CodeGenEnv* env = createCodeGenEnv();
 	
 	//If you assert/crash here, means the createCodeGenEnv method returned nullptr
-	//Check the implementation for the CodeGenUnit you use.
+	//Check the implementation in the CodeGenUnit you use.
 	assert(env != nullptr);
 
 	//Pre-generation step

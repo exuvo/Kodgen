@@ -129,6 +129,6 @@ namespace kodgen
 			/**
 			*	@brief Setter for the inherited settings field with suitable derived settings class.
 			*/
-			void			setSettings(MacroCodeGenUnitSettings const* cguSettings)	noexcept;
+			void			setSettings(MacroCodeGenUnitSettings const& cguSettings)	noexcept;
 	};
 }

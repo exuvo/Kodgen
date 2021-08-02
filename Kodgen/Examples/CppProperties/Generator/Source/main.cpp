@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 
 	kodgen::MacroCodeGenUnitSettings cguSettings;
 	initCodeGenUnitSettings(workingDirectory, cguSettings);
-	codeGenUnit.setSettings(&cguSettings);
+	codeGenUnit.setSettings(cguSettings);
 
 	//Add code generation modules
 	GetSetCGM getSetCodeGenModule;
