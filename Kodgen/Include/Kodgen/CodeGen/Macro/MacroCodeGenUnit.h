@@ -19,14 +19,14 @@ namespace kodgen
 	//Forward declaration
 	class MacroCodeGenUnitSettings;
 
+	/**
+	*	Used CodeGenEnv type: MacroCodeGenEnv
+	*/
 	class MacroCodeGenUnit final : public CodeGenUnit
 	{
 		private:
 			/** Separator used for each code location. */
 			static std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const _separators;
-
-			/** String used internally by the MacroCodeGenUnit to avoid string memory reallocations for each entity iteration. */
-			std::string																_generatedCodeTmp;
 
 			/** Array containing the generated code per location. ClassFooter value is not used since code is generated in _classFooterGeneratedCode. */
 			std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)>	_generatedCodePerLocation;

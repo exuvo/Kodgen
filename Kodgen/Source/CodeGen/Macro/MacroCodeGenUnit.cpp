@@ -26,9 +26,6 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& co
 		macroEnv._codeGenLocation = static_cast<ECodeGenLocation>(i);
 		macroEnv._separator = _separators[i];
 
-		//Clear the temp string without deallocating underlying memory
-		_generatedCodeTmp.clear();
-
 		/**
 		*	Forward ECodeGenLocation::ClassFooter generation only if the entity is a
 		*	struct, class, method or field
@@ -47,15 +44,12 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& co
 		}
 		else
 		{
-			result = CodeGenHelpers::combineTraversalBehaviours(codeGenModule.generateCode(&entity, env, _generatedCodeTmp), result);
-
-			//Append the generated code to the string
-			_generatedCodePerLocation[i] += _generatedCodeTmp;
+			result = CodeGenHelpers::combineTraversalBehaviours(codeGenModule.generateCode(&entity, env, _generatedCodePerLocation[i]), result);
 		}
 
 		//Abort the generation if the current result is AbortWithFailure
 		if (result == ETraversalBehaviour::AbortWithFailure)
-			return result;
+			break;
 	}
 
 	return result;
@@ -71,6 +65,14 @@ bool MacroCodeGenUnit::postGenerateCode(CodeGenEnv& env) noexcept
 	//Create generated header & generated source files
 	generateHeaderFile(static_cast<MacroCodeGenEnv&>(env));
 	generateSourceFile(static_cast<MacroCodeGenEnv&>(env));
+
+	//Cleanup variables used during generation so that they can be used again
+	_classFooterGeneratedCode.clear();
+
+	for (std::string& generatedCode : _generatedCodePerLocation)
+	{
+		generatedCode.clear();
+	}
 
 	return true;
 }
@@ -132,22 +134,20 @@ bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
 
 ETraversalBehaviour MacroCodeGenUnit::generateEntityClassFooterCode(CodeGenModule& codeGenModule, EntityInfo const& entity, MacroCodeGenEnv& env) noexcept
 {
-	ETraversalBehaviour result = codeGenModule.generateCode(&entity, env, _generatedCodeTmp);
+	ETraversalBehaviour result;
 
-	if (result != ETraversalBehaviour::AbortWithFailure)
+	if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
 	{
-		//Append the generated code to the relevant string
-		if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
-		{
-			_classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)] += _generatedCodeTmp;
-		}
-		else
-		{
-			assert(entity.outerEntity != nullptr);
-			assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
+		//If the entity is a struct/class, append to the footer of the struct/class
+		result = codeGenModule.generateCode(&entity, env, _classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)]);
+	}
+	else
+	{
+		assert(entity.outerEntity != nullptr);
+		assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
 
-			_classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)] += _generatedCodeTmp;
-		}
+		//If the entity is NOT a struct/class, append to the footer of the outer struct/class
+		result = codeGenModule.generateCode(&entity, env, _classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)]);
 	}
 
 	return result;
