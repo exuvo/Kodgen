@@ -60,19 +60,29 @@ MacroCodeGenEnv* MacroCodeGenUnit::createCodeGenEnv() const noexcept
 	return new MacroCodeGenEnv();
 }
 
+bool MacroCodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, CodeGenEnv& env) noexcept
+{
+	if (CodeGenUnit::preGenerateCode(parsingResult, env))
+	{
+		//Reset variables before the generation step begins
+		_classFooterGeneratedCode.clear();
+
+		for (std::string& generatedCode : _generatedCodePerLocation)
+		{
+			generatedCode.clear();
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
 bool MacroCodeGenUnit::postGenerateCode(CodeGenEnv& env) noexcept
 {
 	//Create generated header & generated source files
 	generateHeaderFile(static_cast<MacroCodeGenEnv&>(env));
 	generateSourceFile(static_cast<MacroCodeGenEnv&>(env));
-
-	//Cleanup variables used during generation so that they can be used again
-	_classFooterGeneratedCode.clear();
-
-	for (std::string& generatedCode : _generatedCodePerLocation)
-	{
-		generatedCode.clear();
-	}
 
 	return true;
 }

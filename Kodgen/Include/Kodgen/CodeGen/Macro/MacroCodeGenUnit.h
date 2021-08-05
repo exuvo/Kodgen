@@ -105,6 +105,17 @@ namespace kodgen
 			virtual MacroCodeGenEnv*	createCodeGenEnv()											const	noexcept	override;
 
 			/**
+			*	@brief Reset internally used variables to prepare the generation step.
+			* 
+			*	@param parsingResult	Result of a file parsing used to generate code.
+			*	@param env				Generation environment structure.
+			* 
+			*	@return true if the method completed successfully, else false.
+			*/
+			virtual bool				preGenerateCode(FileParsingResult const&	parsingResult,
+														CodeGenEnv&					env)					noexcept	override;
+
+			/**
 			*	@brief	Create/update the header and source files and fill them with the generated code.
 			* 
 			*	@param env				Generation environment structure.
