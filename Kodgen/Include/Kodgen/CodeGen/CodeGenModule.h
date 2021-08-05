@@ -86,7 +86,7 @@ namespace kodgen
 
 			/**
 			*	@brief	The generation order is a number defining in which order this module will generate code compared to other modules.
-			*			Modules with a low generation order will execute first, and modules a high generation order will execute last.
+			*			Modules with a low generation order will execute first, and modules with a high generation order will execute last.
 			*			Modules having the same generation order value will execute in an undefined order.
 			* 
 			*	@return The generation order for this module.

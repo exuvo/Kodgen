@@ -18,14 +18,12 @@ class GetSetCGM : public kodgen::MacroCodeGenModule
 			addPropertyCodeGen(_setPropertyCodeGen);
 		}
 
-		GetSetCGM(GetSetCGM const&)
+		GetSetCGM(GetSetCGM const&):
+			GetSetCGM() //Call the default constructor to add the copied instance its own property references
 		{
-			//The copy should use its own PropertyCodeGen instances
-			addPropertyCodeGen(_getPropertyCodeGen);
-			addPropertyCodeGen(_setPropertyCodeGen);
 		}
 
-		virtual ICloneable* clone() const noexcept override
+		virtual GetSetCGM* clone() const noexcept override
 		{
 			return new GetSetCGM(*this);
 		}
