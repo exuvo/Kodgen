@@ -128,9 +128,4 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 
 			return true;
 		}
-
-		virtual SetPropertyCodeGen* clone() const noexcept override
-		{
-			return new SetPropertyCodeGen(*this);
-		}
 };

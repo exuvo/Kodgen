@@ -11,13 +11,12 @@
 
 #include "Kodgen/Config.h"
 #include "Kodgen/Misc/FundamentalTypes.h"
-#include "Kodgen/Misc/ICloneable.h"
 #include "Kodgen/CodeGen/CodeGenEnv.h"
 #include "Kodgen/InfoStructures/EntityInfo.h"
 
 namespace kodgen
 {
-	class PropertyCodeGen : public ICloneable
+	class PropertyCodeGen
 	{
 		protected:
 			/**
