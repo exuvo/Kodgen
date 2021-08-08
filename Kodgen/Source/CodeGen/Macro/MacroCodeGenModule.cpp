@@ -97,6 +97,8 @@ ETraversalBehaviour MacroCodeGenModule::generateHeaderFileHeaderCode(EntityInfo 
 
 ETraversalBehaviour MacroCodeGenModule::generateClassFooterCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
+
+
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
@@ -113,13 +115,13 @@ ETraversalBehaviour MacroCodeGenModule::generateSourceFileHeaderCode(EntityInfo 
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-bool MacroCodeGenModule::preGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) noexcept
+bool MacroCodeGenModule::preGenerateCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */) noexcept
 {
 	//Default implementation does nothing
 	return true;
 }
 
-bool MacroCodeGenModule::postGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) noexcept
+bool MacroCodeGenModule::postGenerateCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */) noexcept
 {
 	//Default implementation does nothing
 	return true;

@@ -65,13 +65,13 @@ bool MacroPropertyCodeGen::generateSourceFileHeaderCode(EntityInfo const& /* ent
 	return true;
 }
 
-bool MacroPropertyCodeGen::preGenerateCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /*propertyIndex*/, CodeGenEnv& /*data*/) noexcept
+bool MacroPropertyCodeGen::preGenerateCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /* propertyIndex */, MacroCodeGenEnv& /* env */) noexcept
 {
 	//Default implementation generates no code
 	return true;
 }
 
-bool MacroPropertyCodeGen::postGenerateCode(EntityInfo const& /*entity*/, Property const& /*property*/, uint8 /*propertyIndex*/, CodeGenEnv& /*data*/) noexcept
+bool MacroPropertyCodeGen::postGenerateCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /* propertyIndex */, MacroCodeGenEnv& /* env */) noexcept
 {
 	//Default implementation generates no code
 	return true;

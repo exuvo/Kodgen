@@ -93,7 +93,7 @@ namespace kodgen
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
 			virtual bool				preGenerateCode(EntityInfo const*	entity,
-														CodeGenEnv&			env)						noexcept;
+														MacroCodeGenEnv&	env)						noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -106,7 +106,7 @@ namespace kodgen
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
 			virtual bool				postGenerateCode(EntityInfo const*	entity,
-														 CodeGenEnv&		env)						noexcept;
+														 MacroCodeGenEnv&	env)						noexcept;
 
 			/**
 			*	@brief Add a property code generator to this generation module.

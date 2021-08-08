@@ -99,7 +99,7 @@ namespace kodgen
 			virtual bool	preGenerateCode(EntityInfo const&	entity,
 											Property const&		property,
 											uint8				propertyIndex,
-											CodeGenEnv&			env)						noexcept;
+											MacroCodeGenEnv&	env)						noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -116,7 +116,7 @@ namespace kodgen
 			virtual bool	postGenerateCode(EntityInfo const&	entity,
 											 Property const&	property,
 											 uint8				propertyIndex,
-											 CodeGenEnv&		env)						noexcept;
+											 MacroCodeGenEnv&	env)						noexcept;
 
 		public:
 			/**
