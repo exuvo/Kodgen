@@ -17,17 +17,12 @@ namespace kodgen
 	{
 		public:
 			/**
-			*	This boolean is false if the output directory path is not defined, if the directory could not be created
-			*	or if the path is valid but doesn't point to a directory (i.e. points to a file, a link...), in which case
-			*	the file generation aborts immediately without performing any further operation.
-			*	In any other case, the boolean will be true.
-			*
-			*	Even if completed is true, errors might have happened during parsing and/or file generation.
-			*	Make sure to check logs.
+			*	This boolean is set to true if the whole generation process has been completed successfully,
+			*	and false otherwise. Make sure to check the logs to get some hints about the failure cause.
 			*/
 			bool					completed	= false;
 
-			/** Time elapsed to discover files to parse, parse, generate and collect results of all files. */
+			/** Time elapsed (in seconds) to discover files to parse, parse, generate and collect results of all files. */
 			float					duration	= 0.0f;
 
 			/** List of paths to files that have been parsed and got their metadata regenerated. */

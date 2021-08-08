@@ -2,8 +2,9 @@
 
 #include "Kodgen/Config.h"
 #include "Kodgen/InfoStructures/EntityInfo.h"
-#include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.h"
 #include "Kodgen/CodeGen/CodeGenHelpers.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.h"
+#include "Kodgen/CodeGen/Macro/MacroPropertyCodeGen.h"
 
 using namespace kodgen;
 
@@ -41,32 +42,37 @@ ETraversalBehaviour MacroCodeGenModule::generateCode(EntityInfo const* entity, C
 	switch (macroEnv.getCodeGenLocation())
 	{
 		case ECodeGenLocation::HeaderFileHeader:
-			//Property code gen are triggered AFTER MacroCodeGenModule::preGenerateCode has been called
-			result = preGenerateCode(entity, macroEnv);
-			result = CodeGenHelpers::combineTraversalBehaviours(result, generateHeaderFileHeaderCode(entity, macroEnv, inout_result));
+			if (preGenerateCode(entity, macroEnv))
+			{
+				//Run property code generators
+				result = CodeGenModule::generateCode(entity, env, inout_result);
 
-			//CodeGenModule::generateCode runs eligible property code generators if any
-			return CodeGenHelpers::combineTraversalBehaviours(result, CodeGenModule::generateCode(entity, env, inout_result));
+				return CodeGenHelpers::combineTraversalBehaviours(result, generateHeaderFileHeaderCode(entity, macroEnv, inout_result));
+			}
+			else
+			{
+				return ETraversalBehaviour::AbortWithFailure;
+			}
 
 		case ECodeGenLocation::ClassFooter:
-			result = generateClassFooterCode(entity, macroEnv, inout_result);
+			//Run property code generators
+			result = CodeGenModule::generateCode(entity, env, inout_result);
 
-			//CodeGenModule::generateCode runs eligible property code generators if any
-			return CodeGenHelpers::combineTraversalBehaviours(result, CodeGenModule::generateCode(entity, env, inout_result));
+			return CodeGenHelpers::combineTraversalBehaviours(result, generateClassFooterCode(entity, macroEnv, inout_result));
 
 		case ECodeGenLocation::HeaderFileFooter:
-			result = generateHeaderFileFooterCode(entity, macroEnv, inout_result);
+			result = CodeGenModule::generateCode(entity, env, inout_result);
 
 			//CodeGenModule::generateCode runs eligible property code generators if any
-			return CodeGenHelpers::combineTraversalBehaviours(result, CodeGenModule::generateCode(entity, env, inout_result));
+			return CodeGenHelpers::combineTraversalBehaviours(result, generateHeaderFileFooterCode(entity, macroEnv, inout_result));
 
 		case ECodeGenLocation::SourceFileHeader:
-			result = generateSourceFileHeaderCode(entity, macroEnv, inout_result);
+			result = CodeGenModule::generateCode(entity, env, inout_result);
 			
 			//Property code gen are triggered BEFORE calling MacroCodeGenModule::postGenerateCode
-			result = CodeGenHelpers::combineTraversalBehaviours(result, CodeGenModule::generateCode(entity, env, inout_result));
+			result = CodeGenHelpers::combineTraversalBehaviours(result, generateSourceFileHeaderCode(entity, macroEnv, inout_result));
 
-			return CodeGenHelpers::combineTraversalBehaviours(result, postGenerateCode(entity, macroEnv));
+			return (postGenerateCode(entity, macroEnv)) ? result : ETraversalBehaviour::AbortWithFailure;
 
 		case ECodeGenLocation::Count:
 			//Should never get here
@@ -107,14 +113,19 @@ ETraversalBehaviour MacroCodeGenModule::generateSourceFileHeaderCode(EntityInfo 
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::preGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /*data*/) const noexcept
+bool MacroCodeGenModule::preGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) const noexcept
 {
 	//Default implementation does nothing
-	return ETraversalBehaviour::Recurse;
+	return true;
 }
 
-ETraversalBehaviour MacroCodeGenModule::postGenerateCode(EntityInfo const* /*entity*/, CodeGenEnv& /*data*/) const noexcept
+bool MacroCodeGenModule::postGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) const noexcept
 {
 	//Default implementation does nothing
-	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
+	return true;
+}
+
+void MacroCodeGenModule::addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen) noexcept
+{
+	CodeGenModule::addPropertyCodeGen(propertyCodeGen);
 }

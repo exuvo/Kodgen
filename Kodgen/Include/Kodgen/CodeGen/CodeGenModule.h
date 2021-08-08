@@ -43,18 +43,18 @@ namespace kodgen
 
 		protected:
 			/**
-			*	@brief Add property rule to this generation module.
+			*	@brief Add a property code generator to this generation module.
 			* 
-			*	@param propertyRule PropertyRule to register.
+			*	@param propertyCodeGen PropertyCodeGen to register.
 			*/
-			void										addPropertyCodeGen(PropertyCodeGen& propertyRule)			noexcept;
+			void										addPropertyCodeGen(PropertyCodeGen& propertyCodeGen)			noexcept;
 
 			/**
-			*	@brief Remove a property rule from this generation module.
+			*	@brief Remove a property code generator from this generation module.
 			* 
-			*	@param propertyRule PropertyRule to unregister.
+			*	@param propertyCodeGen PropertyCodeGen to unregister.
 			*/
-			bool										removePropertyCodeGen(PropertyCodeGen const& propertyRule)	noexcept;
+			bool										removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen)	noexcept;
 
 		public:
 			virtual ~CodeGenModule() = default;

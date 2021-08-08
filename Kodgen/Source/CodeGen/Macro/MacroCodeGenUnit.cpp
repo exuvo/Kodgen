@@ -2,8 +2,9 @@
 
 #include "Kodgen/Config.h"
 #include "Kodgen/CodeGen/GeneratedFile.h"
-#include "Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h"
 #include "Kodgen/CodeGen/CodeGenHelpers.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenModule.h"
 
 using namespace kodgen;
 
@@ -171,6 +172,11 @@ fs::path MacroCodeGenUnit::getGeneratedHeaderFilePath(fs::path const& sourceFile
 fs::path MacroCodeGenUnit::getGeneratedSourceFilePath(fs::path const& sourceFile) const noexcept
 {
 	return settings->getOutputDirectory() / static_cast<MacroCodeGenUnitSettings const*>(settings)->getGeneratedSourceFileName(sourceFile);
+}
+
+void MacroCodeGenUnit::addModule(MacroCodeGenModule& generationModule) noexcept
+{
+	CodeGenUnit::addModule(generationModule);
 }
 
 void MacroCodeGenUnit::setSettings(MacroCodeGenUnitSettings const& cguSettings) noexcept

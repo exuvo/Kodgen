@@ -18,9 +18,10 @@ namespace kodgen
 {
 	//Forward declaration
 	class MacroCodeGenUnitSettings;
+	class MacroCodeGenModule;
 
 	/**
-	*	Used CodeGenEnv type: MacroCodeGenEnv
+	*	CodeGenEnv type: MacroCodeGenEnv
 	*/
 	class MacroCodeGenUnit final : public CodeGenUnit
 	{
@@ -34,6 +35,9 @@ namespace kodgen
 			/** Map containing the class footer generated code for each struct/class. */
 			std::unordered_map<StructClassInfo const*, std::string>					_classFooterGeneratedCode;
 			
+			//Make the addModule method taking a CodeGenModule private to replace it with a more restrictive method accepting MacroCodeGenModule only.
+			using CodeGenUnit::addModule;
+
 			/**
 			*	@brief Handle the code generation for class footer code gen location.
 			* 
@@ -136,6 +140,14 @@ namespace kodgen
 			*	@return true if the code generated for sourceFile is up-to-date, else false.
 			*/
 			virtual bool	isUpToDate(fs::path const& sourceFile)				const	noexcept	override;
+
+			/**
+			*	@brief	Add a module to the internal list of generation modules.
+			*			This method is a more restrictive replacement for the CodeGenUnit::addModule(CodeGenModule&) method.
+			* 
+			*	@param generationModule The generation module to add.
+			*/
+			void			addModule(MacroCodeGenModule& generationModule)				noexcept;
 
 			/**
 			*	@brief Setter for the inherited settings field with suitable derived settings class.

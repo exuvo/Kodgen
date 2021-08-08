@@ -21,14 +21,14 @@ bool CodeGenModule::initialize(CodeGenEnv& env) noexcept
 	return true;
 }
 
-void CodeGenModule::addPropertyCodeGen(PropertyCodeGen& propertyRule) noexcept
+void CodeGenModule::addPropertyCodeGen(PropertyCodeGen& propertyCodeGen) noexcept
 {
-	_propertyCodeGenerators.push_back(&propertyRule);
+	_propertyCodeGenerators.push_back(&propertyCodeGen);
 }
 
-bool CodeGenModule::removePropertyCodeGen(PropertyCodeGen const& propertyRule) noexcept
+bool CodeGenModule::removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen) noexcept
 {
-	auto it = std::find(_propertyCodeGenerators.cbegin(), _propertyCodeGenerators.cend(), &propertyRule);
+	auto it = std::find(_propertyCodeGenerators.cbegin(), _propertyCodeGenerators.cend(), &propertyCodeGen);
 
 	if (it != _propertyCodeGenerators.cend())
 	{

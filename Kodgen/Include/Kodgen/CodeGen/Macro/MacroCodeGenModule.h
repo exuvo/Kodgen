@@ -13,12 +13,17 @@ namespace kodgen
 {
 	//Forward declaration
 	class MacroCodeGenEnv;
+	class MacroPropertyCodeGen;
 
 	/**
 	*	Code generation module used with MacroCodeGenEnv environments.
 	*/
 	class MacroCodeGenModule : public CodeGenModule
 	{
+		private:
+			//Make the addPropertyCodeGen private to replace it with a more restrictive method accepting MacroPropertyCodeGen.
+			using CodeGenModule::addPropertyCodeGen;
+
 		protected:
 			/**
 			*	@brief Generate code in the header file header for the given entity.
@@ -85,12 +90,9 @@ namespace kodgen
 			*	@param entity	Entity to generate code for.
 			*	@param env		Generation environment structure.
 			* 
-			*	@return ETraversalBehaviour::Recurse.
-			*			This method is the only one returning something different than ETraversalBehaviour::Break to make sure that
-			*			any module inheriting from MacroCodeGenModule would iterate over all entities by default.
-			*			Overriding this method and modifying the returned value will change the default iteration behaviour of the module.
+			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
-			virtual ETraversalBehaviour	preGenerateCode(EntityInfo const*	entity,
+			virtual bool				preGenerateCode(EntityInfo const*	entity,
 														CodeGenEnv&			env)						const	noexcept;
 
 			/**
@@ -101,11 +103,17 @@ namespace kodgen
 			*	@param entity	Entity to generate code for.
 			*	@param env		Generation environment structure.
 			* 
-			*	@return The least prioritized ETraversalBehaviour value (ETraversalBehaviour::Break) to give the full control to
-			*			any defined override version returning a more prioritized ETraversalBehaviour.
+			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
-			virtual ETraversalBehaviour	postGenerateCode(EntityInfo const*	entity,
+			virtual bool				postGenerateCode(EntityInfo const*	entity,
 														 CodeGenEnv&		env)						const	noexcept;
+
+			/**
+			*	@brief Add a property code generator to this generation module.
+			* 
+			*	@param propertyCodeGen PropertyRule to register.
+			*/
+			void						addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen)				noexcept;
 
 		public:
 			virtual ~MacroCodeGenModule() = default;
