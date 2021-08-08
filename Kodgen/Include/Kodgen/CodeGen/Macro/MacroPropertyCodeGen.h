@@ -30,7 +30,7 @@ namespace kodgen
 														 Property const&	property,
 														 uint8				propertyIndex,
 														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	const	noexcept;
+														 std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Generate code in the class footer for the given entity.
@@ -48,7 +48,7 @@ namespace kodgen
 													Property const&		property,
 													uint8				propertyIndex,
 													MacroCodeGenEnv&	env,
-													std::string&		inout_result)		const	noexcept;
+													std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief Generate code in the header file footer for the given entity.
@@ -65,7 +65,7 @@ namespace kodgen
 														 Property const&	property,
 														 uint8				propertyIndex,
 														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	const	noexcept;
+														 std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief Generate code in the source file header for the given entity.
@@ -82,7 +82,7 @@ namespace kodgen
 														 Property const&	property,
 														 uint8				propertyIndex,
 														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	const	noexcept;
+														 std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Called just before calling generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -99,7 +99,7 @@ namespace kodgen
 			virtual bool	preGenerateCode(EntityInfo const&	entity,
 											Property const&		property,
 											uint8				propertyIndex,
-											CodeGenEnv&			env)						const	noexcept;
+											CodeGenEnv&			env)						noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -116,7 +116,7 @@ namespace kodgen
 			virtual bool	postGenerateCode(EntityInfo const&	entity,
 											 Property const&	property,
 											 uint8				propertyIndex,
-											 CodeGenEnv&		env)						const	noexcept;
+											 CodeGenEnv&		env)						noexcept;
 
 		public:
 			/**

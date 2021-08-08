@@ -28,7 +28,7 @@ class GetSetCGM : public kodgen::MacroCodeGenModule
 			return new GetSetCGM(*this);
 		}
 
-		virtual kodgen::ETraversalBehaviour generateHeaderFileHeaderCode(kodgen::EntityInfo const* /* entity */, kodgen::MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept override
+		virtual kodgen::ETraversalBehaviour generateHeaderFileHeaderCode(kodgen::EntityInfo const* /* entity */, kodgen::MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept override
 		{
 			return kodgen::ETraversalBehaviour::Recurse;
 		}

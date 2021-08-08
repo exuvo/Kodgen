@@ -52,7 +52,7 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 		}
 
 		virtual bool generateClassFooterCode(kodgen::EntityInfo const& entity, kodgen::Property const& /* property */, kodgen::uint8 /* propertyIndex */,
-											 kodgen::MacroCodeGenEnv& env, std::string& inout_result) const noexcept override
+											 kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
 
@@ -96,7 +96,7 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 		}
 
 		virtual bool generateSourceFileHeaderCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
-												  kodgen::MacroCodeGenEnv& env, std::string& inout_result) const noexcept override
+												  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
 

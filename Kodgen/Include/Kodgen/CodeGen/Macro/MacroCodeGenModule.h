@@ -37,7 +37,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateHeaderFileHeaderCode(EntityInfo const*	entity,
 																	 MacroCodeGenEnv&	env,
-																	 std::string&		inout_result)	const	noexcept;
+																	 std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Generate code in the class footer for the given entity.
@@ -52,7 +52,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateClassFooterCode(EntityInfo const*	entity,
 																MacroCodeGenEnv&	env,
-																std::string&		inout_result)		const	noexcept;
+																std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief Generate code in the header file footer for the given entity.
@@ -66,7 +66,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateHeaderFileFooterCode(EntityInfo const*	entity,
 																	 MacroCodeGenEnv&	env,
-																	 std::string&		inout_result)	const	noexcept;
+																	 std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief Generate code in the source file header for the given entity.
@@ -80,7 +80,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateSourceFileHeaderCode(EntityInfo const*	entity,
 																	 MacroCodeGenEnv&	env,
-																	 std::string&		inout_result)	const	noexcept;
+																	 std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Called just before calling generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -93,7 +93,7 @@ namespace kodgen
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
 			virtual bool				preGenerateCode(EntityInfo const*	entity,
-														CodeGenEnv&			env)						const	noexcept;
+														CodeGenEnv&			env)						noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -106,14 +106,14 @@ namespace kodgen
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
 			virtual bool				postGenerateCode(EntityInfo const*	entity,
-														 CodeGenEnv&		env)						const	noexcept;
+														 CodeGenEnv&		env)						noexcept;
 
 			/**
 			*	@brief Add a property code generator to this generation module.
 			* 
 			*	@param propertyCodeGen PropertyRule to register.
 			*/
-			void						addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen)				noexcept;
+			void						addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen)		noexcept;
 
 		public:
 			virtual ~MacroCodeGenModule() = default;

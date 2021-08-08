@@ -38,40 +38,40 @@ bool MacroPropertyCodeGen::generateCode(EntityInfo const& entity, Property const
 }
 
 bool MacroPropertyCodeGen::generateHeaderFileHeaderCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /* propertyIndex */,
-														MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+														MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return true;
 }
 
 bool MacroPropertyCodeGen::generateClassFooterCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /* propertyIndex */,
-												   MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+												   MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return true;
 }
 
 bool MacroPropertyCodeGen::generateHeaderFileFooterCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /* propertyIndex */,
-														MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+														MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return true;
 }
 
 bool MacroPropertyCodeGen::generateSourceFileHeaderCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /* propertyIndex */,
-														MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+														MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return true;
 }
 
-bool MacroPropertyCodeGen::preGenerateCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /*propertyIndex*/, CodeGenEnv& /*data*/) const noexcept
+bool MacroPropertyCodeGen::preGenerateCode(EntityInfo const& /* entity */, Property const& /* property */, uint8 /*propertyIndex*/, CodeGenEnv& /*data*/) noexcept
 {
 	//Default implementation generates no code
 	return true;
 }
 
-bool MacroPropertyCodeGen::postGenerateCode(EntityInfo const& /*entity*/, Property const& /*property*/, uint8 /*propertyIndex*/, CodeGenEnv& /*data*/) const noexcept
+bool MacroPropertyCodeGen::postGenerateCode(EntityInfo const& /*entity*/, Property const& /*property*/, uint8 /*propertyIndex*/, CodeGenEnv& /*data*/) noexcept
 {
 	//Default implementation generates no code
 	return true;

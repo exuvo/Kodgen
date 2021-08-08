@@ -89,37 +89,37 @@ ETraversalBehaviour MacroCodeGenModule::generateCode(EntityInfo const* entity, C
 	return ETraversalBehaviour::AbortWithFailure;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateHeaderFileHeaderCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+ETraversalBehaviour MacroCodeGenModule::generateHeaderFileHeaderCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateClassFooterCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+ETraversalBehaviour MacroCodeGenModule::generateClassFooterCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateHeaderFileFooterCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+ETraversalBehaviour MacroCodeGenModule::generateHeaderFileFooterCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateSourceFileHeaderCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) const noexcept
+ETraversalBehaviour MacroCodeGenModule::generateSourceFileHeaderCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-bool MacroCodeGenModule::preGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) const noexcept
+bool MacroCodeGenModule::preGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) noexcept
 {
 	//Default implementation does nothing
 	return true;
 }
 
-bool MacroCodeGenModule::postGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) const noexcept
+bool MacroCodeGenModule::postGenerateCode(EntityInfo const* /* entity */, CodeGenEnv& /* data */) noexcept
 {
 	//Default implementation does nothing
 	return true;
