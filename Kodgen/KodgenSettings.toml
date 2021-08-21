@@ -1,31 +1,28 @@
 [CodeGenManagerSettings]
-# Generated files will use this extension
-generatedFilesExtension = ".rfk.h"
-
 # List of supported extensions
-supportedExtensions		= [".h", ".hpp"]
+supportedExtensions = [".h", ".hpp"]
 
 # Files contained in the directories of this list will be parsed
-toParseDirectories		= [
+toProcessDirectories = [
 #	'''Path/To/Directory/To/Parse'''
 ]
 
 # Files to parse which are not included in any directory of toParseDirectories
-toParseFiles			= []
+toProcessFiles = []
 
 # Files contained in the directories of this list will be ignored
-ignoredDirectories		= [
+ignoredDirectories = [
 #	'''Path/To/Output/Dir''',
 #	'''Path/To/Directory/To/Ignore'''
 ]
 
 # Files not to parse which are not included in any directory of ignoredDirectories
-ignoredFiles			= []
+ignoredFiles = []
 
 
 [CodeGenUnitSettings]
 # Generated files will be located here
-outputDirectory			= '''Path/To/Output/Dir'''
+outputDirectory = '''Path/To/Output/Dir'''
 
 
 [ParsingSettings]
@@ -44,15 +41,19 @@ shouldAbortParsingOnFirstError = true
 # Should all entities be parsed whether they are tagged with the macro or not
 shouldParseAllEntities = false
 
+shouldLogDiagnostic = false
+
 propertySeparator = ","
 subPropertySeparator = ","
 subPropertyStartEncloser = "("
 subPropertyEndEncloser = ")"
 
 namespaceMacroName = "Namespace"
-classmacroName = "Class"
+classMacroName = "Class"
 structMacroName = "Struct"
+variableMacroName = "Variable"
 fieldMacroName = "Field"
+functionMacroName = "Function"
 methodMacroName = "Method"
 enumMacroName = "Enum"
-enumValueMacroName = "EnumVal"
+enumValueMacroName = "EnumValue"
