@@ -16,11 +16,15 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 	public:
 		virtual ~SetPropertyCodeGen() = default;
 
-		virtual bool generateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 propertyIndex,
-								  kodgen::CodeGenEnv& env, std::string& inout_result) noexcept override
+		virtual bool shouldGenerateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */) const noexcept override
+		{
+			return property.name == "Set" && entityTypeOverlap(entity.entityType, kodgen::EEntityType::Field);
+		}
+
+		virtual bool preGenerateCode(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
 			std::string errorMessage;
-			
+
 			//Check that Set property arguments are valid
 			if (property.arguments.size() > 1)
 			{
@@ -43,12 +47,7 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			}
 
 			//If arguments are valid, dispatch the generation call normally
-			return kodgen::MacroPropertyCodeGen::generateCode(entity, property, propertyIndex, env, inout_result);
-		}
-
-		virtual bool shouldGenerateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */) const noexcept override
-		{
-			return property.name == "Set" && entityTypeOverlap(entity.entityType, kodgen::EEntityType::Field);
+			return true;
 		}
 
 		virtual bool generateClassFooterCode(kodgen::EntityInfo const& entity, kodgen::Property const& /* property */, kodgen::uint8 /* propertyIndex */,

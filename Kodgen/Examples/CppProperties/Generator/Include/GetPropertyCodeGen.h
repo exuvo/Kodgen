@@ -21,8 +21,7 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return property.name == "Get" && entityTypeOverlap(entity.entityType, kodgen::EEntityType::Field);
 		}
 
-		virtual bool generateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 propertyIndex,
-								  kodgen::CodeGenEnv& env, std::string& inout_result) noexcept override
+		virtual bool preGenerateCode(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
 			std::string errorMessage;
 
@@ -57,7 +56,7 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			}
 
 			//If arguments are valid, dispatch the generation call normally
-			return kodgen::MacroPropertyCodeGen::generateCode(entity, property, propertyIndex, env, inout_result);
+			return true;
 		}
 
 		virtual bool generateClassFooterCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
