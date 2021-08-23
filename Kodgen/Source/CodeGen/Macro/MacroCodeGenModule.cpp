@@ -97,8 +97,6 @@ ETraversalBehaviour MacroCodeGenModule::generateHeaderFileHeaderCode(EntityInfo 
 
 ETraversalBehaviour MacroCodeGenModule::generateClassFooterCode(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
-
-
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }

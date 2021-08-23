@@ -44,9 +44,9 @@ shouldParseAllEntities = false
 shouldLogDiagnostic = false
 
 propertySeparator = ","
-subPropertySeparator = ","
-subPropertyStartEncloser = "("
-subPropertyEndEncloser = ")"
+argumentSeparator = ","
+argumentStartEncloser = "("
+argumentEndEncloser = ")"
 
 namespaceMacroName = "Namespace"
 classMacroName = "Class"

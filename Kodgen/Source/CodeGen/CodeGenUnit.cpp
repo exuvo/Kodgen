@@ -351,7 +351,7 @@ ETraversalBehaviour CodeGenUnit::foreachModuleEntityPairInEnum(EnumInfo const& e
 			return result;
 		}
 
-		//Iterate and execute the provided visitor function recursively on all nested entities
+		//Iterate and execute the provided visitor function recursively on all enum values
 		for (EnumValueInfo const& enumValue : enum_.enumValues)
 		{
 			result = visitor(*codeGenModule, enumValue, *this, env);

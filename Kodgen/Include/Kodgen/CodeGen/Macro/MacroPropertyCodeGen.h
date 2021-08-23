@@ -136,6 +136,6 @@ namespace kodgen
 										 Property const&	property,
 										 uint8				propertyIndex,
 										 CodeGenEnv&		env,
-										 std::string&		inout_result)	noexcept override;
+										 std::string&		inout_result)	noexcept override final;
 	};
 }

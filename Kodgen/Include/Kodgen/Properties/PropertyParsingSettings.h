@@ -50,7 +50,7 @@ namespace kodgen
 			std::string		enumMacroName			= "Enum";
 
 			/** Macro to use to attach properties to an enum value. */
-			std::string		enumValueMacroName		= "EnumVal";
+			std::string		enumValueMacroName		= "EnumValue";
 
 			/**
 			*	@brief Load all settings from the provided toml data.
