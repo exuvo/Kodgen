@@ -52,11 +52,6 @@ ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const* entity, CodeGe
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-int32 CodeGenModule::getGenerationOrder() const noexcept
-{
-	return 0u;
-}
-
 bool CodeGenModule::runPropertyCodeGenerators(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result) const noexcept
 {
 	Property const* currentProperty;

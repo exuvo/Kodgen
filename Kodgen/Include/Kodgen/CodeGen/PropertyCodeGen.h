@@ -10,13 +10,14 @@
 #include <string>
 
 #include "Kodgen/Config.h"
-#include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/CodeGen/CodeGenEnv.h"
+#include "Kodgen/CodeGen/ICodeGenOrderable.h"
+#include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/InfoStructures/EntityInfo.h"
 
 namespace kodgen
 {
-	class PropertyCodeGen
+	class PropertyCodeGen : public ICodeGenOrderable
 	{
 		protected:
 			/**

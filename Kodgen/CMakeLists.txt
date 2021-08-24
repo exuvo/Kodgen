@@ -61,6 +61,7 @@ add_library(${KodgenTargetLibrary}
 					Source/CodeGen/CodeGenManagerSettings.cpp
 					Source/CodeGen/CodeGenHelpers.cpp
 					Source/CodeGen/PropertyCodeGen.cpp
+					Source/CodeGen/ICodeGenOrderable.cpp
 
 					Source/CodeGen/Macro/MacroCodeGenUnit.cpp
 					Source/CodeGen/Macro/MacroPropertyCodeGen.cpp

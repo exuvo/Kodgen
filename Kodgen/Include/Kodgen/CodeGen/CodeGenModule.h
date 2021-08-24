@@ -10,8 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/Misc/ICloneable.h"
+#include "Kodgen/CodeGen/ICodeGenOrderable.h"
 #include "Kodgen/CodeGen/ETraversalBehaviour.h"
 
 namespace kodgen
@@ -21,8 +21,7 @@ namespace kodgen
 	class	CodeGenEnv;
 	class	EntityInfo;
 
-	//TODO: Add module dependency functionality?
-	class CodeGenModule : public ICloneable
+	class CodeGenModule : public ICloneable, public ICodeGenOrderable
 	{
 		private:
 			/** Collection of all property code generators attached to this module. */
@@ -83,15 +82,6 @@ namespace kodgen
 			virtual ETraversalBehaviour					generateCode(EntityInfo const*	entity,
 																	 CodeGenEnv&		env,
 																	 std::string&		inout_result)				noexcept;
-
-			/**
-			*	@brief	The generation order is a number defining in which order this module will generate code compared to other modules.
-			*			Modules with a low generation order will execute first, and modules with a high generation order will execute last.
-			*			Modules having the same generation order value will execute in an undefined order.
-			* 
-			*	@return The generation order for this module.
-			*/
-			virtual int32								getGenerationOrder()								const	noexcept;
 
 			/**
 			*	@brief Getter for _propertyRules field.
