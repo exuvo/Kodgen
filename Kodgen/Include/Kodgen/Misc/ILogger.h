@@ -28,7 +28,10 @@ namespace kodgen
 				Error
 			};
 
-			virtual ~ILogger() = default;
+			ILogger()					= default;
+			ILogger(ILogger const&)		= default;
+			ILogger(ILogger&&)			= default;
+			virtual ~ILogger()			= default;
 
 			/**
 			*	@brief Log a message.
@@ -38,5 +41,8 @@ namespace kodgen
 			*/
 			virtual void log(std::string const&	message,
 							 ELogSeverity		logSeverity = ELogSeverity::Info) noexcept = 0;
+
+			ILogger& operator=(ILogger const&)	= default;
+			ILogger& operator=(ILogger&&)		= default;
 	};
 }

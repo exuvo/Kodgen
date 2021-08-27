@@ -30,7 +30,10 @@ namespace kodgen
 											ILogger*			logger)		noexcept = 0;
 
 		public:
-			virtual ~Settings() = default;
+			Settings()					= default;
+			Settings(Settings const&)	= default;
+			Settings(Settings&&)		= default;
+			virtual ~Settings()			= default;
 
 			/**
 			*	@brief	Setup this object's member variables with the provided toml file.
@@ -43,5 +46,8 @@ namespace kodgen
 			*/
 			bool loadFromFile(fs::path const&	pathToSettingsFile,
 							  ILogger*			logger = nullptr)	noexcept;
+
+			Settings&	operator=(Settings const&)	= default;
+			Settings&	operator=(Settings&&)		= default;
 	};
 }

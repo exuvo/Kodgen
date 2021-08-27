@@ -47,5 +47,8 @@ namespace kodgen
 			*	@return true if this task has finished, else false.
 			*/
 			virtual bool	hasFinished()		const	noexcept = 0;
+
+			TaskBase& operator=(TaskBase const&)	= default;
+			TaskBase& operator=(TaskBase&&)			= default;
 	};
 }

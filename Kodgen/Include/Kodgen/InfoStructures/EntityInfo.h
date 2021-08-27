@@ -37,13 +37,10 @@ namespace kodgen
 			/** All properties bound to this entity. */
 			std::vector<Property>	properties;
 
-			EntityInfo()									= default;
+			EntityInfo()										= default;
 			EntityInfo(CXCursor const&			cursor,
 					   std::vector<Property>&&	propertyGroup,
 					   EEntityType				entityType)		noexcept;
-			EntityInfo(EntityInfo const&)					= default;
-			EntityInfo(EntityInfo&&)						= default;
-			~EntityInfo()									= default;
 
 			/**
 			*	@brief Generates the full name of this entity (with outer entities).

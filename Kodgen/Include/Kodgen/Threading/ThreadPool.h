@@ -90,6 +90,9 @@ namespace kodgen
 			*	@brief Join all workers.
 			*/
 			void						joinWorkers()													noexcept;
+
+			ThreadPool& operator=(ThreadPool const&)	= delete;
+			ThreadPool& operator=(ThreadPool&&)			= delete;
 	};
 
 	#include "Kodgen/Threading/ThreadPool.inl"

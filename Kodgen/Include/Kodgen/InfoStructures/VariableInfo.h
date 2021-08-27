@@ -28,11 +28,7 @@ namespace kodgen
 			/** Type of this variable. */
 			TypeInfo			type;
 
-			VariableInfo()										= default;
 			VariableInfo(CXCursor const&			cursor,
 						 std::vector<Property>&&	properties)	noexcept;
-			VariableInfo(VariableInfo const&)					= default;
-			VariableInfo(VariableInfo&&)						= default;
-			~VariableInfo()										= default;
 	};
 }

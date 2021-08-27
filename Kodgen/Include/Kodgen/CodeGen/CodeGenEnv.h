@@ -15,13 +15,6 @@ namespace kodgen
 	//Forward declaration
 	class CodeGenUnit;
 
-//======================== TEST
-
-	class CodeGenModule;
-	class PropertyCodeGen;
-
-//========================
-
 	class CodeGenEnv
 	{
 		//CodeGenUnit is the only class allowed to set the private fields directly.
@@ -51,12 +44,6 @@ namespace kodgen
 			*	@return _logger.
 			*/
 			inline ILogger*					getLogger()				const noexcept;
-
-//============== TEST
-
-
-
-//=========================
 	};
 
 	#include "Kodgen/CodeGen/CodeGenEnv.inl"

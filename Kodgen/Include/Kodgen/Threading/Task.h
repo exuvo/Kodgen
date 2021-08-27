@@ -42,6 +42,9 @@ namespace kodgen
 			virtual bool	isReadyToExecute()	const	noexcept override;
 			virtual void	execute()					noexcept override;
 			virtual bool	hasFinished()		const	noexcept override;
+
+			Task& operator=(Task const&)	= default;
+			Task& operator=(Task&&)			= default;
 	};
 
 	#include "Kodgen/Threading/Task.inl"

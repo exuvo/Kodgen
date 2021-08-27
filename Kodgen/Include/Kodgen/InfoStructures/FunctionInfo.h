@@ -51,12 +51,8 @@ namespace kodgen
 			/** Is this function static or not. */
 			bool isStatic	: 1;
 
-			FunctionInfo()										= default;
 			FunctionInfo(CXCursor const&			cursor,
 						 std::vector<Property>&&	properties)	noexcept;
-			FunctionInfo(FunctionInfo const&)					= default;
-			FunctionInfo(FunctionInfo&&)						= default;
-			~FunctionInfo()										= default;
 
 			/**
 			*	@brief Get the prototype of this function.

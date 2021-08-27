@@ -34,9 +34,6 @@ namespace kodgen
 			EnumInfo()										= default;
 			EnumInfo(CXCursor const&			cursor,
 					 std::vector<Property>&&	properties)	noexcept;
-			EnumInfo(EnumInfo const&)						= default;
-			EnumInfo(EnumInfo&&)							= default;
-			~EnumInfo()										= default;
 
 			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.

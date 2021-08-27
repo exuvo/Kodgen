@@ -41,12 +41,8 @@ namespace kodgen
 			/** Nested variables. */
 			std::vector<VariableInfo>		variables;
 
-			NamespaceInfo()										= default;
 			NamespaceInfo(CXCursor const&			cursor,
 						  std::vector<Property>&&	properties)	noexcept;
-			NamespaceInfo(NamespaceInfo const&)					= default;
-			NamespaceInfo(NamespaceInfo&&)						= default;
-			~NamespaceInfo()									= default;
 
 			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.

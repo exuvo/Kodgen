@@ -22,11 +22,7 @@ namespace kodgen
 			/** Access specifier of this nested struct/class. */
 			EAccessSpecifier				accessSpecifier;
 
-			NestedStructClassInfo()										= default;
 			NestedStructClassInfo(StructClassInfo&& base,
 								  EAccessSpecifier	accessSpecifier)	noexcept;
-			NestedStructClassInfo(NestedStructClassInfo const&)			= default;
-			NestedStructClassInfo(NestedStructClassInfo&&)				= default;
-			~NestedStructClassInfo()									= default;
 	};
 }

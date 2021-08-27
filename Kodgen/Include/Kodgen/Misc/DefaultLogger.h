@@ -36,8 +36,6 @@ namespace kodgen
 			virtual void logError(std::string const& message)	noexcept;
 
 		public:
-			virtual ~DefaultLogger() = default;
-
 			virtual void log(std::string const&	message,
 							 ELogSeverity		logSeverity = ELogSeverity::Info)	noexcept override;
 	};
