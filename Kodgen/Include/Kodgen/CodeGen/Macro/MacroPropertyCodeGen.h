@@ -120,7 +120,7 @@ namespace kodgen
 
 		public:
 			/**
-			*	TODO
+			*	@param eligibleEntityMask	A mask defining all the types of entity this MacroPropertyCodeGen instance should run on.
 			*/
 			MacroPropertyCodeGen(EEntityType eligibleEntityMask) noexcept;
 

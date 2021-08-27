@@ -26,31 +26,52 @@ namespace kodgen
 				Property const* property;
 			};
 
-			/** Mask containing defining the type of entities this generator can run on. */
+			/** Mask defining the type of entities this generator can run on. */
 			EEntityType	_eligibleEntityMask = EEntityType::Undefined;
 
 			/**
-			*	TODO
+			*	@brief	Call the visitor method once for each entity/property pair.
+			*			The forwarded data is a PropertyCodeGen::AdditionalData const*.
+			* 
+			*	@param entity	The entity provided to the visitor.
+			*	@param env		The environment provided to the visitor.
+			*	@param visitor	The visitor to run.
+			* 
+			*	@return	AbortWithFailure if any of the visitor calls returned AbortWithFailure;
+			*			Recurse if the entity can contain entities overlapping with the _eligibleEntityMask;
+			*			Continue if the entity doesn't contain any entities overlapping with the _eligibleEntityMask;
 			*/
-			virtual ETraversalBehaviour	generateCodeInterface(EntityInfo const&	entity, 
-															  CodeGenEnv&		env,
-															  std::string&		inout_result,
-															  void const*		data)											noexcept final override;
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
+															CodeGenEnv&											env,
+															std::function<ETraversalBehaviour(ICodeGenerator&,
+																							  EntityInfo const&,
+																							  CodeGenEnv&,
+																							  void const*)>		visitor)	noexcept final override;
 
 			/**
-			*	TODO
+			*	@brief	Generate code for the provided entity/environment pair.
+			*			Internally call the PropertyCodeGen::generateCode public method by unwrapping the data content.
+			* 
+			*	@param entity		The entity this generator should generate code for.
+			*	@param env			The generation environment structure.
+			*	@param inout_result	String the generated code should be appended to.
+			*	@param data			PropertyCodeGen::AdditionalData const* forwarded from PropertyCodeGen::callVisitorOnEntity.
+			* 
+			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour	generateCode(EntityInfo const&										entity,
-													 CodeGenEnv&											env,
-													 std::function<ETraversalBehaviour(ICodeGenerator&,
-																					   EntityInfo const&,
-																					   CodeGenEnv&,
-																					   void const*)>		visitor)			noexcept final override;
+			virtual ETraversalBehaviour	generateCode(EntityInfo const&	entity, 
+													 CodeGenEnv&		env,
+													 std::string&		inout_result,
+													 void const*		data)												noexcept final override;
 
 			/**
-			*	TODO
+			*	@brief	Determine whether this PropertyCodeGen should recurse on the provided entity children or not.
+			* 
+			*	@param entity The entity to check.
+			* 
+			*	@return true if the generator should run on the entity's children, else false.
 			*/
-			bool						shouldIterateOnNestedEntities(EntityInfo const& entity)							const	noexcept;
+			bool						shouldIterateOnNestedEntities(EntityInfo const& entity)						const	noexcept;
 
 		protected:
 			/**
@@ -64,6 +85,9 @@ namespace kodgen
 			static inline bool entityTypeOverlap(EEntityType lhs, EEntityType rhs)	noexcept;
 
 		public:
+			/**
+			*	@param eligibleEntityMask A mask defining all the types of entity this PropertyCodeGen instance should run on.
+			*/
 			PropertyCodeGen(EEntityType eligibleEntityMask)	noexcept;
 
 			/**

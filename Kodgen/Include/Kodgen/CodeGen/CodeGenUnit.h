@@ -21,7 +21,6 @@
 
 namespace kodgen
 {
-	//TODO: Standalone PropertyCodeGen list
 	class CodeGenUnit
 	{
 		private:
@@ -40,7 +39,14 @@ namespace kodgen
 			void				clearGenerationModules()																									noexcept;
 
 			/**
-			*	TODO
+			*	@brief	Visitor method called on each entity when CodeGenUnit::generateCode is called.
+			* 
+			*	@param codeGenerator	The code generator to run for the entity.
+			*	@param entity			The entity for which the generate generates code.
+			*	@param env				The environment structure.
+			*	@param data				Opaque data forwarded to the codeGenerator.generateCode call.
+			* 
+			*	@return A combined value of all the codeGenerator.generateCode calls.
 			*/
 			ETraversalBehaviour	generateCodeForEntityInternal(ICodeGenerator& codeGenerator, EntityInfo const& entity, CodeGenEnv& env, void const* data)	noexcept;
 

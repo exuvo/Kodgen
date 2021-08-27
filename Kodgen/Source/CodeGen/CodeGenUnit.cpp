@@ -134,7 +134,7 @@ ETraversalBehaviour	CodeGenUnit::generateCodeForEntityInternal(ICodeGenerator& c
 
 	auto generateLambda = [&result, &codeGenerator, &data](EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result)
 	{
-		result = CodeGenHelpers::combineTraversalBehaviours(result, codeGenerator.generateCodeInterface(entity, env, inout_result, data));
+		result = CodeGenHelpers::combineTraversalBehaviours(result, codeGenerator.generateCode(entity, env, inout_result, data));
 	};
 
 	//Result will be altered when generateLambda will be called from the CodeGenUnit::generateCodeForEntity override
@@ -232,14 +232,14 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPair(std::function<ETravers
 
 		for (VariableInfo const& variable : env.getFileParsingResult()->variables)
 		{
-			result = codeGenerator->generateCode(variable, env, visitor);
+			result = codeGenerator->callVisitorOnEntity(variable, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
 
 		for (FunctionInfo const& function : env.getFileParsingResult()->functions)
 		{
-			result = codeGenerator->generateCode(function, env, visitor);
+			result = codeGenerator->callVisitorOnEntity(function, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
@@ -254,7 +254,7 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInNamespace(ICodeGenera
 	assert(visitor != nullptr);
 
 	//Execute the visitor function on the current namespace
-	ETraversalBehaviour result = codeGenerator.generateCode(namespace_, env, visitor);
+	ETraversalBehaviour result = codeGenerator.callVisitorOnEntity(namespace_, env, visitor);
 
 	if (result != ETraversalBehaviour::Recurse)
 	{
@@ -292,14 +292,14 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInNamespace(ICodeGenera
 
 	for (VariableInfo const& variable : namespace_.variables)
 	{
-		result = codeGenerator.generateCode(variable, env, visitor);
+		result = codeGenerator.callVisitorOnEntity(variable, env, visitor);
 
 		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
 
 	for (FunctionInfo const& function : namespace_.functions)
 	{
-		result = codeGenerator.generateCode(function, env, visitor);
+		result = codeGenerator.callVisitorOnEntity(function, env, visitor);
 
 		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
@@ -313,7 +313,7 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInStruct(ICodeGenerator
 	assert(visitor != nullptr);
 
 	//Execute the visitor function on the current struct/class
-	ETraversalBehaviour result = codeGenerator.generateCode(struct_, env, visitor);
+	ETraversalBehaviour result = codeGenerator.callVisitorOnEntity(struct_, env, visitor);
 
 	if (result != ETraversalBehaviour::Recurse)
 	{
@@ -344,14 +344,14 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInStruct(ICodeGenerator
 
 	for (FieldInfo const& field : struct_.fields)
 	{
-		result = codeGenerator.generateCode(field, env, visitor);
+		result = codeGenerator.callVisitorOnEntity(field, env, visitor);
 
 		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
 
 	for (MethodInfo const& method : struct_.methods)
 	{
-		result = codeGenerator.generateCode(method, env, visitor);
+		result = codeGenerator.callVisitorOnEntity(method, env, visitor);
 
 		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
@@ -365,7 +365,7 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInEnum(ICodeGenerator& 
 	assert(visitor != nullptr);
 
 	//Execute the visitor function on the current enum
-	ETraversalBehaviour result = codeGenerator.generateCode(enum_, env, visitor);
+	ETraversalBehaviour result = codeGenerator.callVisitorOnEntity(enum_, env, visitor);
 
 	if (result != ETraversalBehaviour::Recurse)
 	{
@@ -375,7 +375,7 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInEnum(ICodeGenerator& 
 	//Iterate and execute the provided visitor function recursively on all enum values
 	for (EnumValueInfo const& enumValue : enum_.enumValues)
 	{
-		result = codeGenerator.generateCode(enumValue, env, visitor);
+		result = codeGenerator.callVisitorOnEntity(enumValue, env, visitor);
 
 		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}

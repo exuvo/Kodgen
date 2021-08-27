@@ -28,22 +28,37 @@ namespace kodgen
 			std::vector<PropertyCodeGen*>	_propertyCodeGenerators;
 
 			/**
-			*	TODO
+			*	@brief	Call the visitor method with the provided entity/env pair.
+			*			The forwarded data is always nullptr.
+			* 
+			*	@param entity	The entity provided to the visitor.
+			*	@param env		The environment provided to the visitor.
+			*	@param visitor	The visitor to run.
+			* 
+			*	@return	The value returned from the visitor call.
 			*/
-			virtual ETraversalBehaviour generateCodeInterface(EntityInfo const&	entity,
-															  CodeGenEnv&		env,
-															  std::string&		inout_result,
-															  void const*		data)							noexcept final override;
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
+															CodeGenEnv&											env,
+															std::function<ETraversalBehaviour(ICodeGenerator&,
+																							  EntityInfo const&,
+																							  CodeGenEnv&,
+																							  void const*)>		visitor)	noexcept final override;
 
 			/**
-			*	TODO
+			*	@brief	Generate code for the provided entity/environment pair.
+			*			Internally call the PropertyCodeGen::generateCode public method.
+			* 
+			*	@param entity		The entity this generator should generate code for.
+			*	@param env			The generation environment structure.
+			*	@param inout_result	String the generated code should be appended to.
+			*	@param data			nullptr.
+			* 
+			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour generateCode(EntityInfo const&	entity,
+			virtual ETraversalBehaviour	generateCode(EntityInfo const&	entity, 
 													 CodeGenEnv&		env,
-													 std::function<ETraversalBehaviour(ICodeGenerator&,
-																					   EntityInfo const&,
-																					   CodeGenEnv&,
-																					   void const*)> visitor)	noexcept final override;
+													 std::string&		inout_result,
+													 void const*		data)												noexcept final override;
 
 		protected:
 			/**

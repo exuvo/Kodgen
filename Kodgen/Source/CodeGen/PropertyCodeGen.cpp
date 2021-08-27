@@ -37,7 +37,7 @@ bool PropertyCodeGen::shouldIterateOnNestedEntities(EntityInfo const& entity) co
 	}
 }
 
-ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const& entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
+ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
 
@@ -65,7 +65,7 @@ ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const& entity, Code
 	return shouldIterateOnNestedEntities(entity) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::Continue;
 }
 
-ETraversalBehaviour PropertyCodeGen::generateCodeInterface(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
+ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
 {
 	AdditionalData const* additionalData = reinterpret_cast<AdditionalData const*>(data);
 
