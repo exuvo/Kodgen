@@ -11,14 +11,47 @@
 
 #include "Kodgen/Config.h"
 #include "Kodgen/CodeGen/CodeGenEnv.h"
-#include "Kodgen/CodeGen/ICodeGenOrderable.h"
+#include "Kodgen/CodeGen/ICodeGenerator.h"
 #include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/InfoStructures/EntityInfo.h"
 
 namespace kodgen
 {
-	class PropertyCodeGen : public ICodeGenOrderable
+	class PropertyCodeGen : public ICodeGenerator
 	{
+		private:
+			struct AdditionalData
+			{
+				uint8			propertyIndex;
+				Property const* property;
+			};
+
+			/** Mask containing defining the type of entities this generator can run on. */
+			EEntityType	_eligibleEntityMask = EEntityType::Undefined;
+
+			/**
+			*	TODO
+			*/
+			virtual ETraversalBehaviour	generateCodeInterface(EntityInfo const&	entity, 
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)											noexcept final override;
+
+			/**
+			*	TODO
+			*/
+			virtual ETraversalBehaviour	generateCode(EntityInfo const&										entity,
+													 CodeGenEnv&											env,
+													 std::function<ETraversalBehaviour(ICodeGenerator&,
+																					   EntityInfo const&,
+																					   CodeGenEnv&,
+																					   void const*)>		visitor)			noexcept final override;
+
+			/**
+			*	TODO
+			*/
+			bool						shouldIterateOnNestedEntities(EntityInfo const& entity)							const	noexcept;
+
 		protected:
 			/**
 			*	@brief Check if 2 entity types masks have at least one common entity type.
@@ -31,7 +64,7 @@ namespace kodgen
 			static inline bool entityTypeOverlap(EEntityType lhs, EEntityType rhs)	noexcept;
 
 		public:
-			virtual ~PropertyCodeGen() = default;
+			PropertyCodeGen(EEntityType eligibleEntityMask)	noexcept;
 
 			/**
 			*	@brief Generate code for a given entity.

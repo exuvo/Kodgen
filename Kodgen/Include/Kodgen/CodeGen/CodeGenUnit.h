@@ -8,6 +8,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>	//std::function
 
 #include "Kodgen/Parsing/ParsingResults/FileParsingResult.h"
 #include "Kodgen/CodeGen/ETraversalBehaviour.h"
@@ -36,7 +37,12 @@ namespace kodgen
 			*	@brief	Delete all the registered generation modules. If they have been dynamically instantiated,
 			*			memory is released correctly.
 			*/
-			void clearGenerationModules()	noexcept;
+			void				clearGenerationModules()																									noexcept;
+
+			/**
+			*	TODO
+			*/
+			ETraversalBehaviour	generateCodeForEntityInternal(ICodeGenerator& codeGenerator, EntityInfo const& entity, CodeGenEnv& env, void const* data)	noexcept;
 
 		protected:
 			/** Settings used for code generation. */
@@ -54,9 +60,9 @@ namespace kodgen
 			*	@return An EIterationResult instructing how the entity traversal should continue (see the EIterationResult documentation for more info).
 			*			The result of the codeGenModule->generateCode() call can be forwarded in most cases to let the module control the flow of the traversal.
 			*/
-			virtual ETraversalBehaviour	runCodeGenModuleOnEntity(CodeGenModule&		codeGenModule,
-																 EntityInfo const&	entity,
-																 CodeGenEnv&		env)										noexcept	= 0;
+			virtual void			generateCodeForEntity(EntityInfo const&													entity,
+														  CodeGenEnv&														env,
+														  std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)>	generate)	noexcept	= 0;
 
 			/**
 			*	@brief	Instantiate a CodeGenEnv object (using new).
@@ -64,7 +70,7 @@ namespace kodgen
 			* 
 			*	@return A dynamically instantiated (new) CodeGenEnv object used during the whole generation process.
 			*/
-			virtual CodeGenEnv*			createCodeGenEnv()																const	noexcept;
+			virtual CodeGenEnv*		createCodeGenEnv()																	const	noexcept;
 
 			/**
 			*	@brief	Called just before CodeGenUnit::foreachModuleEntityPair.
@@ -77,8 +83,8 @@ namespace kodgen
 			* 
 			*	@return true if the method completed successfully, else false.
 			*/
-			virtual bool				preGenerateCode(FileParsingResult const&	parsingResult,
-														CodeGenEnv&					env)										noexcept;
+			virtual bool			preGenerateCode(FileParsingResult const&	parsingResult,
+													CodeGenEnv&					env)											noexcept;
 
 			/**
 			*	@brief	Called just after CodeGenUnit::foreachModuleEntityPair.
@@ -90,7 +96,7 @@ namespace kodgen
 			* 
 			*	@return true if the method completed successfully, else false.
 			*/
-			virtual bool				postGenerateCode(CodeGenEnv&	env)													noexcept;
+			virtual bool			postGenerateCode(CodeGenEnv& env)															noexcept;
 
 			/**
 			*	@brief Iterate and execute recursively a visitor function on each parsed entity/registered module pair.
@@ -102,11 +108,11 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithSuccess if the traversal was aborted prematurely without error.
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
-			ETraversalBehaviour			foreachModuleEntityPair(ETraversalBehaviour	(*visitor)(CodeGenModule&,
+			ETraversalBehaviour		foreachCodeGenEntityPair(std::function<ETraversalBehaviour(ICodeGenerator&,
 																							   EntityInfo const&,
-																							   CodeGenUnit&,
-																							   CodeGenEnv&),
-																CodeGenEnv&			env)										noexcept;
+																							   CodeGenEnv&,
+																							   void const*)>		visitor,
+															 CodeGenEnv&											env)		noexcept;
 
 			/**
 			*	@brief	Iterate and execute recursively a visitor function on a namespace and
@@ -120,12 +126,13 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithSuccess if the traversal was aborted prematurely without error.
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
-			ETraversalBehaviour			foreachModuleEntityPairInNamespace(NamespaceInfo const&	namespace_,
-																		   ETraversalBehaviour	(*visitor)(CodeGenModule&,
-																										   EntityInfo const&,
-																										   CodeGenUnit&,
-																										   CodeGenEnv&),
-																		   CodeGenEnv&			env)							noexcept;
+			ETraversalBehaviour			foreachCodeGenEntityPairInNamespace(ICodeGenerator&										codeGenerator,
+																			NamespaceInfo const&								namespace_,
+																			CodeGenEnv&											env,
+																			std::function<ETraversalBehaviour(ICodeGenerator&,
+																											  EntityInfo const&,
+																											  CodeGenEnv&,
+																											  void const*)>		visitor)		noexcept;
 
 			/**
 			*	@brief	Iterate and execute recursively a visitor function on a struct or class and
@@ -139,12 +146,13 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithSuccess if the traversal was aborted prematurely without error.
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
-			ETraversalBehaviour			foreachModuleEntityPairInStruct(StructClassInfo const&	struct_,
-																		ETraversalBehaviour		(*visitor)(CodeGenModule&,
-																										   EntityInfo const&,
-																										   CodeGenUnit&,
-																										   CodeGenEnv&),
-																		CodeGenEnv&				env)							noexcept;
+			ETraversalBehaviour			foreachCodeGenEntityPairInStruct(ICodeGenerator&										codeGenerator,
+																		 StructClassInfo const&									struct_,
+																		 CodeGenEnv&											env,
+																		 std::function<ETraversalBehaviour(ICodeGenerator&,
+																		 								   EntityInfo const&,
+																		 								   CodeGenEnv&,
+																		 								   void const*)>		visitor)		noexcept;
 
 			/**
 			*	@brief Iterate and execute recursively a visitor function on an enum and all its nested entities.
@@ -157,12 +165,13 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithSuccess if the traversal was aborted prematurely without error.
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
-			ETraversalBehaviour			foreachModuleEntityPairInEnum(EnumInfo const&		enum_,
-																	  ETraversalBehaviour	(*visitor)(CodeGenModule&,
-																									   EntityInfo const&,
-																									   CodeGenUnit&,
-																									   CodeGenEnv&),
-																	  CodeGenEnv&			env)								noexcept;
+			ETraversalBehaviour			foreachCodeGenEntityPairInEnum(ICodeGenerator&										codeGenerator,
+																	   EnumInfo const&										enum_,
+																	   CodeGenEnv&											env,
+																	   std::function<ETraversalBehaviour(ICodeGenerator&,
+																										 EntityInfo const&,
+																										 CodeGenEnv&,
+																										 void const*)>		visitor)			noexcept;
 
 			/**
 			*	@brief Check if file last write time is newer than reference file last write time.

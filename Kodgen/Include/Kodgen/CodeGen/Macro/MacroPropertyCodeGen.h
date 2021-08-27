@@ -120,6 +120,11 @@ namespace kodgen
 
 		public:
 			/**
+			*	TODO
+			*/
+			MacroPropertyCodeGen(EEntityType eligibleEntityMask) noexcept;
+
+			/**
 			*	@brief	Generate code for a given entity.
 			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
 			*			and dispatch the call to the relevant method.

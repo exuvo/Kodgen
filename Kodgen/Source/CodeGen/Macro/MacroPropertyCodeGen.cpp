@@ -4,6 +4,11 @@
 
 using namespace kodgen;
 
+MacroPropertyCodeGen::MacroPropertyCodeGen(EEntityType eligibleEntityMask) noexcept:
+	PropertyCodeGen(eligibleEntityMask)
+{
+}
+
 bool MacroPropertyCodeGen::generateCode(EntityInfo const& entity, Property const& property, uint8 propertyIndex, CodeGenEnv& env, std::string& inout_result) noexcept
 {
 	MacroCodeGenEnv& macroData = static_cast<MacroCodeGenEnv&>(env);

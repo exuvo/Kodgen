@@ -1,5 +1,8 @@
 #include "Kodgen/CodeGen/CodeGenUnit.h"
 
+#include "Kodgen/CodeGen/CodeGenHelpers.h"
+#include "Kodgen/CodeGen/PropertyCodeGen.h"
+
 #define HANDLE_NESTED_ENTITY_ITERATION_RESULT(result)																\
 	if (result == ETraversalBehaviour::Break)																		\
 	{																												\
@@ -111,10 +114,7 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	if (result)
 	{
 		//Generation step: iterate over each module and entity and generate code
-		result &= foreachModuleEntityPair([](CodeGenModule& codeGenModule, EntityInfo const& entity, CodeGenUnit& codeGenUnit, CodeGenEnv& env)
-										  {
-											  return codeGenUnit.runCodeGenModuleOnEntity(codeGenModule, entity, env);
-										  }, *env) != ETraversalBehaviour::AbortWithFailure;
+		result &= foreachCodeGenEntityPair(std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), *env) != ETraversalBehaviour::AbortWithFailure;
 
 		//Post-generation step, runs only if both the pre-generation and generation steps succeeded
 		if (result)
@@ -124,6 +124,21 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	}
 
 	delete env;
+
+	return result;
+}
+
+ETraversalBehaviour	CodeGenUnit::generateCodeForEntityInternal(ICodeGenerator& codeGenerator, EntityInfo const& entity, CodeGenEnv& env, void const* data) noexcept
+{
+	ETraversalBehaviour result = CodeGenHelpers::leastPrioritizedTraversalBehaviour;
+
+	auto generateLambda = [&result, &codeGenerator, &data](EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result)
+	{
+		result = CodeGenHelpers::combineTraversalBehaviours(result, codeGenerator.generateCodeInterface(entity, env, inout_result, data));
+	};
+
+	//Result will be altered when generateLambda will be called from the CodeGenUnit::generateCodeForEntity override
+	generateCodeForEntity(entity, env, generateLambda);
 
 	return result;
 }
@@ -156,55 +171,75 @@ bool CodeGenUnit::postGenerateCode(CodeGenEnv& /* env */) noexcept
 	//Default implementation does nothing
 	return true;
 }
-
-ETraversalBehaviour CodeGenUnit::foreachModuleEntityPair(ETraversalBehaviour (*visitor)(CodeGenModule&, EntityInfo const&, CodeGenUnit&, CodeGenEnv&),
-											   CodeGenEnv& env) noexcept
+ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPair(std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor, CodeGenEnv& env) noexcept
 {
 	assert(visitor != nullptr);
 
+	//=========================================
+	//=========================================
+	//=========================================
+	//TODO: Fill codeGenerators here (must be sorted by crescent generation order)
+	
+	std::vector<ICodeGenerator*> codeGenerators;
+
+	for (CodeGenModule* codeGenModule : _generationModules)
+	{
+		//TODO: Add them sorted by generation order
+		codeGenerators.push_back(codeGenModule);
+
+		for (PropertyCodeGen* propertyCodeGen : codeGenModule->getPropertyCodeGenerators())
+		{
+			codeGenerators.push_back(propertyCodeGen);
+		}
+	}
+
+	//=========================================
+	//=========================================
+	//=========================================
+
 	ETraversalBehaviour result;
 
-	//Call visitor on all possible generation module/entity pair
-	for (CodeGenModule* codeGenModule : _generationModules)
+	//Call visitor on all code generators
+	for (ICodeGenerator* codeGenerator : codeGenerators)
 	{
 		for (NamespaceInfo const& namespace_ : env.getFileParsingResult()->namespaces)
 		{
-			result = foreachModuleEntityPairInNamespace(namespace_, visitor, env);
+			result = foreachCodeGenEntityPairInNamespace(*codeGenerator, namespace_, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
 
 		for (StructClassInfo const& struct_ : env.getFileParsingResult()->structs)
 		{
-			result = foreachModuleEntityPairInStruct(struct_, visitor, env);
+			result = foreachCodeGenEntityPairInStruct(*codeGenerator, struct_, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
 
 		for (StructClassInfo const& class_ : env.getFileParsingResult()->classes)
 		{
-			result = foreachModuleEntityPairInStruct(class_, visitor, env);
+			result = foreachCodeGenEntityPairInStruct(*codeGenerator, class_, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
 
 		for (EnumInfo const& enum_ : env.getFileParsingResult()->enums)
 		{
-			result = foreachModuleEntityPairInEnum(enum_, visitor, env);
+			result = foreachCodeGenEntityPairInEnum(*codeGenerator, enum_, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
 
 		for (VariableInfo const& variable : env.getFileParsingResult()->variables)
 		{
-			result = visitor(*codeGenModule, variable, *this, env);
+			result = codeGenerator->generateCode(variable, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
 
 		for (FunctionInfo const& function : env.getFileParsingResult()->functions)
 		{
-			result = visitor(*codeGenModule, function, *this, env);
+			result = codeGenerator->generateCode(function, env, visitor);
 
 			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 		}
@@ -213,151 +248,136 @@ ETraversalBehaviour CodeGenUnit::foreachModuleEntityPair(ETraversalBehaviour (*v
 	return ETraversalBehaviour::Recurse;
 }
 
-ETraversalBehaviour CodeGenUnit::foreachModuleEntityPairInNamespace(NamespaceInfo const& namespace_,
-														  ETraversalBehaviour (*visitor)(CodeGenModule&, EntityInfo const&, CodeGenUnit&, CodeGenEnv&),
-														  CodeGenEnv& env) noexcept
+ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInNamespace(ICodeGenerator& codeGenerator, NamespaceInfo const& namespace_, CodeGenEnv& env,
+																	 std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
-	
-	//Iterate over all generation modules
-	for (CodeGenModule* codeGenModule : _generationModules)
+
+	//Execute the visitor function on the current namespace
+	ETraversalBehaviour result = codeGenerator.generateCode(namespace_, env, visitor);
+
+	if (result != ETraversalBehaviour::Recurse)
 	{
-		//Execute the visitor function on the current namespace
-		ETraversalBehaviour result = visitor(*codeGenModule, namespace_, *this, env);
+		return result;
+	}
 
-		if (result != ETraversalBehaviour::Recurse)
-		{
-			return result;
-		}
+	//Iterate and execute the provided visitor function recursively on all nested entities
+	for (NamespaceInfo const& nestedNamespace : namespace_.namespaces)
+	{
+		result = foreachCodeGenEntityPairInNamespace(codeGenerator, nestedNamespace, env, visitor);
 
-		//Iterate and execute the provided visitor function recursively on all nested entities
-		for (NamespaceInfo const& nestedNamespace : namespace_.namespaces)
-		{
-			result = foreachModuleEntityPairInNamespace(nestedNamespace, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (StructClassInfo const& struct_ : namespace_.structs)
+	{
+		result = foreachCodeGenEntityPairInStruct(codeGenerator, struct_, env, visitor);
 
-		for (StructClassInfo const& struct_ : namespace_.structs)
-		{
-			result = foreachModuleEntityPairInStruct(struct_, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (StructClassInfo const& class_ : namespace_.classes)
+	{
+		result = foreachCodeGenEntityPairInStruct(codeGenerator, class_, env, visitor);
 
-		for (StructClassInfo const& class_ : namespace_.classes)
-		{
-			result = foreachModuleEntityPairInStruct(class_, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (EnumInfo const& enum_ : namespace_.enums)
+	{
+		result = foreachCodeGenEntityPairInEnum(codeGenerator, enum_, env, visitor);
 
-		for (EnumInfo const& enum_ : namespace_.enums)
-		{
-			result = foreachModuleEntityPairInEnum(enum_, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (VariableInfo const& variable : namespace_.variables)
+	{
+		result = codeGenerator.generateCode(variable, env, visitor);
 
-		for (VariableInfo const& variable : namespace_.variables)
-		{
-			result = visitor(*codeGenModule, variable, *this, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (FunctionInfo const& function : namespace_.functions)
+	{
+		result = codeGenerator.generateCode(function, env, visitor);
 
-		for (FunctionInfo const& function : namespace_.functions)
-		{
-			result = visitor(*codeGenModule, function, *this, env);
-
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
 
 	return ETraversalBehaviour::Recurse;
 }
 
-ETraversalBehaviour CodeGenUnit::foreachModuleEntityPairInStruct(StructClassInfo const& struct_,
-													   ETraversalBehaviour (*visitor)(CodeGenModule&, EntityInfo const&, CodeGenUnit&, CodeGenEnv&),
-													   CodeGenEnv& env) noexcept
+ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInStruct(ICodeGenerator& codeGenerator, StructClassInfo const& struct_, CodeGenEnv& env,
+																  std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
 
-	//Iterate over all generation modules
-	for (CodeGenModule* codeGenModule : _generationModules)
+	//Execute the visitor function on the current struct/class
+	ETraversalBehaviour result = codeGenerator.generateCode(struct_, env, visitor);
+
+	if (result != ETraversalBehaviour::Recurse)
 	{
-		//Execute the visitor function on the current struct/class
-		ETraversalBehaviour result = visitor(*codeGenModule, struct_, *this, env);
+		return result;
+	}
 
-		if (result != ETraversalBehaviour::Recurse)
-		{
-			return result;
-		}
+	//Iterate and execute the provided visitor function recursively on all nested entities
+	for (std::shared_ptr<NestedStructClassInfo> const& nestedStruct : struct_.nestedStructs)
+	{
+		result = foreachCodeGenEntityPairInStruct(codeGenerator, *nestedStruct, env, visitor);
 
-		//Iterate and execute the provided visitor function recursively on all nested entities
-		for (std::shared_ptr<NestedStructClassInfo> const& nestedStruct : struct_.nestedStructs)
-		{
-			result = foreachModuleEntityPairInStruct(*nestedStruct, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (std::shared_ptr<NestedStructClassInfo> const& nestedClass : struct_.nestedClasses)
+	{
+		result = foreachCodeGenEntityPairInStruct(codeGenerator, *nestedClass, env, visitor);
 
-		for (std::shared_ptr<NestedStructClassInfo> const& nestedClass : struct_.nestedClasses)
-		{
-			result = foreachModuleEntityPairInStruct(*nestedClass, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (NestedEnumInfo const& nestedEnum : struct_.nestedEnums)
+	{
+		result = foreachCodeGenEntityPairInEnum(codeGenerator, nestedEnum, env, visitor);
 
-		for (NestedEnumInfo const& nestedEnum : struct_.nestedEnums)
-		{
-			result = foreachModuleEntityPairInEnum(nestedEnum, visitor, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (FieldInfo const& field : struct_.fields)
+	{
+		result = codeGenerator.generateCode(field, env, visitor);
 
-		for (FieldInfo const& field : struct_.fields)
-		{
-			result = visitor(*codeGenModule, field, *this, env);
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
+	}
 
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+	for (MethodInfo const& method : struct_.methods)
+	{
+		result = codeGenerator.generateCode(method, env, visitor);
 
-		for (MethodInfo const& method : struct_.methods)
-		{
-			result = visitor(*codeGenModule, method, *this, env);
-
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
 	
 	return ETraversalBehaviour::Recurse;
 }
 
-ETraversalBehaviour CodeGenUnit::foreachModuleEntityPairInEnum(EnumInfo const& enum_,
-													 ETraversalBehaviour (*visitor)(CodeGenModule&, EntityInfo const&, CodeGenUnit&, CodeGenEnv&),
-													 CodeGenEnv& env) noexcept
+ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPairInEnum(ICodeGenerator& codeGenerator, EnumInfo const& enum_, CodeGenEnv& env,
+																std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
 
-	//Iterate over all generation modules
-	for (CodeGenModule* codeGenModule : _generationModules)
+	//Execute the visitor function on the current enum
+	ETraversalBehaviour result = codeGenerator.generateCode(enum_, env, visitor);
+
+	if (result != ETraversalBehaviour::Recurse)
 	{
-		//Execute the visitor function on the current enum
-		ETraversalBehaviour result = visitor(*codeGenModule, enum_, *this, env);
+		return result;
+	}
 
-		if (result != ETraversalBehaviour::Recurse)
-		{
-			return result;
-		}
+	//Iterate and execute the provided visitor function recursively on all enum values
+	for (EnumValueInfo const& enumValue : enum_.enumValues)
+	{
+		result = codeGenerator.generateCode(enumValue, env, visitor);
 
-		//Iterate and execute the provided visitor function recursively on all enum values
-		for (EnumValueInfo const& enumValue : enum_.enumValues)
-		{
-			result = visitor(*codeGenModule, enumValue, *this, env);
-
-			HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
-		}
+		HANDLE_NESTED_ENTITY_ITERATION_RESULT(result);
 	}
 	
 	return ETraversalBehaviour::Recurse;

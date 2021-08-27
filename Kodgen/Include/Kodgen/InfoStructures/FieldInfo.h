@@ -17,14 +17,16 @@ namespace kodgen
 	class FieldInfo final : public VariableInfo
 	{
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Undefined;
+
 			/** Is this field mutable qualified? */
-			bool isMutable : 1;
+			bool							isMutable : 1;
 
 			/** Access of this field in its outer struct/class. */
-			EAccessSpecifier	accessSpecifier;
+			EAccessSpecifier				accessSpecifier;
 
 			/** Memory offset in bytes. */
-			int64				memoryOffset;
+			int64							memoryOffset;
 
 			FieldInfo()									= default;
 			FieldInfo(CXCursor const& cursor,

@@ -39,6 +39,8 @@ namespace kodgen
 				TypeInfo			type;
 			};
 
+			static constexpr EEntityType						nestedEntityTypes = EEntityType::Class | EEntityType::Struct | EEntityType::Enum | EEntityType::Method | EEntityType::Field;
+
 			struct ClassQualifiers
 			{
 				/** Is the class final qualified of not. */

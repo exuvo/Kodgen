@@ -34,6 +34,8 @@ namespace kodgen
 						 EEntityType		entityType)		noexcept;
 
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Undefined;
+
 			/** Prototype of this function as a string. */
 			std::string						prototype;
 

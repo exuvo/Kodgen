@@ -16,16 +16,15 @@ std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const Macr
 	"\n"	//SourceFileHeader is not wrapped in a macro, so can use \n without breaking the code
 };
 
-ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& codeGenModule, EntityInfo const& entity, CodeGenEnv& env) noexcept
+void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)> generate)	noexcept
 {
-	ETraversalBehaviour result		= CodeGenHelpers::leastPrioritizedTraversalBehaviour;
-	MacroCodeGenEnv&	macroEnv	= static_cast<MacroCodeGenEnv&>(env);
+	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
 
 	//Generate code for each code location
 	for (int i = 0u; i < static_cast<int>(ECodeGenLocation::Count); i++)
 	{
-		macroEnv._codeGenLocation = static_cast<ECodeGenLocation>(i);
-		macroEnv._separator = _separators[i];
+		macroEnv._codeGenLocation	= static_cast<ECodeGenLocation>(i);
+		macroEnv._separator			= _separators[i];
 
 		/**
 		*	Forward ECodeGenLocation::ClassFooter generation only if the entity is a
@@ -40,20 +39,14 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule& co
 			}
 			else
 			{
-				result = CodeGenHelpers::combineTraversalBehaviours(generateEntityClassFooterCode(codeGenModule, entity, macroEnv), result);
+				generateEntityClassFooterCode(entity, macroEnv, generate);
 			}
 		}
 		else
 		{
-			result = CodeGenHelpers::combineTraversalBehaviours(codeGenModule.generateCode(&entity, env, _generatedCodePerLocation[i]), result);
+			generate(entity, macroEnv, _generatedCodePerLocation[i]);
 		}
-
-		//Abort the generation if the current result is AbortWithFailure
-		if (result == ETraversalBehaviour::AbortWithFailure)
-			break;
 	}
-
-	return result;
 }
 
 MacroCodeGenEnv* MacroCodeGenUnit::createCodeGenEnv() const noexcept
@@ -143,14 +136,12 @@ bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
 	return false;
 }
 
-ETraversalBehaviour MacroCodeGenUnit::generateEntityClassFooterCode(CodeGenModule& codeGenModule, EntityInfo const& entity, MacroCodeGenEnv& env) noexcept
+void MacroCodeGenUnit::generateEntityClassFooterCode(EntityInfo const& entity, CodeGenEnv& env, std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)> generate) noexcept
 {
-	ETraversalBehaviour result;
-
 	if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
 	{
 		//If the entity is a struct/class, append to the footer of the struct/class
-		result = codeGenModule.generateCode(&entity, env, _classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)]);
+		generate(entity, env, _classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)]);
 	}
 	else
 	{
@@ -158,10 +149,8 @@ ETraversalBehaviour MacroCodeGenUnit::generateEntityClassFooterCode(CodeGenModul
 		assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
 
 		//If the entity is NOT a struct/class, append to the footer of the outer struct/class
-		result = codeGenModule.generateCode(&entity, env, _classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)]);
+		generate(entity, env, _classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)]);
 	}
-
-	return result;
 }
 
 fs::path MacroCodeGenUnit::getGeneratedHeaderFilePath(fs::path const& sourceFile) const noexcept

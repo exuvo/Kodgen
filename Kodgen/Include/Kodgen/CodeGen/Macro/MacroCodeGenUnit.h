@@ -41,16 +41,13 @@ namespace kodgen
 			/**
 			*	@brief Handle the code generation for class footer code gen location.
 			* 
-			*	@param codeGenModule	Module calling the generateCode method.
-			*	@param entity			Entity we generate the code for. Must be one of Struct/Class/Field/Method.
-			*	@param env				Generation environment.
-			* 
-			*	@return An EIterationBehaviour instructing how the entity traversal should continue (see the EIterationResult documentation for more info).
-			*			The result of the codeGenModule->generateCode() call can be forwarded in most cases to let the module control the flow of the traversal.
+			*	@param entity	Entity we generate the code for. Must be one of Struct/Class/Field/Method.
+			*	@param env		Generation environment.
+			*	@param generate	Code generation method.
 			*/
-			ETraversalBehaviour	generateEntityClassFooterCode(CodeGenModule&	codeGenModule,
-															  EntityInfo const&	entity,
-															  MacroCodeGenEnv&	env)			noexcept;
+			void	generateEntityClassFooterCode(EntityInfo const&													entity,
+												  CodeGenEnv&														env,
+												  std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)>	generate)	noexcept;
 
 			/**
 			*	@brief	(Re)generate the header file.
@@ -86,20 +83,16 @@ namespace kodgen
 
 		protected:
 			/**
-			*	@brief	Execute the codeGenModule->generateCode method 4 times with the given entity and environment, by
-			*			updating the environment between each call (MacroCodeGenEnv::codeGenLocation and
-			*			MacroCodeGenEnv::separator are updated).
+			*	@brief	Call generate 4 times with the given entity and environment, by updating the environment between each call
+			*			(MacroCodeGenEnv::codeGenLocation and MacroCodeGenEnv::separator are updated).
 			*
-			*	@param codeGenModule	Module calling the generateCode method.
-			*	@param entity			Target entity for this code generation pass.
-			*	@param env				Generation environment structure.
-			* 
-			*	@return An EIterationBehaviour instructing how the entity traversal should continue (see the EIterationResult documentation for more info).
-			*			The result of the codeGenModule->generateCode() call can be forwarded in most cases to let the module control the flow of the traversal.
+			*	@param entity	Target entity for code generation.
+			*	@param env		Generation environment structure.
+			*	@param generate	Generation function to call to generate code.
 			*/
-			virtual ETraversalBehaviour	runCodeGenModuleOnEntity(CodeGenModule&		codeGenModule,
-																 EntityInfo const&	entity,
-																 CodeGenEnv&		env)					noexcept	override;
+			virtual void			generateCodeForEntity(EntityInfo const&													entity,
+														  CodeGenEnv&														env,
+														  std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)>	generate)	noexcept	override;
 
 			/**
 			*	@brief	Instantiate a MacroCodeGenEnv object (using new).

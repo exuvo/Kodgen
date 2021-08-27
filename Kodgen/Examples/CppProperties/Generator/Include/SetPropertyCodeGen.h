@@ -14,7 +14,9 @@
 class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 {
 	public:
-		virtual ~SetPropertyCodeGen() = default;
+		SetPropertyCodeGen() noexcept:
+			kodgen::MacroPropertyCodeGen(kodgen::EEntityType::Field)
+		{}
 
 		virtual bool shouldGenerateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */) const noexcept override
 		{

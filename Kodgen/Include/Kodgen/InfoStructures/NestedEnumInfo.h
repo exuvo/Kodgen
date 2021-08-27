@@ -17,8 +17,10 @@ namespace kodgen
 	class NestedEnumInfo : public EnumInfo
 	{
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::EnumValue;
+
 			/** Access specifier of this nested struct/class. */
-			EAccessSpecifier	accessSpecifier;
+			EAccessSpecifier				accessSpecifier;
 
 			NestedEnumInfo()									= default;
 			NestedEnumInfo(EnumInfo&&		base,

@@ -17,8 +17,10 @@ namespace kodgen
 	class NestedStructClassInfo : public StructClassInfo
 	{
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Class | EEntityType::Struct | EEntityType::Enum | EEntityType::Method | EEntityType::Field;
+
 			/** Access specifier of this nested struct/class. */
-			EAccessSpecifier	accessSpecifier;
+			EAccessSpecifier				accessSpecifier;
 
 			NestedStructClassInfo()										= default;
 			NestedStructClassInfo(StructClassInfo&& base,

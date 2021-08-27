@@ -21,6 +21,8 @@ namespace kodgen
 	class NamespaceInfo : public EntityInfo
 	{
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Namespace | EEntityType::Variable | EEntityType::Function | StructClassInfo::nestedEntityTypes;
+
 			/** Nested namespaces. */
 			std::vector<NamespaceInfo>		namespaces;
 

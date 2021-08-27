@@ -20,9 +20,16 @@ namespace kodgen
 	class EnumInfo : public EntityInfo
 	{
 		public:
-			TypeInfo					type;
-			TypeInfo					underlyingType;
-			std::vector<EnumValueInfo>	enumValues;
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::EnumValue;
+
+			/** Detailed information on the enum. */
+			TypeInfo						type;
+
+			/** Detailed information on the underlying enum type. */
+			TypeInfo						underlyingType;
+
+			/** List of all values contained in the enum. */
+			std::vector<EnumValueInfo>		enumValues;
 
 			EnumInfo()									= default;
 			EnumInfo(CXCursor const& cursor,

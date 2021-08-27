@@ -48,14 +48,14 @@ namespace kodgen
 		Namespace	= 1 << 8
 	};
 
-	inline EEntityType operator|(EEntityType flags1, EEntityType flags2)
+	constexpr EEntityType operator|(EEntityType flags1, EEntityType flags2)
 	{
 		using UnderlyingType = std::underlying_type_t<EEntityType>;
 
 		return static_cast<EEntityType>(static_cast<UnderlyingType>(flags1) | static_cast<UnderlyingType>(flags2));
 	}
 
-	inline EEntityType operator&(EEntityType flags1, EEntityType flags2)
+	constexpr EEntityType operator&(EEntityType flags1, EEntityType flags2)
 	{
 		using UnderlyingType = std::underlying_type_t<EEntityType>;
 

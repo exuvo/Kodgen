@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "Kodgen/Misc/ICloneable.h"
-#include "Kodgen/CodeGen/ICodeGenOrderable.h"
+#include "Kodgen/CodeGen/ICodeGenerator.h"
 #include "Kodgen/CodeGen/ETraversalBehaviour.h"
 
 namespace kodgen
@@ -21,24 +21,29 @@ namespace kodgen
 	class	CodeGenEnv;
 	class	EntityInfo;
 
-	class CodeGenModule : public ICloneable, public ICodeGenOrderable
+	class CodeGenModule : public ICloneable, public ICodeGenerator
 	{
 		private:
 			/** Collection of all property code generators attached to this module. */
 			std::vector<PropertyCodeGen*>	_propertyCodeGenerators;
 
 			/**
-			*	@brief Make eligible property code generators generate code for the provided entity.
-			* 
-			*	@param entity		Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.
-			*	@param env			Data provided by the FileGenerationUnit. You can cast env to a more concrete type if you know the type provided by the FileGenerationUnit.
-			*	@param inout_result	String the method should append the generated code to.
-			* 
-			*	@return true if the code generation completed successfully for all property code generators, else false.
+			*	TODO
 			*/
-			bool	runPropertyCodeGenerators(EntityInfo const&		entity,
-											  CodeGenEnv&			env,
-											  std::string&			inout_result)	const	noexcept;
+			virtual ETraversalBehaviour generateCodeInterface(EntityInfo const&	entity,
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)							noexcept final override;
+
+			/**
+			*	TODO
+			*/
+			virtual ETraversalBehaviour generateCode(EntityInfo const&	entity,
+													 CodeGenEnv&		env,
+													 std::function<ETraversalBehaviour(ICodeGenerator&,
+																					   EntityInfo const&,
+																					   CodeGenEnv&,
+																					   void const*)> visitor)	noexcept final override;
 
 		protected:
 			/**
@@ -56,8 +61,6 @@ namespace kodgen
 			bool										removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen)	noexcept;
 
 		public:
-			virtual ~CodeGenModule() = default;
-
 			/**
 			*	@brief	Initialize the module with the provided environment.
 			*			The method is called by CodeGenUnit::preGenerateCode before any call to CodeGenModule::generateCode.
@@ -70,8 +73,6 @@ namespace kodgen
 
 			/**
 			*	@brief	Generate code using the provided environment as input.
-			*			/!\ The CodeGenModule::generateCode implementation calls the code generation on
-			*				registered and eligible property code generators, so this base implementation should be called in overrides. /!\
 			* 
 			*	@param entity			Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.
 			*	@param env				Data provided by the FileGenerationUnit. You can cast env to a more concrete type if you know the type provided by the FileGenerationUnit.
@@ -81,13 +82,13 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour					generateCode(EntityInfo const*	entity,
 																	 CodeGenEnv&		env,
-																	 std::string&		inout_result)				noexcept;
+																	 std::string&		inout_result)				noexcept = 0;
 
 			/**
-			*	@brief Getter for _propertyRules field.
+			*	@brief Getter for _propertyCodeGenerators field.
 			*
-			*	@return _propertyRules.
+			*	@return _propertyCodeGenerators.
 			*/
-			std::vector<PropertyCodeGen*> const&		getPropertyRules()									const	noexcept;
+			std::vector<PropertyCodeGen*> const&		getPropertyCodeGenerators()							const	noexcept;
 	};
 }

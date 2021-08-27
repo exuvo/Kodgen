@@ -44,10 +44,7 @@ ETraversalBehaviour MacroCodeGenModule::generateCode(EntityInfo const* entity, C
 		case ECodeGenLocation::HeaderFileHeader:
 			if (preGenerateCode(entity, macroEnv))
 			{
-				//Run property code generators
-				result = CodeGenModule::generateCode(entity, env, inout_result);
-
-				return CodeGenHelpers::combineTraversalBehaviours(result, generateHeaderFileHeaderCode(entity, macroEnv, inout_result));
+				return generateHeaderFileHeaderCode(entity, macroEnv, inout_result);
 			}
 			else
 			{
@@ -55,22 +52,13 @@ ETraversalBehaviour MacroCodeGenModule::generateCode(EntityInfo const* entity, C
 			}
 
 		case ECodeGenLocation::ClassFooter:
-			//Run property code generators
-			result = CodeGenModule::generateCode(entity, env, inout_result);
-
-			return CodeGenHelpers::combineTraversalBehaviours(result, generateClassFooterCode(entity, macroEnv, inout_result));
+			return generateClassFooterCode(entity, macroEnv, inout_result);
 
 		case ECodeGenLocation::HeaderFileFooter:
-			result = CodeGenModule::generateCode(entity, env, inout_result);
-
-			//CodeGenModule::generateCode runs eligible property code generators if any
-			return CodeGenHelpers::combineTraversalBehaviours(result, generateHeaderFileFooterCode(entity, macroEnv, inout_result));
+			return generateHeaderFileFooterCode(entity, macroEnv, inout_result);
 
 		case ECodeGenLocation::SourceFileHeader:
-			result = CodeGenModule::generateCode(entity, env, inout_result);
-			
-			//Property code gen are triggered BEFORE calling MacroCodeGenModule::postGenerateCode
-			result = CodeGenHelpers::combineTraversalBehaviours(result, generateSourceFileHeaderCode(entity, macroEnv, inout_result));
+			result = generateSourceFileHeaderCode(entity, macroEnv, inout_result);
 
 			return (postGenerateCode(entity, macroEnv)) ? result : ETraversalBehaviour::AbortWithFailure;
 
