@@ -47,8 +47,28 @@ namespace kodgen
 			*/
 			std::unordered_set<fs::path, PathHash>	_ignoredDirectories;
 
-			/** Extensions of files which should be considered for code generation. */
-			std::unordered_set<std::string>			_supportedExtensions;
+			/** Extensions of files that should be considered for code generation. */
+			std::unordered_set<std::string>			_supportedFileExtensions;
+
+			/** Dirty flag set if _toProcessFiles hasn't been refreshed since last modification. */
+			bool									_toProcessFilesDirtyFlag		= false;
+
+			/** Dirty flag set if _ignoredFiles hasn't been refreshed since last modification. */
+			bool									_ignoredFilesDirtyFlag			= false;
+
+			/** Dirty flag set if _toProcessDirectories hasn't been refreshed since last modification. */
+			bool									_toProcessDirectoriesDirtyFlag	= false;
+
+			/** Dirty flag set if _ignoredDirectories hasn't been refreshed since last modification. */
+			bool									_ignoredDirectoriesDirtyFlag	= false;
+
+			/**
+			*	@brief	Transform all existing paths in a collection in their canonical equivalent if they exist.
+			*			If a path doesn't exist, it remains unchanged in the collection.
+			* 
+			*	@param set The set of paths to transform.
+			*/
+			static void	sanitizePaths(std::unordered_set<fs::path, PathHash>& set)	noexcept;
 
 		protected:
 			/**
@@ -69,8 +89,8 @@ namespace kodgen
 			*	@param generationSettings	Toml content.
 			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
 			*/
-			void			loadSupportedExtensions(toml::value const&	generationSettings,
-													ILogger*			logger)					noexcept;
+			void			loadSupportedFileExtensions(toml::value const&	generationSettings,
+														ILogger*			logger)				noexcept;
 
 			/**
 			*	@brief	Load the _toProcessFiles setting from toml.
@@ -121,19 +141,19 @@ namespace kodgen
 			*	
 			*	@return true if the path has been added successfuly, else false.
 			*/
-			bool addToProcessFile(fs::path const& path)				noexcept;
+			bool addToProcessFile(fs::path const& path)						noexcept;
 
 			/**
 			*	@brief Remove a file from the list of processed files.
 			*	
 			*	@param path Path to the file to remove.
 			*/
-			void removeToProcessFile(fs::path const& path)			noexcept;
+			void removeToProcessFile(fs::path const& path)					noexcept;
 
 			/**
 			*	@brief Clear the list of files to process.
 			*/
-			void clearToProcessFiles()								noexcept;
+			void clearToProcessFiles()										noexcept;
 
 			/**
 			*	@brief	Add a directory to the list of parsed directories.
@@ -143,19 +163,19 @@ namespace kodgen
 			*	
 			*	@return true if the path has been added successfuly, else false.
 			*/
-			bool addToProcessDirectory(fs::path const& path)		noexcept;
+			bool addToProcessDirectory(fs::path const& path)				noexcept;
 
 			/**
 			*	@brief Remove a directory from the list of processed directories.
 			*	
 			*	@param path Path to the directory to remove.
 			*/
-			void removeToProcessDirectory(fs::path const& path)		noexcept;
+			void removeToProcessDirectory(fs::path const& path)				noexcept;
 
 			/**
 			*	@brief Clear the list of directories to process.
 			*/
-			void clearToProcessDirectories()						noexcept;
+			void clearToProcessDirectories()								noexcept;
 
 			/**
 			*	@brief	Add a file to the list of ignored files.
@@ -165,19 +185,19 @@ namespace kodgen
 			*	
 			*	@return true if the path has been added successfuly, else false.
 			*/
-			bool addIgnoredFile(fs::path const& path)				noexcept;
+			bool addIgnoredFile(fs::path const& path)						noexcept;
 
 			/**
 			*	@brief Remove a file from the list of ignored files.
 			*	
 			*	@param path Path to the file to remove.
 			*/
-			void removeIgnoredFile(fs::path const& path)			noexcept;
+			void removeIgnoredFile(fs::path const& path)					noexcept;
 
 			/**
 			*	@brief Clear the list of ignored files.
 			*/
-			void clearIgnoredFiles()								noexcept;
+			void clearIgnoredFiles()										noexcept;
 
 			/**
 			*	@brief	Add a directory to the list of ignored directories.
@@ -187,19 +207,19 @@ namespace kodgen
 			*	
 			*	@return true if the path has been added successfuly, else false.
 			*/
-			bool addIgnoredDirectory(fs::path const& path)			noexcept;
+			bool addIgnoredDirectory(fs::path const& path)					noexcept;
 
 			/**
 			*	@brief Remove a directory from the list of ignored directories.
 			*	
 			*	@param path Path to the directory to remove.
 			*/
-			void removeIgnoredDirectory(fs::path const& path)		noexcept;
+			void removeIgnoredDirectory(fs::path const& path)				noexcept;
 
 			/**
 			*	@brief Clear the list of ignored directories.
 			*/
-			void clearIgnoredDirectories()							noexcept;
+			void clearIgnoredDirectories()									noexcept;
 
 			/**
 			*	@brief	Add a file extension to the list of supported file extensions.
@@ -209,19 +229,49 @@ namespace kodgen
 			*	
 			*	@return true if the extension has been added successfuly, else false.
 			*/
-			bool addSupportedExtension(fs::path const& extension)	noexcept;
+			bool addSupportedFileExtension(fs::path const& extension)		noexcept;
 
 			/**
 			*	@brief	Remove a file extension from the list of supported file extensions.
 			*	
 			*	@param ext Extension to remove.
 			*/
-			void removeSupportedExtension(fs::path const& ext)		noexcept;
+			void removeSupportedFileExtension(fs::path const& extension)	noexcept;
 
 			/**
 			*	@brief Clear the list of supported extensions.
 			*/
-			void clearSupportedExtensions()							noexcept;
+			void clearSupportedFileExtensions()								noexcept;
+
+			/**
+			*	@brief	Check whether the provided extension is a supported file extension or not.
+			* 
+			*	@param extension The extension to check.
+			* 
+			*	@return true if the file extension is supported, else false.
+			*/
+			bool isSupportedFileExtension(fs::path const& extension)	const	noexcept;
+
+			/**
+			*	@brief	Check whether the provided path is an ignored file or not.
+			*			The method is not const to allow the path sanitizer to run if the _ignoredFilesDirtyFlag is set.
+			* 
+			*	@param file Path to the file.
+			* 
+			*	@return true if the file is ignored, else false.
+			*/
+			bool isIgnoredFile(fs::path const& file)							noexcept;
+
+			/**
+			*	@brief	Check whether the provided path is an ignored directory or not.
+			*			The method is not const to allow the path sanitizer to run if the _ignoredDirectoriesDirtyFlag is set.
+			* 
+			*	@param directory Path to the directory.
+			* 
+			*	@return true if the directory is ignored, else false.
+			*/
+			bool isIgnoredDirectory(fs::path const& directory)					noexcept;
+
 
 			/**
 			*	@brief Getter for _toProcessFiles.

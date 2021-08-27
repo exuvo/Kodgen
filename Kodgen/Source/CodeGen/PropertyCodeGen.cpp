@@ -2,7 +2,8 @@
 
 using namespace kodgen;
 
-PropertyCodeGen::PropertyCodeGen(EEntityType eligibleEntityMask) noexcept:
+PropertyCodeGen::PropertyCodeGen(std::string const&	propertyName, EEntityType eligibleEntityMask) noexcept:
+	_propertyName{propertyName},
 	_eligibleEntityMask{eligibleEntityMask}
 {
 }
@@ -10,6 +11,11 @@ PropertyCodeGen::PropertyCodeGen(EEntityType eligibleEntityMask) noexcept:
 bool PropertyCodeGen::initialize(CodeGenEnv& /* env */) noexcept
 {
 	return true;
+}
+
+bool PropertyCodeGen::shouldGenerateCode(EntityInfo const& entity, Property const& property, uint8 propertyIndex) const noexcept
+{
+	return property.name == _propertyName && entityTypeOverlap(entity.entityType, _eligibleEntityMask);
 }
 
 bool PropertyCodeGen::shouldIterateOnNestedEntities(EntityInfo const& entity) const noexcept

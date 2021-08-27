@@ -1,6 +1,6 @@
 [CodeGenManagerSettings]
-# List of supported extensions
-supportedExtensions = [".h", ".hpp"]
+# List of supported file extensions
+supportedFileExtensions = [".h", ".hpp"]
 
 # Files contained in the directories of this list will be parsed
 toProcessDirectories = [

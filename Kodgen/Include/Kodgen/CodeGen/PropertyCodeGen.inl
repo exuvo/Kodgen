@@ -9,3 +9,13 @@ inline bool PropertyCodeGen::entityTypeOverlap(EEntityType lhs, EEntityType rhs)
 {
 	return (lhs & rhs) != EEntityType::Undefined;
 }
+
+inline EEntityType PropertyCodeGen::getEligibleEntityMask() const noexcept
+{
+	return _eligibleEntityMask;
+}
+
+inline std::string const& PropertyCodeGen::getPropertyName() const noexcept
+{
+	return _propertyName;
+}

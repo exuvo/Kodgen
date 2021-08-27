@@ -66,7 +66,7 @@ namespace kodgen
 			*/
 			std::set<fs::path>		identifyFilesToProcess(CodeGenUnit const&	codeGenUnit,
 														   CodeGenResult&		out_genResult,
-														   bool					forceRegenerateAll)		const	noexcept;
+														   bool					forceRegenerateAll)				noexcept;
 
 			/**
 			*	@brief	Get the number of threads to use based on the provided thread count.

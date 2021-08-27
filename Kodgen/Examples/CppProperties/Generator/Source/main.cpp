@@ -31,7 +31,7 @@ void initCodeGenManagerSettings(fs::path const& workingDirectory, kodgen::CodeGe
 	out_generatorSettings.addIgnoredDirectory(generatedDirectory);
 
 	//Only parse .h files
-	out_generatorSettings.addSupportedExtension(".h");
+	out_generatorSettings.addSupportedFileExtension(".h");
 }
 
 bool initParsingSettings(kodgen::ParsingSettings& parsingSettings)

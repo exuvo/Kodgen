@@ -15,13 +15,8 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 {
 	public:
 		SetPropertyCodeGen() noexcept:
-			kodgen::MacroPropertyCodeGen(kodgen::EEntityType::Field)
+			kodgen::MacroPropertyCodeGen("Set", kodgen::EEntityType::Field)
 		{}
-
-		virtual bool shouldGenerateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */) const noexcept override
-		{
-			return property.name == "Set" && entityTypeOverlap(entity.entityType, kodgen::EEntityType::Field);
-		}
 
 		virtual bool preGenerateCode(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{

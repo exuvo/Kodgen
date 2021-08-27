@@ -26,6 +26,9 @@ namespace kodgen
 				Property const* property;
 			};
 
+			/** Name of the property this property generator should generator code for. */
+			std::string	_propertyName;
+
 			/** Mask defining the type of entities this generator can run on. */
 			EEntityType	_eligibleEntityMask = EEntityType::Undefined;
 
@@ -86,9 +89,11 @@ namespace kodgen
 
 		public:
 			/**
-			*	@param eligibleEntityMask A mask defining all the types of entity this PropertyCodeGen instance should run on.
+			*	@param propertyName			Name of the property this property generator should generate code for.
+			*	@param eligibleEntityMask	A mask defining all the types of entity this PropertyCodeGen instance should run on.
 			*/
-			PropertyCodeGen(EEntityType eligibleEntityMask)	noexcept;
+			PropertyCodeGen(std::string const&	propertyName,
+							EEntityType			eligibleEntityMask)	noexcept;
 
 			/**
 			*	@brief Generate code for a given entity.
@@ -101,24 +106,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateCode(EntityInfo const&	entity,
-										 Property const&	property,
-										 uint8				propertyIndex,
-										 CodeGenEnv&		env,
-										 std::string&		inout_result)					noexcept = 0;
-
-			/**
-			*	@brief Check if this property should generate code for the provided entity/property pair.
-			*
-			*	@param entity			Checked entity.
-			*	@param property			Checked property.
-			*	@param propertyIndex	Index of the property in the entity's propertyGroup.
-			*
-			*	@return true if this property should generate code for the provided entity, else false.
-			*/
-			virtual bool	shouldGenerateCode(EntityInfo const&	entity,
-											   Property const&		property,
-											   uint8				propertyIndex)	const	noexcept = 0;
+			virtual bool				generateCode(EntityInfo const&	entity,
+													 Property const&	property,
+													 uint8				propertyIndex,
+													 CodeGenEnv&		env,
+													 std::string&		inout_result)					noexcept = 0;
 
 			/**
 			*	@brief	Initialize the property code gen with the provided environment.
@@ -129,7 +121,34 @@ namespace kodgen
 			* 
 			*	@return true if the initialization completed successfully, else false.
 			*/
-			virtual bool	initialize(CodeGenEnv& env)										noexcept;
+			virtual bool				initialize(CodeGenEnv& env)										noexcept;
+
+			/**
+			*	@brief Check if this property should generate code for the provided entity/property pair.
+			*
+			*	@param entity			Checked entity.
+			*	@param property			Checked property.
+			*	@param propertyIndex	Index of the property in the entity's propertyGroup.
+			*
+			*	@return true if this property should generate code for the provided entity, else false.
+			*/
+			virtual bool				shouldGenerateCode(EntityInfo const&	entity,
+														   Property const&		property,
+														   uint8				propertyIndex)	const	noexcept;
+
+			/**
+			*	@brief Getter for _eligibleEntityMask field.
+			* 
+			*	@return _eligibleEntityMask.
+			*/
+			inline EEntityType			getEligibleEntityMask()									const	noexcept;
+
+			/**
+			*	@brief Getter for _propertyName field.
+			* 
+			*	@return _propertyName.
+			*/
+			inline std::string const&	getPropertyName()										const	noexcept;
 	};
 
 	#include "Kodgen/CodeGen/PropertyCodeGen.inl"

@@ -5,13 +5,38 @@
 
 using namespace kodgen;
 
+void CodeGenManagerSettings::sanitizePaths(std::unordered_set<fs::path, PathHash>& set) noexcept
+{
+	std::vector<fs::path>	toSanitizePaths;
+	fs::path				sanitizedPath;
+
+	//Modify in 2 for-loops to avoid iterator invalidations by removing/inserting elements
+	//Detect all paths that should be sanitized
+	for (fs::path const& path : set)
+	{
+		sanitizedPath = FilesystemHelpers::sanitizePath(path);
+
+		if (!sanitizedPath.empty() && path != sanitizedPath)
+		{
+			toSanitizePaths.push_back(path);
+		}
+	}
+
+	//Sanitized the detected paths
+	for (fs::path const& path : toSanitizePaths)
+	{
+		set.insert(FilesystemHelpers::sanitizePath(path));
+		set.erase(path);
+	}
+}
+
 bool CodeGenManagerSettings::loadSettingsValues(toml::value const& tomlData, ILogger* logger) noexcept
 {
 	if (tomlData.contains(_tomlSectionName))
 	{
 		toml::value const& tomlGeneratorSettings = toml::find(tomlData, _tomlSectionName);
 		
-		loadSupportedExtensions(tomlGeneratorSettings, logger);
+		loadSupportedFileExtensions(tomlGeneratorSettings, logger);
 		loadToProcessFiles(tomlGeneratorSettings, logger);
 		loadToProcessDirectories(tomlGeneratorSettings, logger);
 		loadIgnoredFiles(tomlGeneratorSettings, logger);
@@ -29,59 +54,47 @@ bool CodeGenManagerSettings::loadSettingsValues(toml::value const& tomlData, ILo
 
 bool CodeGenManagerSettings::addToProcessFile(fs::path const& path) noexcept
 {
-	fs::path sanitizedPath = FilesystemHelpers::sanitizePath(path);
+	bool added = _toProcessFiles.emplace(path).second;
 
-	if (!sanitizedPath.empty() && !fs::is_directory(sanitizedPath))
-	{
-		return _toProcessFiles.emplace(std::move(sanitizedPath)).second;
-	}
+	_toProcessFilesDirtyFlag |= added;
 
-	return false;
+	return added;
 }
 
 bool CodeGenManagerSettings::addToProcessDirectory(fs::path const& path) noexcept
 {
-	fs::path sanitizedPath = FilesystemHelpers::sanitizePath(path);
+	bool added = _toProcessDirectories.emplace(path).second;
 
-	if (!sanitizedPath.empty() && fs::is_directory(sanitizedPath))
-	{
-		return _toProcessDirectories.emplace(std::move(sanitizedPath)).second;
-	}
+	_toProcessDirectoriesDirtyFlag |= added;
 
-	return false;
+	return added;
 }
 
 bool CodeGenManagerSettings::addIgnoredFile(fs::path const& path) noexcept
 {
-	fs::path sanitizedPath = FilesystemHelpers::sanitizePath(path);
+	bool added = _ignoredFiles.emplace(path).second;
 
-	if (!sanitizedPath.empty() && !fs::is_directory(sanitizedPath))
-	{
-		return _ignoredFiles.emplace(std::move(sanitizedPath)).second;
-	}
+	_ignoredFilesDirtyFlag |= added;
 
-	return false;
+	return added;
 }
 
 bool CodeGenManagerSettings::addIgnoredDirectory(fs::path const& path) noexcept
 {
-	fs::path sanitizedPath = FilesystemHelpers::sanitizePath(path);
+	bool added = _ignoredDirectories.emplace(path).second;
 
-	if (!sanitizedPath.empty() && fs::is_directory(sanitizedPath))
-	{
-		return _ignoredDirectories.emplace(std::move(sanitizedPath)).second;
-	}
+	_ignoredDirectoriesDirtyFlag |= added;
 
-	return false;
+	return added;
 }
 
-bool CodeGenManagerSettings::addSupportedExtension(fs::path const& extension) noexcept
+bool CodeGenManagerSettings::addSupportedFileExtension(fs::path const& extension) noexcept
 {
 	std::string extensionAsString = extension.string();
 
 	if (!extensionAsString.empty() && extensionAsString[0] == '.' && extension.has_stem())
 	{
-		_supportedExtensions.emplace(std::move(extensionAsString));
+		_supportedFileExtensions.emplace(std::move(extensionAsString));
 
 		return true;
 	}
@@ -104,9 +117,9 @@ void CodeGenManagerSettings::removeIgnoredFile(fs::path const& path) noexcept
 	_ignoredFiles.erase(FilesystemHelpers::sanitizePath(path));
 }
 
-void CodeGenManagerSettings::removeSupportedExtension(fs::path const& ext) noexcept
+void CodeGenManagerSettings::removeSupportedFileExtension(fs::path const& ext) noexcept
 {
-	_supportedExtensions.erase(ext.string());
+	_supportedFileExtensions.erase(ext.string());
 }
 
 void CodeGenManagerSettings::removeIgnoredDirectory(fs::path const& path) noexcept
@@ -134,26 +147,53 @@ void CodeGenManagerSettings::clearIgnoredDirectories() noexcept
 	_ignoredDirectories.clear();
 }
 
-void CodeGenManagerSettings::clearSupportedExtensions() noexcept
+void CodeGenManagerSettings::clearSupportedFileExtensions() noexcept
 {
-	_supportedExtensions.clear();
+	_supportedFileExtensions.clear();
 }
 
-void CodeGenManagerSettings::loadSupportedExtensions(toml::value const& generationSettings, ILogger* logger) noexcept
+bool CodeGenManagerSettings::isSupportedFileExtension(fs::path const& extension) const noexcept
+{
+	return _supportedFileExtensions.find(extension.string()) != _supportedFileExtensions.end();
+}
+
+bool CodeGenManagerSettings::isIgnoredFile(fs::path const& file) noexcept
+{
+	if (_ignoredFilesDirtyFlag)
+	{
+		sanitizePaths(_ignoredFiles);
+		_ignoredFilesDirtyFlag = false;
+	}
+
+	return _ignoredFiles.find(fs::exists(file) ? FilesystemHelpers::sanitizePath(file) : file) != _ignoredFiles.end();
+}
+
+bool CodeGenManagerSettings::isIgnoredDirectory(fs::path const& directory) noexcept
+{
+	if (_ignoredDirectoriesDirtyFlag)
+	{
+		sanitizePaths(_ignoredDirectories);
+		_ignoredDirectoriesDirtyFlag = false;
+	}
+
+	return _ignoredDirectories.find(fs::exists(directory) ? FilesystemHelpers::sanitizePath(directory) : directory) != _ignoredDirectories.end();
+}
+
+void CodeGenManagerSettings::loadSupportedFileExtensions(toml::value const& generationSettings, ILogger* logger) noexcept
 {
 	//Clear supported extensions before loading
-	_supportedExtensions.clear();
+	_supportedFileExtensions.clear();
 
 	std::unordered_set<std::string> loadedExtensions;
-	if (TomlUtility::updateSetting(generationSettings, "supportedExtensions", loadedExtensions, logger) && logger != nullptr)
+	if (TomlUtility::updateSetting(generationSettings, "supportedFileExtensions", loadedExtensions, logger) && logger != nullptr)
 	{
 		for (std::string const& extension : loadedExtensions)
 		{
-			if (addSupportedExtension(extension))
+			if (addSupportedFileExtension(extension))
 			{
 				if (logger != nullptr)
 				{
-					logger->log("[TOML] Load new supported extension: " + extension);
+					logger->log("[TOML] Load new supported file extension: " + extension);
 				}
 			}
 			else if (logger != nullptr)
@@ -305,5 +345,5 @@ std::unordered_set<fs::path, PathHash> const& CodeGenManagerSettings::getIgnored
 
 std::unordered_set<std::string> const& CodeGenManagerSettings::getSupportedExtensions() const noexcept
 {
-	return _supportedExtensions;
+	return _supportedFileExtensions;
 }

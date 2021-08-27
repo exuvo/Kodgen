@@ -5,7 +5,7 @@
 
 using namespace kodgen;
 
-std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& codeGenUnit, CodeGenResult& out_genResult, bool forceRegenerateAll) const noexcept
+std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& codeGenUnit, CodeGenResult& out_genResult, bool forceRegenerateAll) noexcept
 {
 	std::set<fs::path> result;
 
@@ -26,7 +26,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 		else if (logger != nullptr)
 		{
 			//Add FileGenerationFile invalid path
-			logger->log("File " + path.string() + " found in FileGeneratorSettings::toParseFiles doesn't exist. Skip.", ILogger::ELogSeverity::Warning);
+			logger->log("File " + path.string() + " doesn't exist or is not a file. Skip.", ILogger::ELogSeverity::Warning);
 		}
 	}
 
@@ -44,8 +44,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 				{
 					if (entry.is_regular_file())
 					{
-						if (settings.getSupportedExtensions().find(entry.path().extension().string()) != settings.getSupportedExtensions().cend() &&	//supported extension
-							settings.getIgnoredFiles().find(entry.path()) == settings.getIgnoredFiles().cend())											//file is not ignored
+						if (settings.isSupportedFileExtension(entry.path().extension()) && !settings.isIgnoredFile(entry.path()))
 						{
 							if (!codeGenUnit.isUpToDate(entry.path()) || forceRegenerateAll)
 							{
@@ -57,7 +56,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 							}
 						}
 					}
-					else if (entry.is_directory() && settings.getIgnoredDirectories().find(entry.path()) != settings.getIgnoredDirectories().cend())	//directory is ignored
+					else if (entry.is_directory() && settings.isIgnoredDirectory(entry.path()))
 					{
 						//Don't iterate on ignored directory content
 						directoryIt.disable_recursion_pending();
@@ -68,7 +67,7 @@ std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& cod
 		else if (logger != nullptr)
 		{
 			//Add FileGenerationFile invalid path
-			logger->log("Directory " + pathToIncludedDir.string() + " found in FileGeneratorSettings::toParseDirectories doesn't exist. Skip.", ILogger::ELogSeverity::Warning);
+			logger->log("Directory " + pathToIncludedDir.string() + " is not a directory or doesn't exist. Skip.", ILogger::ELogSeverity::Warning);
 		}
 	}
 

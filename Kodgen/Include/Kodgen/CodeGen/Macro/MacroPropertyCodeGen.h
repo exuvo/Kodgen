@@ -119,10 +119,8 @@ namespace kodgen
 											 MacroCodeGenEnv&	env)						noexcept;
 
 		public:
-			/**
-			*	@param eligibleEntityMask	A mask defining all the types of entity this MacroPropertyCodeGen instance should run on.
-			*/
-			MacroPropertyCodeGen(EEntityType eligibleEntityMask) noexcept;
+			//Use the same constructor as PropertyCodeGen
+			using PropertyCodeGen::PropertyCodeGen;
 
 			/**
 			*	@brief	Generate code for a given entity.
