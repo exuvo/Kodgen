@@ -31,7 +31,7 @@ CXChildVisitResult ClassParser::parse(CXCursor const& classCursor, ParsingContex
 		//Check if the parent has the shouldParseAllNested flag set
 		if (shouldParseCurrentEntity())
 		{
-			getParsingResult()->parsedClass.emplace(classCursor, PropertyGroup(), (classCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
+			getParsingResult()->parsedClass.emplace(classCursor, std::vector<Property>(), (classCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
 		}
 	}
 
@@ -57,7 +57,7 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
 		{
 			//Make it valid right away so init the result
-			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, PropertyGroup(), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
+			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, std::vector<Property>(), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
 		}
 		else
 		{
@@ -175,10 +175,10 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 {
 	ParsingContext& context = getContext();
 
-	if (opt::optional<PropertyGroup> propertyGroup = getProperties(annotationCursor))
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
 	{
 		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
-		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*propertyGroup), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct));
+		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct));
 
 		return CXChildVisitResult::CXChildVisit_Recurse;
 	}
@@ -193,7 +193,7 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 	}
 }
 
-opt::optional<PropertyGroup> ClassParser::getProperties(CXCursor const& cursor) noexcept
+opt::optional<std::vector<Property>> ClassParser::getProperties(CXCursor const& cursor) noexcept
 {
 	ParsingContext& context = getContext();
 

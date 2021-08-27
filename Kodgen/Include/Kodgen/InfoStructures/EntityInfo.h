@@ -7,14 +7,15 @@
 
 #pragma once
 
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include <clang-c/Index.h>
 
 #include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/InfoStructures/EEntityType.h"
-#include "Kodgen/Properties/PropertyGroup.h"
+#include "Kodgen/Properties/Property.h"
 
 namespace kodgen
 {
@@ -22,27 +23,27 @@ namespace kodgen
 	{
 		public:
 			/** Type of entity. */
-			EEntityType			entityType	= EEntityType::Undefined;
+			EEntityType				entityType	= EEntityType::Undefined;
 			
 			/** Name of the entity. */
-			std::string			name		= "";
+			std::string				name;
 			
 			/** Unique id of the entity. */
-			std::string			id			= "";
+			std::string				id;
 			
 			/** Entity this entity is contained into, nullptr if none (file level). */
-			EntityInfo const*	outerEntity	= nullptr;
+			EntityInfo const*		outerEntity	= nullptr;
 			
 			/** All properties bound to this entity. */
-			PropertyGroup		propertyGroup;
+			std::vector<Property>	properties;
 
-			EntityInfo()								= default;
-			EntityInfo(CXCursor const&	cursor,
-					   PropertyGroup&&	propertyGroup,
-					   EEntityType		entityType)		noexcept;
-			EntityInfo(EntityInfo const&)				= default;
-			EntityInfo(EntityInfo&&)					= default;
-			~EntityInfo()								= default;
+			EntityInfo()									= default;
+			EntityInfo(CXCursor const&			cursor,
+					   std::vector<Property>&&	propertyGroup,
+					   EEntityType				entityType)		noexcept;
+			EntityInfo(EntityInfo const&)					= default;
+			EntityInfo(EntityInfo&&)						= default;
+			~EntityInfo()									= default;
 
 			/**
 			*	@brief Generates the full name of this entity (with outer entities).

@@ -20,7 +20,7 @@ namespace kodgen
 			static constexpr EEntityType	nestedEntityTypes	= EEntityType::Undefined;
 
 			/** Default integer value for this enum value. */
-			int64							defaultValue		= 0;
+			int64							value				= 0;
 
 			EnumValueInfo()							= default;
 			EnumValueInfo(CXCursor const& cursor)	noexcept;

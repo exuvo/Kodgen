@@ -4,8 +4,8 @@
 
 using namespace kodgen;
 
-FieldInfo::FieldInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup) noexcept:
-	VariableInfo(cursor, std::forward<PropertyGroup>(propertyGroup), EEntityType::Field),
+FieldInfo::FieldInfo(CXCursor const& cursor, std::vector<Property>&& properties) noexcept:
+	VariableInfo(cursor, std::forward<std::vector<Property>>(properties), EEntityType::Field),
 	isMutable{clang_CXXField_isMutable(cursor) != 0u},
 	accessSpecifier{EAccessSpecifier::Invalid},
 	memoryOffset{0}

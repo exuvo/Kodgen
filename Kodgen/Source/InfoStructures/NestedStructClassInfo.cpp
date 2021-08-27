@@ -8,7 +8,7 @@ NestedStructClassInfo::NestedStructClassInfo(StructClassInfo&& base, EAccessSpec
 	entityType		= base.entityType;
 	name			= std::move(base.name);
 	id				= std::move(base.id);
-	propertyGroup	= std::move(base.propertyGroup);
+	properties		= std::move(base.properties);
 
 	qualifiers		= base.qualifiers;
 	type			= std::move(base.type);

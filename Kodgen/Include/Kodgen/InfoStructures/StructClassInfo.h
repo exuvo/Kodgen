@@ -69,9 +69,9 @@ namespace kodgen
 			std::vector<MethodInfo>								methods;
 
 			StructClassInfo()								noexcept;
-			StructClassInfo(CXCursor const&	cursor,
-							PropertyGroup&&	propertyGroup,
-							EEntityType&&	entityType)		noexcept;
+			StructClassInfo(CXCursor const&			cursor,
+							std::vector<Property>&&	properties,
+							EEntityType&&			entityType)		noexcept;
 			StructClassInfo(StructClassInfo const&)			= default;
 			StructClassInfo(StructClassInfo&&)				= default;
 			~StructClassInfo()								= default;

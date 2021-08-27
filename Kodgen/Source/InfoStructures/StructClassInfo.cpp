@@ -10,8 +10,8 @@ StructClassInfo::StructClassInfo() noexcept:
 {
 }
 
-StructClassInfo::StructClassInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup, EEntityType&& entityType) noexcept:
-	EntityInfo(cursor, std::forward<PropertyGroup>(propertyGroup), std::forward<EEntityType>(entityType)),
+StructClassInfo::StructClassInfo(CXCursor const& cursor, std::vector<Property>&& properties, EEntityType&& entityType) noexcept:
+	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), std::forward<EEntityType>(entityType)),
 	qualifiers{false},
 	type{clang_getCursorType(cursor)}
 {

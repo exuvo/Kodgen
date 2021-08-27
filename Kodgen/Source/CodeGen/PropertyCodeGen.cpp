@@ -47,10 +47,10 @@ ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const& entity, Code
 		AdditionalData data;
 
 		//Execute the visitor on each property contained in the entity
-		for (uint8 i = 0; i < entity.propertyGroup.properties.size(); i++)
+		for (uint8 i = 0; i < entity.properties.size(); i++)
 		{
 			data.propertyIndex = i;
-			data.property = &entity.propertyGroup.properties[i];
+			data.property = &entity.properties[i];
 
 			if (shouldGenerateCode(entity, *data.property, data.propertyIndex))
 			{

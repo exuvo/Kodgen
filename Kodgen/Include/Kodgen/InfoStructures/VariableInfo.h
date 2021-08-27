@@ -17,9 +17,9 @@ namespace kodgen
 	class VariableInfo : public EntityInfo
 	{
 		protected:
-			VariableInfo(CXCursor const&	cursor,
-						 PropertyGroup&&	propertyGroup,
-						 EEntityType		entityType)		noexcept;
+			VariableInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties,
+						 EEntityType				entityType)		noexcept;
 
 		public:
 			/** Is this variable static or not. */
@@ -28,11 +28,11 @@ namespace kodgen
 			/** Type of this variable. */
 			TypeInfo			type;
 
-			VariableInfo()								= default;
-			VariableInfo(CXCursor const& cursor,
-						 PropertyGroup&& propertyGroup)	noexcept;
-			VariableInfo(VariableInfo const&)			= default;
-			VariableInfo(VariableInfo&&)				= default;
-			~VariableInfo()								= default;
+			VariableInfo()										= default;
+			VariableInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties)	noexcept;
+			VariableInfo(VariableInfo const&)					= default;
+			VariableInfo(VariableInfo&&)						= default;
+			~VariableInfo()										= default;
 	};
 }

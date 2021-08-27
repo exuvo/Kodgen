@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <variant>
 #include <string>
 
 #include <clang-c/Index.h>
@@ -45,9 +44,9 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			static CXChildVisitResult		parseNestedEntity(CXCursor		cursor,
-															  CXCursor		parentCursor,
-															  CXClientData	clientData)								noexcept;
+			static CXChildVisitResult				parseNestedEntity(CXCursor		cursor,
+																	  CXCursor		parentCursor,
+																	  CXClientData	clientData)								noexcept;
 
 			/**
 			*	@brief Update the context structClassTree recursively.
@@ -56,9 +55,9 @@ namespace kodgen
 			*	@param baseOfCursor			AST cursor to the base class.
 			*	@param out_structClassTree	StructClassTree to update.
 			*/
-			static void						updateStructClassTreeRecursion(CXType			childType,
-																		   CXCursor			baseOfCursor,
-																		   StructClassTree& out_structClassTree)	noexcept;
+			static void								updateStructClassTreeRecursion(CXType			childType,
+																				   CXCursor			baseOfCursor,
+																				   StructClassTree& out_structClassTree)	noexcept;
 
 			/**
 			*	@brief Push a new clean context to prepare struct/class parsing.
@@ -69,18 +68,18 @@ namespace kodgen
 			*
 			*	@return The new context.
 			*/
-			ParsingContext&					pushContext(CXCursor const&			classCursor,
-														ParsingContext const&	parentContext,
-														ClassParsingResult&		out_result)				noexcept;
+			ParsingContext&							pushContext(CXCursor const&			classCursor,
+																ParsingContext const&	parentContext,
+																ClassParsingResult&		out_result)				noexcept;
 
 			/**
 			*	@brief Retrieve the properties from the provided cursor if possible.
 			*
 			*	@param cursor Property cursor we retrieve information from.
 			*
-			*	@return A filled PropertyGroup if valid, else nullopt.
+			*	@return A filled list of properties if valid, else nullopt.
 			*/
-			opt::optional<PropertyGroup>	getProperties(CXCursor const& cursor)						noexcept;
+			opt::optional<std::vector<Property>>	getProperties(CXCursor const& cursor)						noexcept;
 			
 			/**
 			*	@brief Set the parsed struct/class if it is a valid one.
@@ -89,63 +88,63 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			CXChildVisitResult				setParsedEntity(CXCursor const& annotationCursor)			noexcept;
+			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)			noexcept;
 
 			/**
 			*	@brief Update the access specifier in the parsing context.
 			*
 			*	@param cursor AST cursor to the new access specifier.
 			*/
-			void							updateAccessSpecifier(CXCursor const& cursor)				noexcept;
+			void									updateAccessSpecifier(CXCursor const& cursor)				noexcept;
 			
 			/**
 			*	@brief Update the context structClassTree according to the provided inheritance cursor.
 			* 
 			*	@param cursor AST cursor to the base class.
 			*/
-			void							updateStructClassTree(CXCursor cursor)						noexcept;
+			void									updateStructClassTree(CXCursor cursor)						noexcept;
 
 			/**
 			*	@brief Add a base class (parent class) to the currently parsed struct/class info.
 			*
 			*	@param cursor AST cursor to the base class.
 			*/
-			void							addBaseClass(CXCursor cursor)								noexcept;
+			void									addBaseClass(CXCursor cursor)								noexcept;
 
 			/**
 			*	@brief Add the provided struct/class result to the current class context result.
 			*
 			*	@param result ClassParsingResult to add.
 			*/
-			void							addClassResult(ClassParsingResult&& result)					noexcept;
+			void									addClassResult(ClassParsingResult&& result)					noexcept;
 
 			/**
 			*	@brief Add the provided enum result to the current class context result.
 			*
 			*	@param result ClassParsingResult to add.
 			*/
-			void							addEnumResult(EnumParsingResult&& result)					noexcept;
+			void									addEnumResult(EnumParsingResult&& result)					noexcept;
 
 			/**
 			*	@brief Add the provided field result to the current class context result.
 			*
 			*	@param result FieldParsingResult to add.
 			*/
-			void							addFieldResult(FieldParsingResult&& result)					noexcept;
+			void									addFieldResult(FieldParsingResult&& result)					noexcept;
 
 			/**
 			*	@brief Add the provided method result to the current class context result.
 			*
 			*	@param result MethodParsingResult to add.
 			*/
-			void							addMethodResult(MethodParsingResult&& result)				noexcept;
+			void									addMethodResult(MethodParsingResult&& result)				noexcept;
 
 			/**
 			*	@brief Helper to get the ParsingResult contained in the context as a ClassParsingResult.
 			*
 			*	@return The cast ClassParsingResult.
 			*/
-			inline ClassParsingResult*		getParsingResult()											noexcept;
+			inline ClassParsingResult*				getParsingResult()											noexcept;
 
 		protected:
 			/**

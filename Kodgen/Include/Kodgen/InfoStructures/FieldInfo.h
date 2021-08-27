@@ -28,11 +28,11 @@ namespace kodgen
 			/** Memory offset in bytes. */
 			int64							memoryOffset;
 
-			FieldInfo()									= default;
-			FieldInfo(CXCursor const& cursor,
-					  PropertyGroup&& propertyGroup)	noexcept;
-			FieldInfo(FieldInfo const&)					= default;
-			FieldInfo(FieldInfo&&)						= default;
-			~FieldInfo()								= default;
+			FieldInfo()											= default;
+			FieldInfo(CXCursor const&			cursor,
+					  std::vector<Property>&&	propertyGroup)	noexcept;
+			FieldInfo(FieldInfo const&)							= default;
+			FieldInfo(FieldInfo&&)								= default;
+			~FieldInfo()										= default;
 	};
 }

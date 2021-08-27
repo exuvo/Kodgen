@@ -29,9 +29,9 @@ namespace kodgen
 			std::string getName() const noexcept;
 
 		protected:
-			FunctionInfo(CXCursor const&	cursor,
-						 PropertyGroup&&	propertyGroup,
-						 EEntityType		entityType)		noexcept;
+			FunctionInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties,
+						 EEntityType				entityType)		noexcept;
 
 		public:
 			static constexpr EEntityType	nestedEntityTypes = EEntityType::Undefined;
@@ -51,12 +51,12 @@ namespace kodgen
 			/** Is this function static or not. */
 			bool isStatic	: 1;
 
-			FunctionInfo()									= default;
-			FunctionInfo(CXCursor const&	cursor,
-						 PropertyGroup&&	propertyGroup)	noexcept;
-			FunctionInfo(FunctionInfo const&)				= default;
-			FunctionInfo(FunctionInfo&&)					= default;
-			~FunctionInfo()									= default;
+			FunctionInfo()										= default;
+			FunctionInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties)	noexcept;
+			FunctionInfo(FunctionInfo const&)					= default;
+			FunctionInfo(FunctionInfo&&)						= default;
+			~FunctionInfo()										= default;
 
 			/**
 			*	@brief Get the prototype of this function.

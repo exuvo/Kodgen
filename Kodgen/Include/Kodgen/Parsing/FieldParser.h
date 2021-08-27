@@ -27,18 +27,18 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			static CXChildVisitResult		parseNestedEntity(CXCursor		cursor,
-															  CXCursor		parentCursor,
-															  CXClientData	clientData)				noexcept;
+			static CXChildVisitResult				parseNestedEntity(CXCursor		cursor,
+																	  CXCursor		parentCursor,
+																	  CXClientData	clientData)				noexcept;
 
 			/**
 			*	@brief Retrieve the properties from the provided cursor if possible.
 			*
 			*	@param cursor Property cursor we retrieve information from.
 			*
-			*	@return A filled PropertyGroup if valid, else nullopt.
+			*	@return A filled list of properties if valid, else nullopt.
 			*/
-			opt::optional<PropertyGroup>	getProperties(CXCursor const& cursor)					noexcept;
+			opt::optional<std::vector<Property>>	getProperties(CXCursor const& cursor)					noexcept;
 
 			/**
 			*	@brief Set the parsed field if it is a valid one.
@@ -47,7 +47,7 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			CXChildVisitResult				setParsedEntity(CXCursor const& annotationCursor)		noexcept;
+			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)		noexcept;
 
 			/**
 			*	@brief Push a new clean context to prepare field parsing.
@@ -58,16 +58,16 @@ namespace kodgen
 			*
 			*	@return The new context.
 			*/
-			ParsingContext&					pushContext(CXCursor const&				fieldCursor,
-														ParsingContext const&		parentContext,
-														FieldParsingResult&			out_result)		noexcept;
+			ParsingContext&							pushContext(CXCursor const&				fieldCursor,
+																ParsingContext const&		parentContext,
+																FieldParsingResult&			out_result)		noexcept;
 
 			/**
 			*	@brief Helper to get the ParsingResult contained in the context as a FieldParsingResult.
 			*
 			*	@return The cast FieldParsingResult.
 			*/
-			inline FieldParsingResult*		getParsingResult()										noexcept;
+			inline FieldParsingResult*				getParsingResult()										noexcept;
 
 		public:
 			/**

@@ -7,8 +7,8 @@
 
 using namespace kodgen;
 
-FunctionInfo::FunctionInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup, EEntityType entityType) noexcept:
-	EntityInfo(cursor, std::forward<PropertyGroup>(propertyGroup), entityType),
+FunctionInfo::FunctionInfo(CXCursor const& cursor, std::vector<Property>&& properties, EEntityType entityType) noexcept:
+	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), entityType),
 	isInline{clang_Cursor_isFunctionInlined(cursor) != 0u},
 	isStatic{false}
 {
@@ -26,8 +26,8 @@ FunctionInfo::FunctionInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup
 	name = getName();
 }
 
-FunctionInfo::FunctionInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup) noexcept:
-	FunctionInfo(cursor, std::forward<PropertyGroup>(propertyGroup), EEntityType::Function)
+FunctionInfo::FunctionInfo(CXCursor const& cursor, std::vector<Property>&& properties) noexcept:
+	FunctionInfo(cursor, std::forward<std::vector<Property>>(properties), EEntityType::Function)
 {
 	assert(cursor.kind == CXCursorKind::CXCursor_FunctionDecl);
 

@@ -4,11 +4,11 @@
 
 using namespace kodgen;
 
-EntityInfo::EntityInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup, EEntityType entityType) noexcept:
+EntityInfo::EntityInfo(CXCursor const& cursor, std::vector<Property>&& properties, EEntityType entityType) noexcept:
 	entityType{entityType},
 	name{Helpers::getString(clang_getCursorDisplayName(cursor))},
 	id{Helpers::getString(clang_getCursorUSR(cursor))},
-	propertyGroup{std::forward<PropertyGroup>(propertyGroup)}
+	properties{std::forward<std::vector<Property>>(properties)}
 {
 }
 

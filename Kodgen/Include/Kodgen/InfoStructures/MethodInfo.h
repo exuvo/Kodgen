@@ -40,11 +40,11 @@ namespace kodgen
 			/** Is this method const or not. */
 			bool							isConst			: 1;
 
-			MethodInfo()								= default;
-			MethodInfo(CXCursor const& cursor,
-					   PropertyGroup&& propertyGroup)	noexcept;
-			MethodInfo(MethodInfo const&)				= default;
-			MethodInfo(MethodInfo&&)					= default;
-			~MethodInfo()								= default;
+			MethodInfo()									= default;
+			MethodInfo(CXCursor const&			cursor,
+					   std::vector<Property>&&	properties)	noexcept;
+			MethodInfo(MethodInfo const&)					= default;
+			MethodInfo(MethodInfo&&)						= default;
+			~MethodInfo()									= default;
 	};
 }

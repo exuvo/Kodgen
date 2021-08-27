@@ -22,7 +22,7 @@ CXChildVisitResult VariableParser::parse(CXCursor const& variableCursor, Parsing
 		//Check if the parent has the shouldParseAllNested flag set
 		if (shouldParseCurrentEntity())
 		{
-			getParsingResult()->parsedVariable.emplace(variableCursor, PropertyGroup());
+			getParsingResult()->parsedVariable.emplace(variableCursor, std::vector<Property>());
 		}
 	}
 
@@ -48,7 +48,7 @@ CXChildVisitResult VariableParser::parseNestedEntity(CXCursor cursor, CXCursor /
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
 		{
 			//Make it valid right away so init the result
-			parser->getParsingResult()->parsedVariable.emplace(context.rootCursor, PropertyGroup());
+			parser->getParsingResult()->parsedVariable.emplace(context.rootCursor, std::vector<Property>());
 		}
 		else
 		{
@@ -65,10 +65,10 @@ CXChildVisitResult VariableParser::setParsedEntity(CXCursor const& annotationCur
 	VariableParsingResult*	result	= getParsingResult();
 	ParsingContext&			context	= getContext();
 
-	if (opt::optional<PropertyGroup> propertyGroup = getProperties(annotationCursor))
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
 	{
 		//Set the parsed entity in the result & initialize its information from the method cursor
-		result->parsedVariable.emplace(context.rootCursor, std::move(*propertyGroup));
+		result->parsedVariable.emplace(context.rootCursor, std::move(*properties));
 
 		return CXChildVisitResult::CXChildVisit_Recurse;
 	}
@@ -81,7 +81,7 @@ CXChildVisitResult VariableParser::setParsedEntity(CXCursor const& annotationCur
 	return CXChildVisitResult::CXChildVisit_Break;
 }
 
-opt::optional<PropertyGroup> VariableParser::getProperties(CXCursor const& cursor) noexcept
+opt::optional<std::vector<Property>> VariableParser::getProperties(CXCursor const& cursor) noexcept
 {
 	ParsingContext& context	= getContext();
 

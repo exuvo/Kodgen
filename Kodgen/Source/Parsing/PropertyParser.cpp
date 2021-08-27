@@ -6,13 +6,13 @@
 
 using namespace kodgen;
 
-opt::optional<PropertyGroup> PropertyParser::getProperties(std::string&& annotateMessage, std::string const& annotationId) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getProperties(std::string&& annotateMessage, std::string const& annotationId) noexcept
 {
 	if (annotateMessage.substr(0, annotationId.size()) == annotationId)
 	{
 		if (splitProperties(annotateMessage.substr(annotationId.size())))
 		{
-			return fillPropertyGroup(_splitProps);
+			return fillProperties(_splitProps);
 		}
 	}
 	else
@@ -24,63 +24,63 @@ opt::optional<PropertyGroup> PropertyParser::getProperties(std::string&& annotat
 	return opt::nullopt;
 }
 
-opt::optional<PropertyGroup> PropertyParser::getNamespaceProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getNamespaceProperties(std::string annotateMessage) noexcept
 {
 	static std::string namespaceAnnotation = "KGN:";
 
 	return getProperties(std::move(annotateMessage), namespaceAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getClassProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getClassProperties(std::string annotateMessage) noexcept
 {
 	static std::string classAnnotation = "KGC:";
 
 	return getProperties(std::move(annotateMessage), classAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getStructProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getStructProperties(std::string annotateMessage) noexcept
 {
 	static std::string structAnnotation = "KGS:";
 
 	return getProperties(std::move(annotateMessage), structAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getVariableProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getVariableProperties(std::string annotateMessage) noexcept
 {
 	static std::string variableAnnotation = "KGV:";
 
 	return getProperties(std::move(annotateMessage), variableAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getFieldProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getFieldProperties(std::string annotateMessage) noexcept
 {
 	static std::string fieldAnnotation = "KGF:";
 
 	return getProperties(std::move(annotateMessage), fieldAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getFunctionProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getFunctionProperties(std::string annotateMessage) noexcept
 {
 	static std::string functionAnnotation = "KGFu:";
 
 	return getProperties(std::move(annotateMessage), functionAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getMethodProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getMethodProperties(std::string annotateMessage) noexcept
 {
 	static std::string methodAnnotation = "KGM:";
 
 	return getProperties(std::move(annotateMessage), methodAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getEnumProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getEnumProperties(std::string annotateMessage) noexcept
 {
 	static std::string enumAnnotation = "KGE:";
 
 	return getProperties(std::move(annotateMessage), enumAnnotation);
 }
 
-opt::optional<PropertyGroup> PropertyParser::getEnumValueProperties(std::string annotateMessage) noexcept
+opt::optional<std::vector<Property>> PropertyParser::getEnumValueProperties(std::string annotateMessage) noexcept
 {
 	static std::string enumValueAnnotation = "KGEV:";
 
@@ -216,19 +216,19 @@ void PropertyParser::removeTrailSpaces(std::string& toCleanString) const noexcep
 	toCleanString.erase(toCleanString.find_last_not_of(' ') + 1);
 }
 
-PropertyGroup PropertyParser::fillPropertyGroup(std::vector<std::vector<std::string>>& splitProps) noexcept
+std::vector<Property> PropertyParser::fillProperties(std::vector<std::vector<std::string>>& splitProps) noexcept
 {
-	PropertyGroup propertyGroup;
+	std::vector<Property> result;
 
 	for (std::vector<std::string>& props : splitProps)
 	{
-		addProperty(props, propertyGroup);
+		addProperty(props, result);
 	}
 
-	return propertyGroup;
+	return result;
 }
 
-void PropertyParser::addProperty(std::vector<std::string>& propertyAsVector, PropertyGroup& out_propertyGroup) noexcept
+void PropertyParser::addProperty(std::vector<std::string>& propertyAsVector, std::vector<Property>& out_properties) noexcept
 {
 	Property prop{std::move(propertyAsVector[0]), std::vector<std::string>()};
 
@@ -240,7 +240,7 @@ void PropertyParser::addProperty(std::vector<std::string>& propertyAsVector, Pro
 			prop.arguments.insert(prop.arguments.cend(), std::make_move_iterator(propertyAsVector.begin() + 1), std::make_move_iterator(propertyAsVector.end()));
 	}
 	
-	out_propertyGroup.properties.emplace_back(std::move(prop));
+	out_properties.emplace_back(std::move(prop));
 }
 
 void PropertyParser::setup(PropertyParsingSettings const& propertyParsingSettings) noexcept

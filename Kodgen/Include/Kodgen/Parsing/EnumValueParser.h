@@ -26,25 +26,25 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			static CXChildVisitResult		parseNestedEntity(CXCursor		cursor,
-															  CXCursor		parentCursor,
-															  CXClientData	clientData)			noexcept;
+			static CXChildVisitResult				parseNestedEntity(CXCursor		cursor,
+																	  CXCursor		parentCursor,
+																	  CXClientData	clientData)			noexcept;
 
 			/**
 			*	@brief Retrieve the properties from the provided cursor if possible.
 			*
 			*	@param cursor Property cursor we retrieve information from.
 			*
-			*	@return A filled PropertyGroup if valid, else nullopt.
+			*	@return A filled list of properties if valid, else nullopt.
 			*/
-			opt::optional<PropertyGroup>	getProperties(CXCursor const& cursor)				noexcept;
+			opt::optional<std::vector<Property>>	getProperties(CXCursor const& cursor)				noexcept;
 
 			/**
 			*	@brief Fill the enum value result properties.
 			*
 			*	@param annotationCursor The AST cursor to the enum value annotation.
 			*/
-			void							setProperties(CXCursor const& annotationCursor)		noexcept;
+			void									setProperties(CXCursor const& annotationCursor)		noexcept;
 
 			/**
 			*	@brief Push a new clean context to prepare enum value parsing.
@@ -53,16 +53,16 @@ namespace kodgen
 			*	@param parentContext	Context the new context will inherit from.
 			*	@param out_result		Result to fill during parsing.
 			*/
-			void							pushContext(CXCursor const&			enumCursor,
-														ParsingContext const&	parentContext,
-														EnumValueParsingResult&	out_result)		noexcept;
+			void									pushContext(CXCursor const&			enumCursor,
+																ParsingContext const&	parentContext,
+																EnumValueParsingResult&	out_result)		noexcept;
 
 			/**
 			*	@brief Helper to get the ParsingResult contained in the context as a ClassParsingResult.
 			*
 			*	@return The cast ClassParsingResult.
 			*/
-			inline EnumValueParsingResult*	getParsingResult()									noexcept;
+			inline EnumValueParsingResult*			getParsingResult()									noexcept;
 
 		public:
 			/**
