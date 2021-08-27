@@ -143,6 +143,37 @@ ETraversalBehaviour	CodeGenUnit::generateCodeForEntityInternal(ICodeGenerator& c
 	return result;
 }
 
+void CodeGenUnit::sortedInsert(std::vector<ICodeGenerator*>& vector, ICodeGenerator& codeGen) noexcept
+{
+	vector.insert
+	(
+		std::upper_bound(vector.begin(), vector.end(), &codeGen, [](ICodeGenerator const* lhs, ICodeGenerator const* rhs)
+		{
+			return lhs->getGenerationOrder() < rhs->getGenerationOrder();
+		}),
+		&codeGen
+	);
+}
+
+std::vector<ICodeGenerator*> CodeGenUnit::getSortedCodeGenerators() const noexcept
+{
+	std::vector<ICodeGenerator*> result;
+
+	//Insert all code gen modules
+	for (CodeGenModule* codeGenModule : _generationModules)
+	{
+		sortedInsert(result, *codeGenModule);
+
+		//Insert all property code gens contained in code gen modules
+		for (PropertyCodeGen* propertyCodeGen : codeGenModule->getPropertyCodeGenerators())
+		{
+			sortedInsert(result, *propertyCodeGen);
+		}
+	}
+
+	return result;
+}
+
 CodeGenEnv* CodeGenUnit::createCodeGenEnv() const noexcept
 {
 	return new CodeGenEnv();
@@ -175,32 +206,10 @@ ETraversalBehaviour CodeGenUnit::foreachCodeGenEntityPair(std::function<ETravers
 {
 	assert(visitor != nullptr);
 
-	//=========================================
-	//=========================================
-	//=========================================
-	//TODO: Fill codeGenerators here (must be sorted by crescent generation order)
-	
-	std::vector<ICodeGenerator*> codeGenerators;
-
-	for (CodeGenModule* codeGenModule : _generationModules)
-	{
-		//TODO: Add them sorted by generation order
-		codeGenerators.push_back(codeGenModule);
-
-		for (PropertyCodeGen* propertyCodeGen : codeGenModule->getPropertyCodeGenerators())
-		{
-			codeGenerators.push_back(propertyCodeGen);
-		}
-	}
-
-	//=========================================
-	//=========================================
-	//=========================================
-
 	ETraversalBehaviour result;
 
 	//Call visitor on all code generators
-	for (ICodeGenerator* codeGenerator : codeGenerators)
+	for (ICodeGenerator* codeGenerator : getSortedCodeGenerators())
 	{
 		for (NamespaceInfo const& namespace_ : env.getFileParsingResult()->namespaces)
 		{
@@ -400,14 +409,7 @@ void CodeGenUnit::clearGenerationModules() noexcept
 void CodeGenUnit::addModule(CodeGenModule& generationModule) noexcept
 {
 	//Add modules sorted by generation order
-	_generationModules.insert
-	(
-		std::upper_bound(_generationModules.begin(), _generationModules.end(), &generationModule, [](CodeGenModule const* lhs, CodeGenModule const* rhs)
-		{
-			return lhs->getGenerationOrder() < rhs->getGenerationOrder();
-		}),
-		&generationModule
-	);
+	_generationModules.emplace_back(&generationModule);
 }
 
 bool CodeGenUnit::removeModule(CodeGenModule const& generationModule) noexcept
