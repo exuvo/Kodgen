@@ -117,16 +117,19 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 		//Call generate code once with a nullptr entity first
 		for (ICodeGenerator* codeGenerator : getSortedCodeGenerators())
 		{
-			codeGenerator->callVisitorOnEntity(nullptr, *env, std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
+			result &= codeGenerator->callVisitorOnEntity(nullptr, *env, std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)) != ETraversalBehaviour::AbortWithFailure;
 		}
 
-		//Iterate over each module and entity and generate code
-		result &= foreachCodeGenEntityPair(std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), *env) != ETraversalBehaviour::AbortWithFailure;
-
-		//Post-generation step, runs only if both the pre-generation and generation steps succeeded
 		if (result)
 		{
-			result &= postGenerateCode(*env);
+			//Iterate over each module and entity and generate code
+			result &= foreachCodeGenEntityPair(std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), *env) != ETraversalBehaviour::AbortWithFailure;
+
+			//Post-generation step, runs only if both the pre-generation and generation steps succeeded
+			if (result)
+			{
+				result &= postGenerateCode(*env);
+			}
 		}
 	}
 

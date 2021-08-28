@@ -75,7 +75,7 @@ ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const* entit
 	else
 	{
 		//Entity is nullptr, call the visitor with the nullptr entity and no data
-		visitor(*this, nullptr, env, nullptr);
+		return visitor(*this, nullptr, env, nullptr);
 	}
 }
 
