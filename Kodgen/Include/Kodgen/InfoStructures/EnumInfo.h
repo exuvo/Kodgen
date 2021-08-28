@@ -8,6 +8,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 #include <clang-c/Index.h>
 
@@ -42,29 +43,13 @@ namespace kodgen
 			*	@param visitor		Function to call on entities.
 			*/
 			template <typename Functor, typename = std::enable_if_t<std::is_invocable_v<Functor, EntityInfo const&>>>
-			void foreachEntityOfType(EEntityType entityMask, Functor visitor) const noexcept
-			{
-				assert(entityType == EEntityType::Enum);
-
-				//Call visitor on this enum if mask matches
-				if (entityMask && entityType)
-				{
-					visitor(*this);
-				}
-
-				//Propagate call on nested entities
-				if (entityMask && EEntityType::EnumValue)
-				{
-					for (EnumValueInfo const& enumValue : enumValues)
-					{
-						visitor(enumValue);
-					}
-				}
-			}
+			void	foreachEntityOfType(EEntityType entityMask, Functor visitor)	const	noexcept;
 
 			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.
 			*/
-			void	refreshOuterEntity()	noexcept;
+			void	refreshOuterEntity()													noexcept;
 	};
+
+	#include "Kodgen/InfoStructures/EnumInfo.inl"
 }

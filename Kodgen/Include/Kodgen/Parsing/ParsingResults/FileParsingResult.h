@@ -8,6 +8,7 @@
 #pragma once
 
 #include <vector>
+#include <cassert>
 
 #include "Kodgen/Parsing/ParsingError.h"
 #include "Kodgen/Parsing/ParsingSettings.h"
@@ -57,52 +58,8 @@ namespace kodgen
 			*	@param visitor		Function to call on entities.
 			*/
 			template <typename Functor, typename = std::enable_if_t<std::is_invocable_v<Functor, EntityInfo const&>>>
-			void foreachEntityOfType(EEntityType entityMask, Functor visitor) const noexcept
-			{
-				if (entityMask && NamespaceInfo::nestedEntityTypes) //EEntityType::Namespace is already included in NamespaceInfo::nestedEntityTypes
-				{
-					for (NamespaceInfo const& namespace_ : namespaces)
-					{
-						namespace_.foreachEntityOfType(entityMask, visitor);
-					}
-				}
-
-				if (entityMask && StructClassInfo::nestedEntityTypes)	//EEntityType::Class and EEntityType::Struct are already included in StructClassInfo::nestedEntityTypes
-				{
-					for (StructClassInfo const& class_ : classes)
-					{
-						class_.foreachEntityOfType(entityMask, visitor);
-					}
-
-					for (StructClassInfo const& struct_ : structs)	
-					{
-						struct_.foreachEntityOfType(entityMask, visitor);
-					}
-				}
-
-				if ((entityMask && EEntityType::Enum) || (entityMask && EnumInfo::nestedEntityTypes))
-				{
-					for (EnumInfo const& enum_ : enums)
-					{
-						enum_.foreachEntityOfType(entityMask, visitor);
-					}
-				}
-
-				if (entityMask && EEntityType::Function)
-				{
-					for (FunctionInfo const& function : functions)
-					{
-						visitor(function);
-					}
-				}
-				
-				if (entityMask && EEntityType::Variable)
-				{
-					for (VariableInfo const& variable : variables)
-					{
-						visitor(variable);
-					}
-				}
-			}
+			void foreachEntityOfType(EEntityType entityMask, Functor visitor)	const	noexcept;
 	};
+
+	#include "Kodgen/Parsing/ParsingResults/FileParsingResult.inl"
 }
