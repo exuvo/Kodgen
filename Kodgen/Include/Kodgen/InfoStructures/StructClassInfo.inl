@@ -21,12 +21,14 @@ void StructClassInfo::foreachEntityOfType(EEntityType entityMask, Functor visito
 	{
 		for (std::shared_ptr<NestedStructClassInfo> const& struct_ : nestedStructs)
 		{
-			struct_->foreachEntityOfType(entityMask, visitor);
+			//Need to use reinterpret_cast here because NestedStructClassInfo is only forward declared
+			reinterpret_cast<StructClassInfo*>(struct_.get())->foreachEntityOfType(entityMask, visitor);
 		}
 
 		for (std::shared_ptr<NestedStructClassInfo> const& class_ : nestedClasses)	
 		{
-			class_->foreachEntityOfType(entityMask, visitor);
+			//Need to use reinterpret_cast here because NestedStructClassInfo is only forward declared
+			reinterpret_cast<StructClassInfo*>(class_.get())->foreachEntityOfType(entityMask, visitor);
 		}
 	}
 
