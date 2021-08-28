@@ -74,6 +74,62 @@ namespace kodgen
 							EEntityType&&			entityType)		noexcept;
 
 			/**
+			*	@brief Call a visitor function on a struct/class and each nested entity of the provided type(s).
+			* 
+			*	@param entityMask	All types of entities the visitor function should be called on.
+			*	@param visitor		Function to call on entities.
+			*/
+			template <typename Functor, typename = std::enable_if_t<std::is_invocable_v<Functor, EntityInfo const&>>>
+			void foreachEntityOfType(EEntityType entityMask, Functor visitor) const noexcept
+			{
+				assert(entityType == EEntityType::Class || entityType == EEntityType::Struct);
+
+				//Call visitor on this struct/class if mask matches
+				if (entityMask && entityType)
+				{
+					visitor(*this);
+				}
+
+				//Propagate call on nested entities
+				if (entityMask && StructClassInfo::nestedEntityTypes)	//EEntityType::Class and EEntityType::Struct are already included in StructClassInfo::nestedEntityTypes
+				{
+					for (std::shared_ptr<NestedStructClassInfo> const& struct_ : nestedStructs)
+					{
+						struct_->foreachEntityOfType(entityMask, visitor);
+					}
+
+					for (std::shared_ptr<NestedStructClassInfo> const& class_ : nestedClasses)	
+					{
+						class_->foreachEntityOfType(entityMask, visitor);
+					}
+				}
+				
+				if ((entityMask && EEntityType::Enum) || (entityMask && EnumInfo::nestedEntityTypes))
+				{
+					for (EnumInfo const& enum_ : nestedEnums)
+					{
+						enum_.foreachEntityOfType(entityMask, visitor);
+					}
+				}
+
+				if (entityMask && EEntityType::Field)
+				{
+					for (MethodInfo const& method : methods)
+					{
+						visitor(method);
+					}
+				}
+
+				if (entityMask && EEntityType::Method)
+				{
+					for (MethodInfo const& method : methods)
+					{
+						visitor(method);
+					}
+				}
+			}
+
+			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.
 			*/
 			void	refreshOuterEntity()	noexcept;

@@ -116,8 +116,6 @@ namespace kodgen
 			void						addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen)		noexcept;
 
 		public:
-			virtual ~MacroCodeGenModule() = default;
-
 			/**
 			*	@brief	Make sure that the provided env is castable to MacroCodeGenEnv.
 			*			The check can only happen if RTTI is enabled.

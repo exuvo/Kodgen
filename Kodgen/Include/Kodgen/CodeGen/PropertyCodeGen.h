@@ -76,17 +76,6 @@ namespace kodgen
 			*/
 			bool						shouldIterateOnNestedEntities(EntityInfo const& entity)						const	noexcept;
 
-		protected:
-			/**
-			*	@brief Check if 2 entity types masks have at least one common entity type.
-			* 
-			*	@param lhs First entity type mask.
-			*	@param rhs Second entity type mask.
-			* 
-			*	@return true if at least one entity type is common to the 2 provided masks, else false.
-			*/
-			static inline bool entityTypeOverlap(EEntityType lhs, EEntityType rhs)	noexcept;
-
 		public:
 			/**
 			*	@param propertyName			Name of the property this property generator should generate code for.

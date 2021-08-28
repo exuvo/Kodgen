@@ -36,6 +36,33 @@ namespace kodgen
 					 std::vector<Property>&&	properties)	noexcept;
 
 			/**
+			*	@brief Call a visitor function on an enum and each nested entity of the provided type(s).
+			* 
+			*	@param entityMask	All types of entities the visitor function should be called on.
+			*	@param visitor		Function to call on entities.
+			*/
+			template <typename Functor, typename = std::enable_if_t<std::is_invocable_v<Functor, EntityInfo const&>>>
+			void foreachEntityOfType(EEntityType entityMask, Functor visitor) const noexcept
+			{
+				assert(entityType == EEntityType::Enum);
+
+				//Call visitor on this enum if mask matches
+				if (entityMask && entityType)
+				{
+					visitor(*this);
+				}
+
+				//Propagate call on nested entities
+				if (entityMask && EEntityType::EnumValue)
+				{
+					for (EnumValueInfo const& enumValue : enumValues)
+					{
+						visitor(enumValue);
+					}
+				}
+			}
+
+			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.
 			*/
 			void	refreshOuterEntity()	noexcept;

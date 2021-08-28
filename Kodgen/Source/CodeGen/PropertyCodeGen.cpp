@@ -13,9 +13,9 @@ bool PropertyCodeGen::initialize(CodeGenEnv& /* env */) noexcept
 	return true;
 }
 
-bool PropertyCodeGen::shouldGenerateCode(EntityInfo const& entity, Property const& property, uint8 propertyIndex) const noexcept
+bool PropertyCodeGen::shouldGenerateCode(EntityInfo const& entity, Property const& property, uint8 /* propertyIndex */) const noexcept
 {
-	return property.name == _propertyName && entityTypeOverlap(entity.entityType, _eligibleEntityMask);
+	return property.name == _propertyName && (entity.entityType && _eligibleEntityMask);
 }
 
 bool PropertyCodeGen::shouldIterateOnNestedEntities(EntityInfo const& entity) const noexcept
@@ -23,15 +23,15 @@ bool PropertyCodeGen::shouldIterateOnNestedEntities(EntityInfo const& entity) co
 	switch (entity.entityType)
 	{
 		case EEntityType::Namespace:
-			return entityTypeOverlap(NamespaceInfo::nestedEntityTypes, _eligibleEntityMask);
+			return NamespaceInfo::nestedEntityTypes && _eligibleEntityMask;
 
 		case EEntityType::Struct:
 			[[fallthrough]];
 		case EEntityType::Class:
-			return entityTypeOverlap(StructClassInfo::nestedEntityTypes, _eligibleEntityMask);
+			return StructClassInfo::nestedEntityTypes && _eligibleEntityMask;
 
 		case EEntityType::Enum:
-			return entityTypeOverlap(EnumInfo::nestedEntityTypes, _eligibleEntityMask);
+			return EnumInfo::nestedEntityTypes && _eligibleEntityMask;
 
 		default:
 			//EnumValue
@@ -48,7 +48,7 @@ ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const& entit
 	assert(visitor != nullptr);
 
 	//Call the visitor if the entity type is contained in the _eligibleEntities mask
-	if (entityTypeOverlap(_eligibleEntityMask, entity.entityType))
+	if (_eligibleEntityMask && entity.entityType)
 	{
 		AdditionalData data;
 
