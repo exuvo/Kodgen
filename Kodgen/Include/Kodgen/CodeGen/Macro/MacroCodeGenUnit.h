@@ -45,23 +45,25 @@ namespace kodgen
 			*	@param env		Generation environment.
 			*	@param generate	Code generation method.
 			*/
-			void	generateEntityClassFooterCode(EntityInfo const&													entity,
-												  CodeGenEnv&														env,
-												  std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)>	generate)	noexcept;
+			void	generateEntityClassFooterCode(EntityInfo const*						entity,
+												  CodeGenEnv&							env,
+												  std::function<void(EntityInfo const*,
+																	 CodeGenEnv&,
+																	 std::string&)>		generate)	noexcept;
 
 			/**
 			*	@brief	(Re)generate the header file.
 			* 
 			*	@param env Generation environment.
 			*/
-			void				generateHeaderFile(MacroCodeGenEnv&	env)						noexcept;
+			void				generateHeaderFile(MacroCodeGenEnv&	env)							noexcept;
 
 			/**
 			*	@brief	(Re)generate the source file.
 			* 
 			*	@param env Generation environment.
 			*/
-			void				generateSourceFile(MacroCodeGenEnv&	env)						noexcept;
+			void				generateSourceFile(MacroCodeGenEnv&	env)							noexcept;
 
 			/**
 			*	@brief Compute the path of the header file generated from the provided source file.
@@ -70,7 +72,7 @@ namespace kodgen
 			* 
 			*	@return the path of the header file generated from the provided source file.
 			*/
-			fs::path			getGeneratedHeaderFilePath(fs::path const& sourceFile)	const	noexcept;
+			fs::path			getGeneratedHeaderFilePath(fs::path const& sourceFile)		const	noexcept;
 
 			/**
 			*	@brief Compute the path of the source file generated from the provided source file.
@@ -79,7 +81,7 @@ namespace kodgen
 			* 
 			*	@return the path of the source file generated from the provided source file.
 			*/
-			fs::path			getGeneratedSourceFilePath(fs::path const& sourceFile)	const	noexcept;
+			fs::path			getGeneratedSourceFilePath(fs::path const& sourceFile)		const	noexcept;
 
 		protected:
 			/**
@@ -90,16 +92,18 @@ namespace kodgen
 			*	@param env		Generation environment structure.
 			*	@param generate	Generation function to call to generate code.
 			*/
-			virtual void			generateCodeForEntity(EntityInfo const&													entity,
-														  CodeGenEnv&														env,
-														  std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)>	generate)	noexcept	override;
+			virtual void				generateCodeForEntity(EntityInfo const*						entity,
+															  CodeGenEnv&							env,
+															  std::function<void(EntityInfo const*,
+																				 CodeGenEnv&,
+																				 std::string&)>		generate)	noexcept	override;
 
 			/**
 			*	@brief	Instantiate a MacroCodeGenEnv object (using new).
 			* 
 			*	@return A dynamically instantiated (new) MacroCodeGenEnv object used during the whole generation process.
 			*/
-			virtual MacroCodeGenEnv*	createCodeGenEnv()											const	noexcept	override;
+			virtual MacroCodeGenEnv*	createCodeGenEnv()												const	noexcept	override;
 
 			/**
 			*	@brief Reset internally used variables to prepare the generation step.
@@ -110,7 +114,7 @@ namespace kodgen
 			*	@return true if the method completed successfully, else false.
 			*/
 			virtual bool				preGenerateCode(FileParsingResult const&	parsingResult,
-														CodeGenEnv&					env)					noexcept	override;
+														CodeGenEnv&					env)						noexcept	override;
 
 			/**
 			*	@brief	Create/update the header and source files and fill them with the generated code.
@@ -119,7 +123,7 @@ namespace kodgen
 			* 
 			*	@return true if the method completed successfully, else false.
 			*/
-			virtual bool				postGenerateCode(CodeGenEnv& env)									noexcept	override;
+			virtual bool				postGenerateCode(CodeGenEnv& env)										noexcept	override;
 
 		public:
 			/**

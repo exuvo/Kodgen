@@ -36,29 +36,7 @@ namespace kodgen
 			*	@brief	Delete all the registered generation modules. If they have been dynamically instantiated,
 			*			memory is released correctly.
 			*/
-			void							clearGenerationModules()																									noexcept;
-
-			/**
-			*	@brief	Method called on each entity when CodeGenUnit::generateCode is called.
-			* 
-			*	@param codeGenerator	The code generator to run for the entity.
-			*	@param entity			The entity for which the generate generates code.
-			*	@param env				The environment structure.
-			*	@param data				Opaque data forwarded to the codeGenerator.generateCode call.
-			* 
-			*	@return A combined value of all the codeGenerator.generateCode calls.
-			*/
-			ETraversalBehaviour				generateCodeForEntityInternal(ICodeGenerator&	codeGenerator,
-																		  EntityInfo const&	entity,
-																		  CodeGenEnv&		env,
-																		  void const*		data)												noexcept;
-
-			/**
-			*	@brief Compute the list of all generators nested in this CodeGenUnit sorted by ascending generation order.
-			* 
-			*	@return The list of sorted code generators.
-			*/
-			std::vector<ICodeGenerator*>	getSortedCodeGenerators()																	const	noexcept;
+			void							clearGenerationModules()																			noexcept;
 
 			/**
 			*	@brief Iterate and execute recursively a visitor function on each parsed entity/registered module pair.
@@ -71,7 +49,7 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
 			ETraversalBehaviour		foreachCodeGenEntityPair(std::function<ETraversalBehaviour(ICodeGenerator&,
-																							   EntityInfo const&,
+																							   EntityInfo const*,
 																							   CodeGenEnv&,
 																							   void const*)>		visitor,
 															 CodeGenEnv&											env)						noexcept;
@@ -92,7 +70,7 @@ namespace kodgen
 																			NamespaceInfo const&								namespace_,
 																			CodeGenEnv&											env,
 																			std::function<ETraversalBehaviour(ICodeGenerator&,
-																											  EntityInfo const&,
+																											  EntityInfo const*,
 																											  CodeGenEnv&,
 																											  void const*)>		visitor)		noexcept;
 
@@ -112,7 +90,7 @@ namespace kodgen
 																		 StructClassInfo const&									struct_,
 																		 CodeGenEnv&											env,
 																		 std::function<ETraversalBehaviour(ICodeGenerator&,
-																		 								   EntityInfo const&,
+																		 								   EntityInfo const*,
 																		 								   CodeGenEnv&,
 																		 								   void const*)>		visitor)		noexcept;
 
@@ -131,7 +109,7 @@ namespace kodgen
 																	   EnumInfo const&										enum_,
 																	   CodeGenEnv&											env,
 																	   std::function<ETraversalBehaviour(ICodeGenerator&,
-																										 EntityInfo const&,
+																										 EntityInfo const*,
 																										 CodeGenEnv&,
 																										 void const*)>		visitor)			noexcept;
 
@@ -160,9 +138,9 @@ namespace kodgen
 			*	@return An EIterationResult instructing how the entity traversal should continue (see the EIterationResult documentation for more info).
 			*			The result of the codeGenModule->generateCode() call can be forwarded in most cases to let the module control the flow of the traversal.
 			*/
-			virtual void			generateCodeForEntity(EntityInfo const&						entity,
+			virtual void			generateCodeForEntity(EntityInfo const*						entity,
 														  CodeGenEnv&							env,
-														  std::function<void(EntityInfo const&,
+														  std::function<void(EntityInfo const*,
 																			 CodeGenEnv&,
 																			 std::string&)>		generate)	noexcept	= 0;
 
@@ -201,6 +179,21 @@ namespace kodgen
 			virtual bool			postGenerateCode(CodeGenEnv& env)										noexcept;
 
 			/**
+			*	@brief	Method called on each entity when CodeGenUnit::generateCode is called.
+			* 
+			*	@param codeGenerator	The code generator to run for the entity.
+			*	@param entity			The entity for which the generate generates code. Can be nullptr.
+			*	@param env				The environment structure.
+			*	@param data				Opaque data forwarded to the codeGenerator.generateCode call.
+			* 
+			*	@return A combined value of all the codeGenerator.generateCode calls.
+			*/
+			ETraversalBehaviour		generateCodeForEntityInternal(ICodeGenerator&	codeGenerator,
+																  EntityInfo const*	entity,
+																  CodeGenEnv&		env,
+																  void const*		data)					noexcept;
+
+			/**
 			*	@brief Check if file last write time is newer than reference file last write time.
 			*			The method will assert if a path is invalid or is not a file.
 			* 
@@ -211,6 +204,13 @@ namespace kodgen
 			*/
 			bool						isFileNewerThan(fs::path const& file,
 														fs::path const& referenceFile)				const	noexcept;
+
+			/**
+			*	@brief Compute the list of all generators nested in this CodeGenUnit sorted by ascending generation order.
+			* 
+			*	@return The list of sorted code generators.
+			*/
+			std::vector<ICodeGenerator*>	getSortedCodeGenerators()								const	noexcept;
 
 		public:
 			/** Logger used to issue logs from this CodeGenUnit. */
@@ -268,13 +268,20 @@ namespace kodgen
 			*	@return true if a module has been successfully removed, else false.
 			*/
 			bool						removeModule(CodeGenModule const& generationModule)		noexcept;
-
+			
 			/**
 			*	@brief Getter for settings field.
 			* 
 			*	@return settings.
 			*/
-			CodeGenUnitSettings const*	getSettings()									const	noexcept;
+			CodeGenUnitSettings const*			getSettings()							const	noexcept;
+
+			/**
+			*	@brief Getter for _generationModules field.
+			* 
+			*	@return _generationModules.
+			*/
+			std::vector<CodeGenModule*>	const&	getRegisteredCodeGenModules()			const	noexcept;
 
 			CodeGenUnit&	operator=(CodeGenUnit const&)	noexcept;
 			CodeGenUnit&	operator=(CodeGenUnit&&)		= default;

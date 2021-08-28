@@ -44,10 +44,10 @@ namespace kodgen
 			*			Recurse if the entity can contain entities overlapping with the _eligibleEntityMask;
 			*			Continue if the entity doesn't contain any entities overlapping with the _eligibleEntityMask;
 			*/
-			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const*									entity,
 															CodeGenEnv&											env,
 															std::function<ETraversalBehaviour(ICodeGenerator&,
-																							  EntityInfo const&,
+																							  EntityInfo const*,
 																							  CodeGenEnv&,
 																							  void const*)>		visitor)	noexcept final override;
 
@@ -62,7 +62,7 @@ namespace kodgen
 			* 
 			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour	generateCode(EntityInfo const&	entity, 
+			virtual ETraversalBehaviour	generateCode(EntityInfo const*	entity, 
 													 CodeGenEnv&		env,
 													 std::string&		inout_result,
 													 void const*		data)												noexcept final override;
@@ -95,8 +95,8 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool				generateCode(EntityInfo const&	entity,
-													 Property const&	property,
+			virtual bool				generateCode(EntityInfo const*	entity,
+													 Property const*	property,
 													 uint8				propertyIndex,
 													 CodeGenEnv&		env,
 													 std::string&		inout_result)					noexcept = 0;

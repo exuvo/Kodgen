@@ -18,57 +18,65 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			kodgen::MacroPropertyCodeGen("Get", kodgen::EEntityType::Field)
 		{}
 
-		virtual bool preGenerateCode(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
+		virtual bool preGenerateCode(kodgen::EntityInfo const* /* entity */, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
-			std::string errorMessage;
+			if (property != nullptr)
+			{
+				std::string errorMessage;
 
-			//Can't have * and & at the same time
-			if (std::find(property.arguments.cbegin(), property.arguments.cend(), "*") != property.arguments.cend() &&
-				std::find(property.arguments.cbegin(), property.arguments.cend(), "&") != property.arguments.cend())
-			{
-				errorMessage = "Get property can't accept both '*' and '&' at the same time.";
-			}
-			else
-			{
-				//Check that Get property arguments are valid
-				for (std::string const& arg : property.arguments)
+				//Can't have * and & at the same time
+				if (std::find(property->arguments.cbegin(), property->arguments.cend(), "*") != property->arguments.cend() &&
+					std::find(property->arguments.cbegin(), property->arguments.cend(), "&") != property->arguments.cend())
 				{
-					if (arg != "*" && arg != "&" && arg != "const" && arg != "explicit")
+					errorMessage = "Get property can't accept both '*' and '&' at the same time.";
+				}
+				else
+				{
+					//Check that Get property arguments are valid
+					for (std::string const& arg : property->arguments)
 					{
-						errorMessage = "Get property only accepts '*', '&' and 'explicit' arguments.";
-						break;
+						if (arg != "*" && arg != "&" && arg != "const" && arg != "explicit")
+						{
+							errorMessage = "Get property only accepts '*', '&' and 'explicit' arguments.";
+							break;
+						}
 					}
 				}
-			}
 
-			if (!errorMessage.empty())
-			{
-				//Log error message and abort generation
-				if (env.getLogger() != nullptr)
+				if (!errorMessage.empty())
 				{
-					env.getLogger()->log(errorMessage, kodgen::ILogger::ELogSeverity::Error);
-				}
+					//Log error message and abort generation
+					if (env.getLogger() != nullptr)
+					{
+						env.getLogger()->log(errorMessage, kodgen::ILogger::ELogSeverity::Error);
+					}
 
-				return false;
+					return false;
+				}
 			}
 
 			//If arguments are valid, dispatch the generation call normally
 			return true;
 		}
 
-		virtual bool generateClassFooterCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
+		virtual bool generateClassFooterCode(kodgen::EntityInfo const* entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
 											 kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
-			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
+			if (entity == nullptr)
+			{
+				return true;
+			}
+
+			kodgen::FieldInfo const* field = reinterpret_cast<kodgen::FieldInfo const*>(entity);
 
 			std::string postQualifiers;
-			std::string rawReturnType	= field.type.getCanonicalName() + " ";
-			std::string returnName		= field.name;
+			std::string rawReturnType	= field->type.getCanonicalName() + " ";
+			std::string returnName		= field->name;
 			bool		isConst			= false;
 			bool		isRef			= false;
 			bool		isPtr			= false;
 
-			for (std::string const& subprop : property.arguments)
+			for (std::string const& subprop : property->arguments)
 			{
 				if (!isConst && subprop.at(0) == 'c')			//const
 				{
@@ -90,12 +98,12 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			std::string preTypeQualifiers;
 
 			//Upper case the first field info char if applicable
-			std::string methodName = field.name;
+			std::string methodName = field->name;
 			methodName.replace(0, 1, 1, static_cast<char>(std::toupper(methodName.at(0))));
 			methodName.insert(0, "get");
 			methodName += "()";
 
-			if (field.isStatic)
+			if (field->isStatic)
 			{
 				preTypeQualifiers = "static";
 				postQualifiers.clear();	//remove the const
@@ -125,19 +133,24 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return true;
 		}
 
-		virtual bool generateSourceFileHeaderCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
+		virtual bool generateSourceFileHeaderCode(kodgen::EntityInfo const* entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
 												  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
-			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
+			if (entity == nullptr)
+			{
+				return true;
+			}
+
+			kodgen::FieldInfo const* field = static_cast<kodgen::FieldInfo const*>(entity);
 
 			std::string postQualifiers;
-			std::string rawReturnType	= field.type.getCanonicalName() + " ";
-			std::string returnName		= field.name;
+			std::string rawReturnType	= field->type.getCanonicalName() + " ";
+			std::string returnName		= field->name;
 			bool		isConst			= false;
 			bool		isRef			= false;
 			bool		isPtr			= false;
 
-			for (std::string const& subprop : property.arguments)
+			for (std::string const& subprop : property->arguments)
 			{
 				if (!isConst && subprop.at(0) == 'c')			//const
 				{
@@ -162,12 +175,12 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			}
 			
 			//Upper case the first field info char if applicable
-			std::string methodName = field.name;
+			std::string methodName = field->name;
 			methodName.replace(0, 1, 1, static_cast<char>(std::toupper(methodName.at(0))));
 			methodName.insert(0, "get");
 			methodName += "()";
 
-			if (!field.isStatic && (isConst || !(isRef || isPtr)))	//Field can't be const and static so else if is fine
+			if (!field->isStatic && (isConst || !(isRef || isPtr)))	//Field can't be const and static so else if is fine
 			{
 				postQualifiers = " const";	//A const field or a getter-by-value implies a const getter even if not specified
 			}
@@ -187,7 +200,7 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 				returnName.insert(0, "&");
 			}
 
-			inout_result += rawReturnType + entity.outerEntity->getFullName() + "::" + methodName + postQualifiers + " { return " + returnName + "; }" + env.getSeparator();
+			inout_result += rawReturnType + entity->outerEntity->getFullName() + "::" + methodName + postQualifiers + " { return " + returnName + "; }" + env.getSeparator();
 
 			return true;
 		}

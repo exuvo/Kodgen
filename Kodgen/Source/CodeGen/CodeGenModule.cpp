@@ -39,16 +39,16 @@ bool CodeGenModule::removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen
 	return false;
 }
 
-ETraversalBehaviour CodeGenModule::callVisitorOnEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
+ETraversalBehaviour CodeGenModule::callVisitorOnEntity(EntityInfo const* entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const*, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
 
 	return visitor(*this, entity, env, nullptr);
 }
 
-ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
+ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
 {
-	return generateCode(&entity, env, inout_result);
+	return generateCode(entity, env, inout_result);
 }
 
 std::vector<PropertyCodeGen*> const& CodeGenModule::getPropertyCodeGenerators() const noexcept
