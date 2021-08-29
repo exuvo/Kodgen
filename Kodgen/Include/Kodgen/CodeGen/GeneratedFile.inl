@@ -2,7 +2,7 @@
 template <typename... Lines>
 void GeneratedFile::expandWriteMacroLines(std::string&& line, Lines&&... otherLines) noexcept
 {
-	writeLine("\t" + std::forward<std::string>(line) + "\t\\");
+	writeLine(std::forward<std::string>(line) + "\t\\");
 	expandWriteMacroLines(std::forward<Lines>(otherLines)...);
 }
 
