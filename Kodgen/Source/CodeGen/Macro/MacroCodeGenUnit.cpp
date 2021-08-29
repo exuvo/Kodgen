@@ -121,7 +121,7 @@ void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) noexcept
 	generatedSource.writeLine("#pragma once\n");
 	
 	//Include the header file
-	generatedSource.writeLine("#include \"" + env.getFileParsingResult()->parsedFile.string() + "\"\n");
+	generatedSource.writeLine("#include \"" + FilesystemHelpers::sanitizePath(env.getFileParsingResult()->parsedFile).string() + "\"\n");
 
 	generatedSource.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
 }
