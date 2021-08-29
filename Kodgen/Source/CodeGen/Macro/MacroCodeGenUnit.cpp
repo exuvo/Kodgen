@@ -91,7 +91,7 @@ void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) noexcept
 	generatedHeader.writeLine("#pragma once\n");
 
 	//Include the entity file
-	generatedHeader.writeLine("#include \"" + CodeGenUnitSettings::entityMacrosFilename.string() + "\"");
+	generatedHeader.writeLine("#include \"" + CodeGenUnitSettings::entityMacrosFilename.string() + "\"\n");
 
 	//Write header file header code
 	generatedHeader.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileHeader)]));
