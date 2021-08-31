@@ -52,7 +52,7 @@ bool FileParser::parse(fs::path const& toParseFile, FileParsingResult& out_resul
 	if (fs::exists(toParseFile) && !fs::is_directory(toParseFile))
 	{
 		//Fill the parsed file info
-		out_result.parsedFile = toParseFile;
+		out_result.parsedFile = FilesystemHelpers::sanitizePath(toParseFile);
 
 		//Parse the given file
 		CXTranslationUnit translationUnit = clang_parseTranslationUnit(_clangIndex, toParseFile.string().c_str(), _settings->getCompilationArguments().data(), static_cast<int32>(_settings->getCompilationArguments().size()), nullptr, 0, CXTranslationUnit_SkipFunctionBodies | CXTranslationUnit_Incomplete | CXTranslationUnit_KeepGoing);
