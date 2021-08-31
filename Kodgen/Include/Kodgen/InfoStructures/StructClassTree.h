@@ -31,11 +31,6 @@ namespace kodgen
 			std::unordered_map<std::string, std::vector<InheritanceLink>> entries;
 
 		public:
-			StructClassTree()						= default;
-			StructClassTree(StructClassTree const&)	= default;
-			StructClassTree(StructClassTree&&)		= default;
-			~StructClassTree()						= default;
-
 			/**
 			*	@brief	Add an inheritance link between currentClass and parentClass.
 			*			If entries corresponding to currentClass and parentClass don't exist yet, they are created.
@@ -73,8 +68,5 @@ namespace kodgen
 			*	@return entries.
 			*/
 			std::unordered_map<std::string, std::vector<InheritanceLink>> const&	getEntries()	const	noexcept;
-
-			StructClassTree& operator=(StructClassTree const&)	= default;
-			StructClassTree& operator=(StructClassTree&&)		= default;
 	};
 }
