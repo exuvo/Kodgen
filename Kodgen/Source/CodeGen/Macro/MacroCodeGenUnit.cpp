@@ -116,14 +116,14 @@ void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) noexcept
 
 void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) noexcept
 {
-	GeneratedFile generatedSource(getGeneratedSourceFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
+	GeneratedFile generatedFile(getGeneratedSourceFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
 
-	generatedSource.writeLine("#pragma once\n");
-	
+	generatedFile.writeLine("#pragma once\n");
+
 	//Include the header file
-	generatedSource.writeLine("#include \"" + FilesystemHelpers::sanitizePath(env.getFileParsingResult()->parsedFile).string() + "\"\n");
+	generatedFile.writeLine("#include \"" + FilesystemHelpers::normalizeSeparator(generatedFile.getSourceFilePath().lexically_relative(generatedFile.getPath().parent_path())).string() + "\"\n");
 
-	generatedSource.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
+	generatedFile.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
 }
 
 bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept

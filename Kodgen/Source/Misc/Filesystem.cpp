@@ -1,10 +1,21 @@
 #include "Kodgen/Misc/Filesystem.h"
 
+#include <algorithm> //std::replace
+
 using namespace kodgen;
 
 fs::path FilesystemHelpers::sanitizePath(fs::path const& path) noexcept
 {
 	return (fs::exists(path)) ? fs::canonical(fs::path(path).make_preferred()) : fs::path();
+}
+
+fs::path FilesystemHelpers::normalizeSeparator(fs::path const& path) noexcept
+{
+	std::string result = path.string();
+
+	std::replace(result.begin(), result.end(), '\\', '/');
+
+	return result;
 }
 
 bool FilesystemHelpers::isChildPath(fs::path const& child, fs::path const& other) noexcept

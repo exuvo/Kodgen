@@ -42,7 +42,16 @@ namespace kodgen
 			*	
 			*	@return A canonical path if the provided path was valid, else an empty path.
 			*/
-			static fs::path sanitizePath(fs::path const& path)	noexcept;
+			static fs::path sanitizePath(fs::path const& path)			noexcept;
+
+			/**
+			*	@brief Replace all \ by / since this format is supported on both Windows and Unix systems.
+			* 
+			*	@param path The path to transform.
+			* 
+			*	@return the normalized path.
+			*/
+			static fs::path normalizeSeparator(fs::path const& path)	noexcept;
 
 			/**
 			*	@brief	Check that a path is a child of another path, i.e. it is contained (directly or not)
@@ -54,6 +63,6 @@ namespace kodgen
 			*	@return true if child is contained in other, else false.
 			*/
 			static bool		isChildPath(fs::path const& child,
-										fs::path const& other)	noexcept;
+										fs::path const& other)			noexcept;
 	};
 }
