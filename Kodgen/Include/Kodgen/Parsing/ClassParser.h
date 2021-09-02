@@ -60,6 +60,15 @@ namespace kodgen
 																				   StructClassTree& out_structClassTree)	noexcept;
 
 			/**
+			*	@brief Check whether a given cursor is a forward declaration or not.
+			* 
+			*	@param cursor The checked cursor.
+			* 
+			*	@return true if the cursor represents a forwards declaration, else false.
+			*/
+			static bool								isForwardDeclaration(CXCursor cursor)									noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare struct/class parsing.
 			*
 			*	@param classCursor		Root cursor of the struct/class to parse.

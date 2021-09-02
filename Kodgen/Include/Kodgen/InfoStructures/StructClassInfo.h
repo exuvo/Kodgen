@@ -48,6 +48,9 @@ namespace kodgen
 				bool isFinal		: 1;
 			}													qualifiers;
 
+			/** Whether this StructClassInfo represents a forward declaration or not. */
+			bool												isForwardDeclaration;
+
 			/** More detailed information on this class. */
 			TypeInfo											type;
 
@@ -69,10 +72,11 @@ namespace kodgen
 			/** List of all methods contained in this class. */
 			std::vector<MethodInfo>								methods;
 
-			StructClassInfo()										noexcept;
+			StructClassInfo()												noexcept;
 			StructClassInfo(CXCursor const&			cursor,
 							std::vector<Property>&&	properties,
-							EEntityType&&			entityType)		noexcept;
+							EEntityType&&			entityType,
+							bool					isForwardDeclaration)	noexcept;
 
 			/**
 			*	@brief Call a visitor function on a struct/class and each nested entity of the provided type(s).

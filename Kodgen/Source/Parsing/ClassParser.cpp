@@ -31,7 +31,7 @@ CXChildVisitResult ClassParser::parse(CXCursor const& classCursor, ParsingContex
 		//Check if the parent has the shouldParseAllNested flag set
 		if (shouldParseCurrentEntity())
 		{
-			getParsingResult()->parsedClass.emplace(classCursor, std::vector<Property>(), (classCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
+			getParsingResult()->parsedClass.emplace(classCursor, std::vector<Property>(), (classCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct, isForwardDeclaration(classCursor));
 		}
 	}
 
@@ -57,7 +57,7 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
 		{
 			//Make it valid right away so init the result
-			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, std::vector<Property>(), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
+			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, std::vector<Property>(), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct, isForwardDeclaration(context.rootCursor));
 		}
 		else
 		{
@@ -178,7 +178,7 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
 	{
 		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
-		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct));
+		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct, isForwardDeclaration(context.rootCursor)));
 
 		return CXChildVisitResult::CXChildVisit_Recurse;
 	}
@@ -344,4 +344,15 @@ void ClassParser::addEnumResult(EnumParsingResult&& result) noexcept
 	}
 
 	getParsingResult()->appendResultErrors(result);
+}
+
+#include <iostream>
+bool ClassParser::isForwardDeclaration(CXCursor cursor) noexcept
+{
+	assert(cursor.kind == CXCursorKind::CXCursor_ClassDecl || cursor.kind == CXCursorKind::CXCursor_StructDecl);
+
+	CXCursor definition = clang_getCursorDefinition(cursor);
+
+	return	clang_equalCursors(definition, clang_getNullCursor()) ||	//Couldn't find the definition in the TU
+			!clang_equalCursors(cursor, definition);					//Found a definition but it's not the same as the checked cursor
 }
