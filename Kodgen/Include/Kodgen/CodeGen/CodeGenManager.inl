@@ -78,7 +78,7 @@ void CodeGenManager::processFilesMonothread(FileParserType& fileParser, CodeGenU
 }
 
 template <typename FileParserType, typename CodeGenUnitType>
-CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint32 threadCount) noexcept
+CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint8 iterationCount, uint32 threadCount) noexcept
 {
 	//Check FileParser validity
 	static_assert(std::is_base_of_v<FileParser, FileParserType>, "fileParser type must be a derived class of kodgen::FileParser.");
@@ -115,13 +115,16 @@ CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& c
 			//At this point thread count can't be 0
 			assert(threadCount > 0);
 
-			if (threadCount == 1u)
+			for (int i = 0; i < iterationCount; i++)
 			{
-				processFilesMonothread(fileParser, codeGenUnit, filesToProcess, genResult);
-			}
-			else
-			{
-				processFilesMultithread(fileParser, codeGenUnit, filesToProcess, genResult, threadCount);
+				if (threadCount == 1u)
+				{
+					processFilesMonothread(fileParser, codeGenUnit, filesToProcess, genResult);
+				}
+				else
+				{
+					processFilesMultithread(fileParser, codeGenUnit, filesToProcess, genResult, threadCount);
+				}
 			}
 		}
 

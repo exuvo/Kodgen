@@ -113,6 +113,8 @@ namespace kodgen
 			*	@param fileParser			Original file parser to use to parse registered files. A copy of this parser will be used for each generation thread.
 			*	@param codeGenUnit			Generation unit used to generate code. It must have a clean state when this method is called.
 			*	@param forceRegenerateAll	Ignore the last write time check and reparse / regenerate all files.
+			*	@param iterationCount		Number of times the code gen manager should run with the same batch of files.
+			*								This is useful when one wants the generated code itself to be parsed multiple times to generate new code.
 			*	@param threadCount			Number of threads to use for file parsing and generation.
 			*								If 0 is provided, the number of concurrent threads supported by the implementation will be used (std::thread::hardware_concurrency(), and 8 if std::thread::hardware_concurrency() returns 0).
 			*								If 1 is provided, all the process will be handled by the main thread.
@@ -123,7 +125,8 @@ namespace kodgen
 			CodeGenResult run(FileParserType&	fileParser,
 							  CodeGenUnitType&	codeGenUnit,
 							  bool				forceRegenerateAll	= false,
-							  uint32			threadCount			= 0)		noexcept;
+							  uint8				iterationCount		= 1u,
+							  uint32			threadCount			= 0u)		noexcept;
 	};
 
 	#include "Kodgen/CodeGen/CodeGenManager.inl"
