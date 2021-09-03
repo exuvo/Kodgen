@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "Kodgen/CodeGen/ECodeGenStep.h"
 #include "Kodgen/Parsing/ParsingResults/FileParsingResult.h"
 #include "Kodgen/Misc/ILogger.h"
 
@@ -27,6 +28,9 @@ namespace kodgen
 
 			/** Logger used to log during the code generation process. Can be nullptr. */
 			ILogger*					_logger				= nullptr;
+
+			/** Defines the current generation step for this environment. */
+			ECodeGenStep				_currentCodeGenStep;
 		
 		public:
 			virtual ~CodeGenEnv() = default;
@@ -36,14 +40,21 @@ namespace kodgen
 			* 
 			*	@return _parsingResult.
 			*/
-			inline FileParsingResult const*	getFileParsingResult()	const noexcept;
+			inline FileParsingResult const*	getFileParsingResult()	const	noexcept;
 
 			/**
 			*	@brief Getter for the _logger field.
 			* 
 			*	@return _logger.
 			*/
-			inline ILogger*					getLogger()				const noexcept;
+			inline ILogger*					getLogger()				const	noexcept;
+
+			/**
+			*	@brief Getter for the _currentCodeGenStep field.
+			* 
+			*	@return _currentCodeGenStep.
+			*/
+			inline ECodeGenStep				getCurrentCodeGenStep()	const	noexcept;
 	};
 
 	#include "Kodgen/CodeGen/CodeGenEnv.inl"

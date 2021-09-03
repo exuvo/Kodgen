@@ -108,13 +108,14 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	assert(env != nullptr);
 
 	//Pre-generation step
+	env->_currentCodeGenStep = ECodeGenStep::PreGeneration;
 	bool result = preGenerateCode(parsingResult, *env);
 
 	//Generation step (per module/entity pair), runs only if the pre-generation step succeeded
 	if (result)
 	{
-		//Generation step:
 		//Call generate code once with a nullptr entity first
+		env->_currentCodeGenStep = ECodeGenStep::InitialGeneration;
 		for (ICodeGenerator* codeGenerator : getSortedCodeGenerators())
 		{
 			result &= codeGenerator->callVisitorOnEntity(nullptr, *env, std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)) != ETraversalBehaviour::AbortWithFailure;
@@ -123,12 +124,25 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 		if (result)
 		{
 			//Iterate over each module and entity and generate code
+			env->_currentCodeGenStep = ECodeGenStep::PerEntityGeneration;
 			result &= foreachCodeGenEntityPair(std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), *env) != ETraversalBehaviour::AbortWithFailure;
 
-			//Post-generation step, runs only if both the pre-generation and generation steps succeeded
+			
 			if (result)
 			{
-				result &= postGenerateCode(*env);
+				//Final call to generate code with a nullptr entity
+				env->_currentCodeGenStep = ECodeGenStep::FinalGeneration;
+				for (ICodeGenerator* codeGenerator : getSortedCodeGenerators())
+				{
+					result &= codeGenerator->callVisitorOnEntity(nullptr, *env, std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)) != ETraversalBehaviour::AbortWithFailure;
+				}
+
+				//Post-generation step, runs only if all previous steps succeeded
+				if (result)
+				{
+					env->_currentCodeGenStep = ECodeGenStep::PostGeneration;
+					result &= postGenerateCode(*env);
+				}
 			}
 		}
 	}
