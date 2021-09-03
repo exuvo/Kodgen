@@ -346,7 +346,6 @@ void ClassParser::addEnumResult(EnumParsingResult&& result) noexcept
 	getParsingResult()->appendResultErrors(result);
 }
 
-#include <iostream>
 bool ClassParser::isForwardDeclaration(CXCursor cursor) noexcept
 {
 	assert(cursor.kind == CXCursorKind::CXCursor_ClassDecl || cursor.kind == CXCursorKind::CXCursor_StructDecl);
