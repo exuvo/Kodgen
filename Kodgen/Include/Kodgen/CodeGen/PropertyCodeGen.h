@@ -96,7 +96,7 @@ namespace kodgen
 			*	@return true if the generation completed successfully, else false.
 			*/
 			virtual bool				generateCodeForEntity(EntityInfo const&	entity,
-															  Property const*	property,
+															  Property const&	property,
 															  uint8				propertyIndex,
 															  CodeGenEnv&		env,
 															  std::string&		inout_result)					noexcept = 0;

@@ -12,14 +12,7 @@ ETraversalBehaviour PropertyCodeGen::generateCodeForEntity(EntityInfo const& ent
 {
 	AdditionalData const* additionalData = reinterpret_cast<AdditionalData const*>(data);
 
-	if (additionalData != nullptr)
-	{
-		return generateCodeForEntity(entity, additionalData->property, additionalData->propertyIndex, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
-	}
-	else
-	{
-		return generateCodeForEntity(entity, nullptr, 0u, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
-	}
+	return generateCodeForEntity(entity, *additionalData->property, additionalData->propertyIndex, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
 }
 
 bool PropertyCodeGen::shouldGenerateCodeForEntity(EntityInfo const& entity, Property const& property, uint8 /* propertyIndex */) const noexcept
