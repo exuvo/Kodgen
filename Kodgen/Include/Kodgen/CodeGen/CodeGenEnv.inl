@@ -14,8 +14,3 @@ inline ILogger* CodeGenEnv::getLogger() const noexcept
 {
 	return _logger;
 }
-
-inline ECodeGenStep CodeGenEnv::getCurrentCodeGenStep() const noexcept
-{
-	return _currentCodeGenStep;
-}

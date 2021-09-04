@@ -183,16 +183,6 @@ namespace kodgen
 
 		public:
 			/**
-			*	@brief	Make sure that the provided env is castable to MacroCodeGenEnv.
-			*			The check can only happen if RTTI is enabled.
-			* 
-			*	@param env Generation environment structure.
-			* 
-			*	@return true if the 
-			*/
-			virtual bool				initialize(CodeGenEnv& env)						noexcept override;
-
-			/**
 			*	@brief Generate code using the provided environment as input.
 			* 
 			*	@param entity			Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.

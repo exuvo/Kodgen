@@ -108,7 +108,6 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	assert(env != nullptr);
 
 	//Pre-generation step
-	env->_currentCodeGenStep = ECodeGenStep::PreGeneration;
 	bool result = preGenerateCode(parsingResult, *env);
 
 	//Generation step (per module/entity pair), runs only if the pre-generation step succeeded
@@ -117,25 +116,21 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 		std::vector<ICodeGenerator*> const& codeGenerators = getSortedCodeGenerators();
 
 		//Call initialGenerateCode on all ICodeGenerators first
-		env->_currentCodeGenStep = ECodeGenStep::InitialGeneration;
 		initialGenerateCodeInternal(codeGenerators, *env);
 
 		if (result)
 		{
 			//Iterate over each module and entity and generate code
-			env->_currentCodeGenStep = ECodeGenStep::PerEntityGeneration;
 			result &= foreachCodeGenEntityPair(std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), *env) != ETraversalBehaviour::AbortWithFailure;
 
 			if (result)
 			{
 				//Final call to generate code with a nullptr entity
-				env->_currentCodeGenStep = ECodeGenStep::FinalGeneration;
 				finalGenerateCodeInternal(codeGenerators, *env);
 
 				//Post-generation step, runs only if all previous steps succeeded
 				if (result)
 				{
-					env->_currentCodeGenStep = ECodeGenStep::PostGeneration;
 					result &= postGenerateCode(*env);
 				}
 			}
@@ -239,15 +234,6 @@ bool CodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, CodeGe
 	//Setup generation environment
 	env._fileParsingResult	= &parsingResult;
 	env._logger				= logger;
-
-	//Initialize each module
-	for (CodeGenModule* codeGenModule : _generationModules)
-	{
-		if (!codeGenModule->initialize(env))
-		{
-			return false;
-		}
-	}
 
 	return true;
 }

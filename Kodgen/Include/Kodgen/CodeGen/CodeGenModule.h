@@ -77,16 +77,6 @@ namespace kodgen
 
 		public:
 			/**
-			*	@brief	Initialize the module with the provided environment.
-			*			The method is called by CodeGenUnit::preGenerateCode before any call to CodeGenModule::generateCode.
-			*
-			*	@param env Generation environment.
-			* 
-			*	@return true if the initialization completed successfully, else false.
-			*/
-			virtual bool								initialize(CodeGenEnv& env)									noexcept;
-
-			/**
 			*	@brief	Generate code using the provided environment as input.
 			* 
 			*	@param entity			Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.

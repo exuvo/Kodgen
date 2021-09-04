@@ -39,6 +39,17 @@ bool MacroPropertyCodeGen::generateCode(EntityInfo const* entity, Property const
 
 bool MacroPropertyCodeGen::initialGenerateCode(CodeGenEnv& env, std::string& inout_result) noexcept
 {
+	//Check that the provided environment is castable to MacroCodeGenEnv
+#ifdef RTTI_ENABLED
+	if (dynamic_cast<MacroCodeGenEnv*>(&env) == nullptr)
+	{
+		env.getLogger()->log("MacroCodeGenModule can't be used with non MacroCodeGenEnv environments.", ILogger::ELogSeverity::Error);
+		return false;
+	}
+#else
+	//Can't perform the cast check
+#endif
+
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
 
 	//Dispatch code generation call to the right sub-method

@@ -8,30 +8,6 @@
 
 using namespace kodgen;
 
-bool MacroCodeGenModule::initialize(CodeGenEnv& env) noexcept
-{
-	if (CodeGenModule::initialize(env))
-	{
-		//Check that the provided environment is castable to MacroCodeGenEnv
-#ifdef RTTI_ENABLED
-		if (dynamic_cast<MacroCodeGenEnv*>(&env) == nullptr)
-		{
-			env.getLogger()->log("MacroCodeGenModule can't be used with non MacroCodeGenEnv environments.", ILogger::ELogSeverity::Error);
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-#else
-		//Can't perform the cast check
-		return true;
-#endif
-	}
-
-	return false;
-}
-
 ETraversalBehaviour MacroCodeGenModule::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result) noexcept
 {
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
@@ -79,6 +55,17 @@ ETraversalBehaviour MacroCodeGenModule::generateCode(EntityInfo const* entity, C
 
 bool MacroCodeGenModule::initialGenerateCode(CodeGenEnv& env, std::string& inout_result) noexcept
 {
+	//Check that the provided environment is castable to MacroCodeGenEnv
+#ifdef RTTI_ENABLED
+	if (dynamic_cast<MacroCodeGenEnv*>(&env) == nullptr)
+	{
+		env.getLogger()->log("MacroCodeGenModule can't be used with non MacroCodeGenEnv environments.", ILogger::ELogSeverity::Error);
+		return false;
+	}
+#else
+	//Can't perform the cast check
+#endif
+
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
 
 	//Dispatch code generation call to the right sub-method
