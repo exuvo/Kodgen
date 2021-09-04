@@ -60,6 +60,34 @@ namespace kodgen
 													 void const*		data)												noexcept = 0;
 
 			/**
+			*	@brief	Initial code generation method called before the first generateCodePerEntity call.
+			*			It is called as many times as the generate method is called in the CodeGenUnit::generateCodeForEntity method.
+			*			This method can also be used to initialize some pre-generation data in the ICodeGenerator.
+			* 
+			*	@param env			The generation environment structure.
+			*	@param inout_result	String the generated code should be appended to.
+			* 
+			*	@return true if the initialization and initial code generation was successful, else false.
+			*			If the method returns false, the code generation is aborted for the running CodeGenUnit.
+			*/
+			virtual bool				initialGenerateCode(CodeGenEnv&		env,
+															std::string&	inout_result)									noexcept = 0;
+
+			/**
+			*	@brief	Final code generation method called after the last generateCodePerEntity call.
+			*			It is called as many times as the generate method is called in the CodeGenUnit::generateCodeForEntity method.
+			*			This method can also be used to deinitialize some post-generation data in the ICodeGenerator.
+			* 
+			*	@param env			The generation environment structure.
+			*	@param inout_result	String the generated code should be appended to.
+			* 
+			*	@return true if the initialization and initial code generation was successful, else false.
+			*			If the method returns false, the code generation is aborted for the running CodeGenUnit.
+			*/
+			virtual bool				finalGenerateCode(CodeGenEnv&	env,
+														  std::string&	inout_result)										noexcept = 0;
+
+			/**
 			*	@brief	The generation order is a number defining in which order a code generator will generate code compared to other code generators.
 			*			Code generators with a low generation order will execute first, and code generators with a high generation order will execute last.
 			*			Code generators having the same generation order will execute in an undefined order.

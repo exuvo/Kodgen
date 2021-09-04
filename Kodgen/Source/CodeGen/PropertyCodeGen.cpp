@@ -8,9 +8,18 @@ PropertyCodeGen::PropertyCodeGen(std::string const&	propertyName, EEntityType el
 {
 }
 
-bool PropertyCodeGen::initialize(CodeGenEnv& /* env */) noexcept
+ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
 {
-	return true;
+	AdditionalData const* additionalData = reinterpret_cast<AdditionalData const*>(data);
+
+	if (additionalData != nullptr)
+	{
+		return generateCode(entity, additionalData->property, additionalData->propertyIndex, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
+	}
+	else
+	{
+		return generateCode(entity, nullptr, 0u, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
+	}
 }
 
 bool PropertyCodeGen::shouldGenerateCode(EntityInfo const& entity, Property const& property, uint8 /* propertyIndex */) const noexcept
@@ -76,19 +85,5 @@ ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const* entit
 	{
 		//Entity is nullptr, call the visitor with the nullptr entity and no data
 		return visitor(*this, nullptr, env, nullptr);
-	}
-}
-
-ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
-{
-	AdditionalData const* additionalData = reinterpret_cast<AdditionalData const*>(data);
-	
-	if (additionalData != nullptr)
-	{
-		return generateCode(entity, additionalData->property, additionalData->propertyIndex, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
-	}
-	else
-	{
-		return generateCode(entity, nullptr, 0u, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
 	}
 }

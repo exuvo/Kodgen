@@ -102,17 +102,6 @@ namespace kodgen
 													 std::string&		inout_result)					noexcept = 0;
 
 			/**
-			*	@brief	Initialize the property code gen with the provided environment.
-			*			The method is called by CodeGenModule::initialize before any call to PropertyCodeGen::generateCode.
-			*			This default implementation does nothing and returns true by default.
-			*
-			*	@param env Generation environment.
-			* 
-			*	@return true if the initialization completed successfully, else false.
-			*/
-			virtual bool				initialize(CodeGenEnv& env)										noexcept;
-
-			/**
 			*	@brief Check if this property should generate code for the provided entity/property pair.
 			*
 			*	@param entity			Checked entity.

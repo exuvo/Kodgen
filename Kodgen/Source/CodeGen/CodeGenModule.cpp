@@ -9,15 +9,12 @@ using namespace kodgen;
 
 bool CodeGenModule::initialize(CodeGenEnv& env) noexcept
 {
-	for (PropertyCodeGen* propertyCodeGen : _propertyCodeGenerators)
-	{
-		if (!propertyCodeGen->initialize(env))
-		{
-			return false;
-		}
-	}
-
 	return true;
+}
+
+ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
+{
+	return generateCode(entity, env, inout_result);
 }
 
 void CodeGenModule::addPropertyCodeGen(PropertyCodeGen& propertyCodeGen) noexcept
@@ -44,11 +41,6 @@ ETraversalBehaviour CodeGenModule::callVisitorOnEntity(EntityInfo const* entity,
 	assert(visitor != nullptr);
 
 	return visitor(*this, entity, env, nullptr);
-}
-
-ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
-{
-	return generateCode(entity, env, inout_result);
 }
 
 std::vector<PropertyCodeGen*> const& CodeGenModule::getPropertyCodeGenerators() const noexcept

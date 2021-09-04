@@ -33,10 +33,19 @@ namespace kodgen
 			bool						_isCopy	= false;
 
 			/**
+			*	@brief Insert a code generator to a sorted vector ordered by generation order.
+			* 
+			*	@param vector	The collection to insert to.
+			*	@param codeGen	The code generator to insert in the vector.
+			*/
+			static void					sortedInsert(std::vector<ICodeGenerator*>&	vector,
+													 ICodeGenerator&				codeGen)													noexcept;
+
+			/**
 			*	@brief	Delete all the registered generation modules. If they have been dynamically instantiated,
 			*			memory is released correctly.
 			*/
-			void							clearGenerationModules()																			noexcept;
+			void						clearGenerationModules()																				noexcept;
 
 			/**
 			*	@brief Iterate and execute recursively a visitor function on each parsed entity/registered module pair.
@@ -48,11 +57,11 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithSuccess if the traversal was aborted prematurely without error.
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
-			ETraversalBehaviour		foreachCodeGenEntityPair(std::function<ETraversalBehaviour(ICodeGenerator&,
-																							   EntityInfo const*,
-																							   CodeGenEnv&,
-																							   void const*)>		visitor,
-															 CodeGenEnv&											env)						noexcept;
+			ETraversalBehaviour			foreachCodeGenEntityPair(std::function<ETraversalBehaviour(ICodeGenerator&,
+																								   EntityInfo const*,
+																								   CodeGenEnv&,
+																								   void const*)>		visitor,
+																 CodeGenEnv&											env)					noexcept;
 
 			/**
 			*	@brief	Iterate and execute recursively a visitor function on a namespace and
@@ -114,69 +123,26 @@ namespace kodgen
 																										 void const*)>		visitor)			noexcept;
 
 			/**
-			*	@brief Insert a code generator to a sorted vector ordered by generation order.
+			*	@brief Call ICodeGenerator::initialGenerateCode on all provided code generators.
 			* 
-			*	@param vector	The collection to insert to.
-			*	@param codeGen	The code generator to insert in the vector.
+			*	@param codeGenerators	List of code generators that should call ICodeGenerator::initialGenerateCode.
+			*	@param env				The environment structure.
+			* 
+			*	@return A combined value of all the ICodeGenerator::initialGeneratorCode calls.
 			*/
-			static void					sortedInsert(std::vector<ICodeGenerator*>&	vector,
-													 ICodeGenerator&				codeGen)													noexcept;
-
-		protected:
-			/** Settings used for code generation. */
-			CodeGenUnitSettings const*	settings = nullptr;
+			bool					initialGenerateCodeInternal(std::vector<ICodeGenerator*> const&	codeGenerators,
+																CodeGenEnv&							env)										noexcept;
 
 			/**
-			*	@brief	Execute the codeGenModule->generateCode method with the given entity and environment.
-			*			The method is made virtual pure to let the user control in which string the generated code should be appended.
-			*			The implementation is also free to run the codeGenModule->generateCode method multiple times.
-			*
-			*	@param codeGenModule	Module calling the generateCode method.
-			*	@param entity			Target entity for this code generation pass.
-			*	@param env				Generation environment structure.
+			*	@brief Call ICodeGenerator::finalGenerateCode on all provided code generators.
 			* 
-			*	@return An EIterationResult instructing how the entity traversal should continue (see the EIterationResult documentation for more info).
-			*			The result of the codeGenModule->generateCode() call can be forwarded in most cases to let the module control the flow of the traversal.
+			*	@param codeGenerators	List of code generators that should call ICodeGenerator::finalGenerateCode.
+			*	@param env				The environment structure.
+			* 
+			*	@return A combined value of all the ICodeGenerator::finalGeneratorCode calls.
 			*/
-			virtual void			generateCodeForEntity(EntityInfo const*						entity,
-														  CodeGenEnv&							env,
-														  std::function<void(EntityInfo const*,
-																			 CodeGenEnv&,
-																			 std::string&)>		generate)	noexcept	= 0;
-
-			/**
-			*	@brief	Instantiate a CodeGenEnv object (using new).
-			*			This method can be overriden to instantiate a child class of CodeGenEnv.
-			* 
-			*	@return A dynamically instantiated (new) CodeGenEnv object used during the whole generation process.
-			*/
-			virtual CodeGenEnv*		createCodeGenEnv()												const	noexcept;
-
-			/**
-			*	@brief	Called just before CodeGenUnit::foreachModuleEntityPair.
-			*			Perform all registered modules initialization and initialize CodeGenEnv fields (logger, FileParsingResult...).
-			*			The whole generation process is aborted if the method returns false.
-			*			/!\ Overrides MUST call this base implementation as well through CodeGenUnit::preGenerateCode(parsingResult, env) /!\
-			* 
-			*	@param parsingResult	Result of a file parsing used to generate code.
-			*	@param env				Generation environment structure.
-			* 
-			*	@return true if the method completed successfully, else false.
-			*/
-			virtual bool			preGenerateCode(FileParsingResult const&	parsingResult,
-													CodeGenEnv&					env)						noexcept;
-
-			/**
-			*	@brief	Called just after CodeGenUnit::foreachModuleEntityPair.
-			*			Can be used to perform any post-generation tasks or cleanup.
-			*			If the unit needs to write the generated code in files, this is typically here
-			*			that files are created and written to.
-			*
-			*	@param env Generation environment structure after the preGenerateCode and generateCodeInternal have run.
-			* 
-			*	@return true if the method completed successfully, else false.
-			*/
-			virtual bool			postGenerateCode(CodeGenEnv& env)										noexcept;
+			bool					finalGenerateCodeInternal(std::vector<ICodeGenerator*> const&	codeGenerators,
+															  CodeGenEnv&							env)										noexcept;
 
 			/**
 			*	@brief	Method called on each entity when CodeGenUnit::generateCode is called.
@@ -191,7 +157,83 @@ namespace kodgen
 			ETraversalBehaviour		generateCodeForEntityInternal(ICodeGenerator&	codeGenerator,
 																  EntityInfo const*	entity,
 																  CodeGenEnv&		env,
-																  void const*		data)					noexcept;
+																  void const*		data)														noexcept;
+
+		protected:
+			/** Settings used for code generation. */
+			CodeGenUnitSettings const*	settings = nullptr;
+
+			/**
+			*	@brief	Execute the codeGenModule->generateCode method with the given entity and environment.
+			*			The method is made virtual pure to let the implementation control in which string the generated code should be appended.
+			*			The implementation is also free to run the generate method multiple times.
+			*
+			*	@param entity			Target entity for this code generation pass.
+			*	@param env				Generation environment structure.
+			*/
+			virtual void					generateCodeForEntity(EntityInfo const*						entity,
+																  CodeGenEnv&							env,
+																  std::function<void(EntityInfo const*,
+																					 CodeGenEnv&,
+																					 std::string&)>		generate)	noexcept	= 0;
+
+			/**
+			*	@brief	Execute the codeGenModule->initialGenerateCode method with the given environment.
+			*			The method is made virtual pure to let the implementation control in which string the generated code should be appended.
+			*			The implementation is also free to run the generate method multiple times.
+			* 
+			*	@param codeGenModule	Module calling the generateCode method.
+			*	@param env				Generation environment structure.
+			*/
+			virtual void					initialGenerateCode(CodeGenEnv&							env,
+																std::function<void(CodeGenEnv&,
+																				   std::string&)>	generate)		noexcept	= 0;
+
+			/**
+			*	@brief	Execute the codeGenModule->initialGenerateCode method with the given environment.
+			*			The method is made virtual pure to let the implementation control in which string the generated code should be appended.
+			*			The implementation is also free to run the generate method multiple times.
+			* 
+			*	@param codeGenModule	Module calling the generateCode method.
+			*	@param env				Generation environment structure.
+			*/
+			virtual void					finalGenerateCode(CodeGenEnv&						env,
+															  std::function<void(CodeGenEnv&,
+																				 std::string&)>	generate)			noexcept	= 0;
+
+			/**
+			*	@brief	Instantiate a CodeGenEnv object (using new).
+			*			This method can be overriden to instantiate a child class of CodeGenEnv.
+			* 
+			*	@return A dynamically instantiated (new) CodeGenEnv object used during the whole generation process.
+			*/
+			virtual CodeGenEnv*				createCodeGenEnv()												const	noexcept;
+
+			/**
+			*	@brief	Called just before CodeGenUnit::foreachModuleEntityPair.
+			*			Perform all registered modules initialization and initialize CodeGenEnv fields (logger, FileParsingResult...).
+			*			The whole generation process is aborted if the method returns false.
+			*			/!\ Overrides MUST call this base implementation as well through CodeGenUnit::preGenerateCode(parsingResult, env) /!\
+			* 
+			*	@param parsingResult	Result of a file parsing used to generate code.
+			*	@param env				Generation environment structure.
+			* 
+			*	@return true if the method completed successfully, else false.
+			*/
+			virtual bool					preGenerateCode(FileParsingResult const&	parsingResult,
+															CodeGenEnv&					env)						noexcept;
+
+			/**
+			*	@brief	Called just after CodeGenUnit::foreachModuleEntityPair.
+			*			Can be used to perform any post-generation tasks or cleanup.
+			*			If the unit needs to write the generated code in files, this is typically here
+			*			that files are created and written to.
+			*
+			*	@param env Generation environment structure after the preGenerateCode and generateCodeInternal have run.
+			* 
+			*	@return true if the method completed successfully, else false.
+			*/
+			virtual bool					postGenerateCode(CodeGenEnv& env)										noexcept;
 
 			/**
 			*	@brief Check if file last write time is newer than reference file last write time.
@@ -202,15 +244,15 @@ namespace kodgen
 			* 
 			*	@return true if file last write time is newer than referenceFile's, else false.
 			*/
-			bool						isFileNewerThan(fs::path const& file,
-														fs::path const& referenceFile)				const	noexcept;
+			bool							isFileNewerThan(fs::path const& file,
+															fs::path const& referenceFile)					const	noexcept;
 
 			/**
 			*	@brief Compute the list of all generators nested in this CodeGenUnit sorted by ascending generation order.
 			* 
 			*	@return The list of sorted code generators.
 			*/
-			std::vector<ICodeGenerator*>	getSortedCodeGenerators()								const	noexcept;
+			std::vector<ICodeGenerator*>	getSortedCodeGenerators()										const	noexcept;
 
 		public:
 			/** Logger used to issue logs from this CodeGenUnit. */

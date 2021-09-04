@@ -16,6 +16,72 @@ namespace kodgen
 	{
 		protected:
 			/**
+			*	@brief Generate initial code in the header file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	initialGenerateHeaderFileHeaderCode(MacroCodeGenEnv&	env,
+																std::string&		inout_result)	noexcept;
+
+			/**
+			*	@brief Generate initial code in the header file footer.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	initialGenerateHeaderFileFooterCode(MacroCodeGenEnv&	env,
+																std::string&		inout_result)	noexcept;
+
+			/**
+			*	@brief Generate initial code in the source file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	initialGenerateSourceFileHeaderCode(MacroCodeGenEnv&	env,
+																std::string&		inout_result)	noexcept;
+
+			/**
+			*	@brief Generate final code in the header file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	finalGenerateHeaderFileHeaderCode(MacroCodeGenEnv&	env,
+															  std::string&		inout_result)		noexcept;
+
+			/**
+			*	@brief Generate final code in the header file footer.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	finalGenerateHeaderFileFooterCode(MacroCodeGenEnv&	env,
+															  std::string&		inout_result)		noexcept;
+
+			/**
+			*	@brief Generate final code in the source file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	finalGenerateSourceFileHeaderCode(MacroCodeGenEnv&	env,
+															  std::string&		inout_result)		noexcept;
+
+			/**
 			*	@brief Generate code in the header file header for the given entity.
 			*	
 			*	@param entity			Entity to generate code for.
@@ -139,6 +205,32 @@ namespace kodgen
 										 Property const*	property,
 										 uint8				propertyIndex,
 										 CodeGenEnv&		env,
-										 std::string&		inout_result)	noexcept override final;
+										 std::string&		inout_result)		noexcept override final;
+
+			/**
+			*	@brief	Generate initial code for this code generator.
+			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
+			*			and dispatch the call to the relevant method.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	initialGenerateCode(CodeGenEnv&		env,
+												std::string&	inout_result)	noexcept override final;
+			
+			/**
+			*	@brief	Generate final code for this code generator.
+			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
+			*			and dispatch the call to the relevant method.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	finalGenerateCode(CodeGenEnv&	env,
+											  std::string&	inout_result)		noexcept override final;
 	};
 }

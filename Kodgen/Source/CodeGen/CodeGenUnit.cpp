@@ -114,12 +114,11 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	//Generation step (per module/entity pair), runs only if the pre-generation step succeeded
 	if (result)
 	{
-		//Call generate code once with a nullptr entity first
+		std::vector<ICodeGenerator*> const& codeGenerators = getSortedCodeGenerators();
+
+		//Call initialGenerateCode on all ICodeGenerators first
 		env->_currentCodeGenStep = ECodeGenStep::InitialGeneration;
-		for (ICodeGenerator* codeGenerator : getSortedCodeGenerators())
-		{
-			result &= codeGenerator->callVisitorOnEntity(nullptr, *env, std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)) != ETraversalBehaviour::AbortWithFailure;
-		}
+		initialGenerateCodeInternal(codeGenerators, *env);
 
 		if (result)
 		{
@@ -127,15 +126,11 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 			env->_currentCodeGenStep = ECodeGenStep::PerEntityGeneration;
 			result &= foreachCodeGenEntityPair(std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4), *env) != ETraversalBehaviour::AbortWithFailure;
 
-			
 			if (result)
 			{
 				//Final call to generate code with a nullptr entity
 				env->_currentCodeGenStep = ECodeGenStep::FinalGeneration;
-				for (ICodeGenerator* codeGenerator : getSortedCodeGenerators())
-				{
-					result &= codeGenerator->callVisitorOnEntity(nullptr, *env, std::bind(&CodeGenUnit::generateCodeForEntityInternal, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)) != ETraversalBehaviour::AbortWithFailure;
-				}
+				finalGenerateCodeInternal(codeGenerators, *env);
 
 				//Post-generation step, runs only if all previous steps succeeded
 				if (result)
@@ -148,6 +143,42 @@ bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 	}
 
 	delete env;
+
+	return result;
+}
+
+bool CodeGenUnit::initialGenerateCodeInternal(std::vector<ICodeGenerator*> const& codeGenerators, CodeGenEnv& env) noexcept
+{
+	bool result = true;
+
+	for (ICodeGenerator* codeGenerator : codeGenerators)
+	{
+		auto generateLambda = [&result, codeGenerator](CodeGenEnv& env, std::string& inout_result)
+		{
+			result &= codeGenerator->initialGenerateCode(env, inout_result);
+		};
+
+		//Result will be altered when generateLambda will be called from the CodeGenUnit::initialGenerateCode override
+		initialGenerateCode(env, generateLambda);
+	}
+	
+	return result;
+}
+
+bool CodeGenUnit::finalGenerateCodeInternal(std::vector<ICodeGenerator*> const& codeGenerators, CodeGenEnv& env) noexcept
+{
+	bool result = true;
+
+	for (ICodeGenerator* codeGenerator : codeGenerators)
+	{
+		auto generateLambda = [&result, codeGenerator](CodeGenEnv& env, std::string& inout_result)
+		{
+			result &= codeGenerator->finalGenerateCode(env, inout_result);
+		};
+
+		//Result will be altered when generateLambda will be called from the CodeGenUnit::initialGenerateCode override
+		finalGenerateCode(env, generateLambda);
+	}
 
 	return result;
 }

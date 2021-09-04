@@ -26,6 +26,72 @@ namespace kodgen
 
 		protected:
 			/**
+			*	@brief Generate initial code in the header file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool			initialGenerateHeaderFileHeaderCode(MacroCodeGenEnv&	env,
+																		std::string&		inout_result)	noexcept;
+
+			/**
+			*	@brief Generate initial code in the header file footer.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool			initialGenerateHeaderFileFooterCode(MacroCodeGenEnv&	env,
+																		std::string&		inout_result)	noexcept;
+
+			/**
+			*	@brief Generate initial code in the source file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool			initialGenerateSourceFileHeaderCode(MacroCodeGenEnv&	env,
+																		std::string&		inout_result)	noexcept;
+
+			/**
+			*	@brief Generate final code in the header file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool			finalGenerateHeaderFileHeaderCode(MacroCodeGenEnv&	env,
+																	  std::string&		inout_result)		noexcept;
+
+			/**
+			*	@brief Generate final code in the header file footer.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool			finalGenerateHeaderFileFooterCode(MacroCodeGenEnv&	env,
+																	  std::string&		inout_result)		noexcept;
+
+			/**
+			*	@brief Generate final code in the source file header.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool				finalGenerateSourceFileHeaderCode(MacroCodeGenEnv&	env,
+																		  std::string&		inout_result)	noexcept;
+
+			/**
 			*	@brief Generate code in the header file header for the given entity.
 			*	
 			*	@param entity		Entity to generate code for.
@@ -37,7 +103,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateHeaderFileHeaderCode(EntityInfo const*	entity,
 																	 MacroCodeGenEnv&	env,
-																	 std::string&		inout_result)	noexcept;
+																	 std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief	Generate code in the class footer for the given entity.
@@ -52,7 +118,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateClassFooterCode(EntityInfo const*	entity,
 																MacroCodeGenEnv&	env,
-																std::string&		inout_result)		noexcept;
+																std::string&		inout_result)			noexcept;
 
 			/**
 			*	@brief Generate code in the header file footer for the given entity.
@@ -66,7 +132,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateHeaderFileFooterCode(EntityInfo const*	entity,
 																	 MacroCodeGenEnv&	env,
-																	 std::string&		inout_result)	noexcept;
+																	 std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief Generate code in the source file header for the given entity.
@@ -80,7 +146,7 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateSourceFileHeaderCode(EntityInfo const*	entity,
 																	 MacroCodeGenEnv&	env,
-																	 std::string&		inout_result)	noexcept;
+																	 std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief	Called just before calling generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -93,7 +159,7 @@ namespace kodgen
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
 			virtual bool				preGenerateCode(EntityInfo const*	entity,
-														MacroCodeGenEnv&	env)						noexcept;
+														MacroCodeGenEnv&	env)							noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -106,14 +172,14 @@ namespace kodgen
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
 			virtual bool				postGenerateCode(EntityInfo const*	entity,
-														 MacroCodeGenEnv&	env)						noexcept;
+														 MacroCodeGenEnv&	env)							noexcept;
 
 			/**
 			*	@brief Add a property code generator to this generation module.
 			* 
 			*	@param propertyCodeGen PropertyRule to register.
 			*/
-			void						addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen)		noexcept;
+			void						addPropertyCodeGen(MacroPropertyCodeGen& propertyCodeGen)			noexcept;
 
 		public:
 			/**
@@ -137,6 +203,32 @@ namespace kodgen
 			*/
 			virtual ETraversalBehaviour	generateCode(EntityInfo const*	entity,
 													 CodeGenEnv&		env,
-													 std::string&		inout_result)	noexcept override final;
+													 std::string&		inout_result)		noexcept override final;
+
+			/**
+			*	@brief	Generate initial code for this code generator.
+			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
+			*			and dispatch the call to the relevant method.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool				initialGenerateCode(CodeGenEnv&		env,
+															std::string&	inout_result)	noexcept override final;
+			
+			/**
+			*	@brief	Generate final code for this code generator.
+			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
+			*			and dispatch the call to the relevant method.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool				finalGenerateCode(CodeGenEnv&	env,
+														  std::string&	inout_result)		noexcept override final;
 	};
 }

@@ -85,6 +85,37 @@ namespace kodgen
 
 		protected:
 			/**
+			*	@brief	Instantiate a MacroCodeGenEnv object (using new).
+			* 
+			*	@return A dynamically instantiated (new) MacroCodeGenEnv object used during the whole generation process.
+			*/
+			virtual MacroCodeGenEnv*	createCodeGenEnv()												const	noexcept	override;
+
+			/**
+			*	@brief	Call generate 3 times with the given environment, by updating the environment between each call
+			*			(MacroCodeGenEnv::codeGenLocation and MacroCodeGenEnv::separator are updated).
+			*			ECodeGenLocation::ClassFooter since this location depends on an entity.
+			*
+			*	@param env		Generation environment structure.
+			*	@param generate	Generation function to call to generate code.
+			*/
+			virtual void				initialGenerateCode(CodeGenEnv&							env,
+															std::function<void(CodeGenEnv&,
+																			   std::string&)>	generate)		noexcept	override;
+
+			/**
+			*	@brief	Call generate 3 times with the given environment, by updating the environment between each call
+			*			(MacroCodeGenEnv::codeGenLocation and MacroCodeGenEnv::separator are updated).
+			*			ECodeGenLocation::ClassFooter since this location depends on an entity.
+			*
+			*	@param env		Generation environment structure.
+			*	@param generate	Generation function to call to generate code.
+			*/
+			virtual void				finalGenerateCode(CodeGenEnv&						env,
+														  std::function<void(CodeGenEnv&,
+																			 std::string&)>	generate)			noexcept	override;	
+
+			/**
 			*	@brief	Call generate 4 times with the given entity and environment, by updating the environment between each call
 			*			(MacroCodeGenEnv::codeGenLocation and MacroCodeGenEnv::separator are updated).
 			*
@@ -97,13 +128,6 @@ namespace kodgen
 															  std::function<void(EntityInfo const*,
 																				 CodeGenEnv&,
 																				 std::string&)>		generate)	noexcept	override;
-
-			/**
-			*	@brief	Instantiate a MacroCodeGenEnv object (using new).
-			* 
-			*	@return A dynamically instantiated (new) MacroCodeGenEnv object used during the whole generation process.
-			*/
-			virtual MacroCodeGenEnv*	createCodeGenEnv()												const	noexcept	override;
 
 			/**
 			*	@brief Reset internally used variables to prepare the generation step.

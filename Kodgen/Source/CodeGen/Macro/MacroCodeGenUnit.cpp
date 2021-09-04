@@ -16,6 +16,41 @@ std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const Macr
 	"\n"	//SourceFileHeader is not wrapped in a macro, so can use \n without breaking the code
 };
 
+MacroCodeGenEnv* MacroCodeGenUnit::createCodeGenEnv() const noexcept
+{
+	return new MacroCodeGenEnv();
+}
+
+void MacroCodeGenUnit::initialGenerateCode(CodeGenEnv& env, std::function<void(CodeGenEnv&, std::string&)> generate) noexcept
+{
+	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
+
+	//Generate code for each code location
+	for (int i = 0u; i < static_cast<int>(ECodeGenLocation::Count); i++)
+	{
+		macroEnv._codeGenLocation	= static_cast<ECodeGenLocation>(i);
+		macroEnv._separator			= _separators[i];
+
+		/**
+		*	No initial call when the CodeGenLocation is ClassFooter
+		*/
+		if (macroEnv._codeGenLocation == ECodeGenLocation::ClassFooter)
+		{
+			continue;
+		}
+		else
+		{
+			generate(macroEnv, _generatedCodePerLocation[i]);
+		}
+	}
+}
+
+void MacroCodeGenUnit::finalGenerateCode(CodeGenEnv& env, std::function<void(CodeGenEnv&, std::string&)> generate) noexcept
+{
+	//Exactly same flow as initialGenerateCode
+	initialGenerateCode(env, generate);
+}
+
 void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::function<void(EntityInfo const*, CodeGenEnv&, std::string&)> generate)	noexcept
 {
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
@@ -48,11 +83,6 @@ void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const* entity, CodeGenEn
 			generate(entity, macroEnv, _generatedCodePerLocation[i]);
 		}
 	}
-}
-
-MacroCodeGenEnv* MacroCodeGenUnit::createCodeGenEnv() const noexcept
-{
-	return new MacroCodeGenEnv();
 }
 
 bool MacroCodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, CodeGenEnv& env) noexcept
