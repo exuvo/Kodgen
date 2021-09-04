@@ -64,9 +64,10 @@ add_library(${KodgenTargetLibrary}
 					Source/CodeGen/ICodeGenerator.cpp
 
 					Source/CodeGen/Macro/MacroCodeGenUnit.cpp
-					Source/CodeGen/Macro/MacroPropertyCodeGen.cpp
 					Source/CodeGen/Macro/MacroCodeGenUnitSettings.cpp
+					Source/CodeGen/Macro/MacroCodeGenerator.cpp
 					Source/CodeGen/Macro/MacroCodeGenModule.cpp
+					Source/CodeGen/Macro/MacroPropertyCodeGen.cpp
 
 					Source/Threading/ThreadPool.cpp
 					Source/Threading/TaskBase.cpp
