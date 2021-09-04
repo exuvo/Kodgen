@@ -18,48 +18,45 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			kodgen::MacroPropertyCodeGen("Get", kodgen::EEntityType::Field)
 		{}
 
-		virtual bool preGenerateCodeForEntity(kodgen::EntityInfo const& /* entity */, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
+		virtual bool preGenerateCodeForEntity(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
-			if (property != nullptr)
+			std::string errorMessage;
+
+			//Can't have * and & at the same time
+			if (std::find(property.arguments.cbegin(), property.arguments.cend(), "*") != property.arguments.cend() &&
+				std::find(property.arguments.cbegin(), property.arguments.cend(), "&") != property.arguments.cend())
 			{
-				std::string errorMessage;
-
-				//Can't have * and & at the same time
-				if (std::find(property->arguments.cbegin(), property->arguments.cend(), "*") != property->arguments.cend() &&
-					std::find(property->arguments.cbegin(), property->arguments.cend(), "&") != property->arguments.cend())
+				errorMessage = "Get property can't accept both '*' and '&' at the same time.";
+			}
+			else
+			{
+				//Check that Get property arguments are valid
+				for (std::string const& arg : property.arguments)
 				{
-					errorMessage = "Get property can't accept both '*' and '&' at the same time.";
-				}
-				else
-				{
-					//Check that Get property arguments are valid
-					for (std::string const& arg : property->arguments)
+					if (arg != "*" && arg != "&" && arg != "const" && arg != "explicit")
 					{
-						if (arg != "*" && arg != "&" && arg != "const" && arg != "explicit")
-						{
-							errorMessage = "Get property only accepts '*', '&' and 'explicit' arguments.";
-							break;
-						}
+						errorMessage = "Get property only accepts '*', '&' and 'explicit' arguments.";
+						break;
 					}
 				}
+			}
 
-				if (!errorMessage.empty())
+			if (!errorMessage.empty())
+			{
+				//Log error message and abort generation
+				if (env.getLogger() != nullptr)
 				{
-					//Log error message and abort generation
-					if (env.getLogger() != nullptr)
-					{
-						env.getLogger()->log(errorMessage, kodgen::ILogger::ELogSeverity::Error);
-					}
-
-					return false;
+					env.getLogger()->log(errorMessage, kodgen::ILogger::ELogSeverity::Error);
 				}
+
+				return false;
 			}
 
 			//If arguments are valid, dispatch the generation call normally
 			return true;
 		}
 
-		virtual bool generateClassFooterCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
+		virtual bool generateClassFooterCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
 													  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = reinterpret_cast<kodgen::FieldInfo const&>(entity);
@@ -71,7 +68,7 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			bool		isRef			= false;
 			bool		isPtr			= false;
 
-			for (std::string const& subprop : property->arguments)
+			for (std::string const& subprop : property.arguments)
 			{
 				if (!isConst && subprop.at(0) == 'c')			//const
 				{
@@ -128,7 +125,7 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return true;
 		}
 
-		virtual bool generateSourceFileHeaderCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
+		virtual bool generateSourceFileHeaderCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
 														   kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
@@ -140,7 +137,7 @@ class GetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			bool		isRef			= false;
 			bool		isPtr			= false;
 
-			for (std::string const& subprop : property->arguments)
+			for (std::string const& subprop : property.arguments)
 			{
 				if (!isConst && subprop.at(0) == 'c')			//const
 				{

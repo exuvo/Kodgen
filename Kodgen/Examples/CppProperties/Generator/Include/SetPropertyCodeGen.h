@@ -18,39 +18,36 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			kodgen::MacroPropertyCodeGen("Set", kodgen::EEntityType::Field)
 		{}
 
-		virtual bool preGenerateCodeForEntity(kodgen::EntityInfo const& /* entity */, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
+		virtual bool preGenerateCodeForEntity(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
-			if (property != nullptr)
+			std::string errorMessage;
+
+			//Check that Set property arguments are valid
+			if (property.arguments.size() > 1)
 			{
-				std::string errorMessage;
+				errorMessage = "Set property can't take more than one argument.";
+			}
+			else if (property.arguments.size() > 0 && property.arguments[0] != "explicit")
+			{
+				errorMessage = "Set property only valid argument is 'explicit'.";
+			}
 
-				//Check that Set property arguments are valid
-				if (property->arguments.size() > 1)
+			if (!errorMessage.empty())
+			{
+				//Log error message and abort generation
+				if (env.getLogger() != nullptr)
 				{
-					errorMessage = "Set property can't take more than one argument.";
-				}
-				else if (property->arguments.size() > 0 && property->arguments[0] != "explicit")
-				{
-					errorMessage = "Set property only valid argument is 'explicit'.";
+					env.getLogger()->log(errorMessage, kodgen::ILogger::ELogSeverity::Error);
 				}
 
-				if (!errorMessage.empty())
-				{
-					//Log error message and abort generation
-					if (env.getLogger() != nullptr)
-					{
-						env.getLogger()->log(errorMessage, kodgen::ILogger::ELogSeverity::Error);
-					}
-
-					return false;
-				}
+				return false;
 			}
 
 			//If arguments are valid, dispatch the generation call normally
 			return true;
 		}
 
-		virtual bool generateClassFooterCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const* /* property */, kodgen::uint8 /* propertyIndex */,
+		virtual bool generateClassFooterCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const& /* property */, kodgen::uint8 /* propertyIndex */,
 													  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
@@ -94,7 +91,7 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return true;
 		}
 
-		virtual bool generateSourceFileHeaderCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
+		virtual bool generateSourceFileHeaderCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
 														   kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
@@ -102,7 +99,7 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			std::string paramName = "_kodgen" + field.name;
 
 			//Don't generate setter definition if it is marked as explicit
-			if (!property->arguments.empty())	//explicit is the only supported argument, so if it is not empty it must be explicit
+			if (!property.arguments.empty())	//explicit is the only supported argument, so if it is not empty it must be explicit
 			{
 				return true;
 			}
