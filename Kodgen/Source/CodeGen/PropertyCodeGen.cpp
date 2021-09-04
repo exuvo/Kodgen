@@ -8,7 +8,7 @@ PropertyCodeGen::PropertyCodeGen(std::string const&	propertyName, EEntityType el
 {
 }
 
-ETraversalBehaviour PropertyCodeGen::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
+ETraversalBehaviour PropertyCodeGen::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
 {
 	AdditionalData const* additionalData = reinterpret_cast<AdditionalData const*>(data);
 
@@ -52,38 +52,30 @@ bool PropertyCodeGen::shouldIterateOnNestedEntities(EntityInfo const& entity) co
 	}
 }
 
-ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const* entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const*, CodeGenEnv&, void const*)> visitor) noexcept
+ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
 
-	if (entity != nullptr)
+	//Call the visitor if the entity type is contained in the _eligibleEntities mask
+	if (_eligibleEntityMask && entity.entityType)
 	{
-		//Call the visitor if the entity type is contained in the _eligibleEntities mask
-		if (_eligibleEntityMask && entity->entityType)
+		AdditionalData data;
+
+		//Execute the visitor on each property contained in the entity
+		for (uint8 i = 0; i < entity.properties.size(); i++)
 		{
-			AdditionalData data;
+			data.propertyIndex = i;
+			data.property = &entity.properties[i];
 
-			//Execute the visitor on each property contained in the entity
-			for (uint8 i = 0; i < entity->properties.size(); i++)
+			if (shouldGenerateCodeForEntity(entity, *data.property, data.propertyIndex))
 			{
-				data.propertyIndex = i;
-				data.property = &entity->properties[i];
-
-				if (shouldGenerateCodeForEntity(*entity, *data.property, data.propertyIndex))
+				if (visitor(*this, entity, env, &data) == ETraversalBehaviour::AbortWithFailure)
 				{
-					if (visitor(*this, entity, env, &data) == ETraversalBehaviour::AbortWithFailure)
-					{
-						return ETraversalBehaviour::AbortWithFailure;
-					}
+					return ETraversalBehaviour::AbortWithFailure;
 				}
 			}
 		}
+	}
 
-		return shouldIterateOnNestedEntities(*entity) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::Continue;
-	}
-	else
-	{
-		//Entity is nullptr, call the visitor with the nullptr entity and no data
-		return visitor(*this, nullptr, env, nullptr);
-	}
+	return shouldIterateOnNestedEntities(entity) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::Continue;
 }

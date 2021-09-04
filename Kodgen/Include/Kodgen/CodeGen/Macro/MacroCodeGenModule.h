@@ -101,7 +101,7 @@ namespace kodgen
 			*	@return The least prioritized ETraversalBehaviour value (ETraversalBehaviour::Break) to give the full control to
 			*			any defined override version returning a more prioritized ETraversalBehaviour.
 			*/
-			virtual ETraversalBehaviour	generateHeaderFileHeaderCodeForEntity(EntityInfo const*	entity,
+			virtual ETraversalBehaviour	generateHeaderFileHeaderCodeForEntity(EntityInfo const&	entity,
 																			  MacroCodeGenEnv&	env,
 																			  std::string&		inout_result)	noexcept;
 
@@ -116,7 +116,7 @@ namespace kodgen
 			*	@return The least prioritized ETraversalBehaviour value (ETraversalBehaviour::Break) to give the full control to
 			*			any defined override version returning a more prioritized ETraversalBehaviour.
 			*/
-			virtual ETraversalBehaviour	generateClassFooterCodeForEntity(EntityInfo const*	entity,
+			virtual ETraversalBehaviour	generateClassFooterCodeForEntity(EntityInfo const&	entity,
 																		 MacroCodeGenEnv&	env,
 																		 std::string&		inout_result)		noexcept;
 
@@ -130,7 +130,7 @@ namespace kodgen
 			*	@return The least prioritized ETraversalBehaviour value (ETraversalBehaviour::Break) to give the full control to
 			*			any defined override version returning a more prioritized ETraversalBehaviour.
 			*/
-			virtual ETraversalBehaviour	generateHeaderFileFooterCodeForEntity(EntityInfo const*	entity,
+			virtual ETraversalBehaviour	generateHeaderFileFooterCodeForEntity(EntityInfo const&	entity,
 																			  MacroCodeGenEnv&	env,
 																			  std::string&		inout_result)	noexcept;
 
@@ -144,7 +144,7 @@ namespace kodgen
 			*	@return The least prioritized ETraversalBehaviour value (ETraversalBehaviour::Break) to give the full control to
 			*			any defined override version returning a more prioritized ETraversalBehaviour.
 			*/
-			virtual ETraversalBehaviour	generateSourceFileHeaderCodeForEntity(EntityInfo const*	entity,
+			virtual ETraversalBehaviour	generateSourceFileHeaderCodeForEntity(EntityInfo const&	entity,
 																			  MacroCodeGenEnv&	env,
 																			  std::string&		inout_result)	noexcept;
 
@@ -158,7 +158,7 @@ namespace kodgen
 			* 
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
-			virtual bool				preGenerateCodeForEntity(EntityInfo const*	entity,
+			virtual bool				preGenerateCodeForEntity(EntityInfo const&	entity,
 																 MacroCodeGenEnv&	env)						noexcept;
 
 			/**
@@ -171,7 +171,7 @@ namespace kodgen
 			* 
 			*	@return true. Returning false in an override implementation will abort the code generation process for the unit.
 			*/
-			virtual bool				postGenerateCodeForEntity(EntityInfo const*	entity,
+			virtual bool				postGenerateCodeForEntity(EntityInfo const&	entity,
 																  MacroCodeGenEnv&	env)						noexcept;
 
 			/**
@@ -191,7 +191,7 @@ namespace kodgen
 			* 
 			*	@return A combination of all the underlying calls returning a ETraversalBehaviour.
 			*/
-			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const*	entity,
+			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const&	entity,
 															  CodeGenEnv&		env,
 															  std::string&		inout_result)	noexcept override final;
 

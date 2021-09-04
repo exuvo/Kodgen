@@ -8,7 +8,7 @@
 
 using namespace kodgen;
 
-ETraversalBehaviour MacroCodeGenModule::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result) noexcept
+ETraversalBehaviour MacroCodeGenModule::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result) noexcept
 {
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
 
@@ -160,37 +160,37 @@ bool MacroCodeGenModule::finalGenerateSourceFileHeaderCode(MacroCodeGenEnv& env,
 	return true;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateHeaderFileHeaderCodeForEntity(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
+ETraversalBehaviour MacroCodeGenModule::generateHeaderFileHeaderCodeForEntity(EntityInfo const& /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateClassFooterCodeForEntity(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
+ETraversalBehaviour MacroCodeGenModule::generateClassFooterCodeForEntity(EntityInfo const& /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateHeaderFileFooterCodeForEntity(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
+ETraversalBehaviour MacroCodeGenModule::generateHeaderFileFooterCodeForEntity(EntityInfo const& /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-ETraversalBehaviour MacroCodeGenModule::generateSourceFileHeaderCodeForEntity(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
+ETraversalBehaviour MacroCodeGenModule::generateSourceFileHeaderCodeForEntity(EntityInfo const& /* entity */, MacroCodeGenEnv& /* env */, std::string& /* inout_result */) noexcept
 {
 	//Default implementation generates no code
 	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
 }
 
-bool MacroCodeGenModule::preGenerateCodeForEntity(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */) noexcept
+bool MacroCodeGenModule::preGenerateCodeForEntity(EntityInfo const& /* entity */, MacroCodeGenEnv& /* env */) noexcept
 {
 	//Default implementation does nothing
 	return true;
 }
 
-bool MacroCodeGenModule::postGenerateCodeForEntity(EntityInfo const* /* entity */, MacroCodeGenEnv& /* env */) noexcept
+bool MacroCodeGenModule::postGenerateCodeForEntity(EntityInfo const& /* entity */, MacroCodeGenEnv& /* env */) noexcept
 {
 	//Default implementation does nothing
 	return true;

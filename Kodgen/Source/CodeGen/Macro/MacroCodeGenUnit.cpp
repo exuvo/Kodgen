@@ -51,7 +51,7 @@ void MacroCodeGenUnit::finalGenerateCode(CodeGenEnv& env, std::function<void(Cod
 	initialGenerateCode(env, generate);
 }
 
-void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::function<void(EntityInfo const*, CodeGenEnv&, std::string&)> generate)	noexcept
+void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)> generate)	noexcept
 {
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
 
@@ -67,9 +67,8 @@ void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const* entity, CodeGenEn
 		*/
 		if (macroEnv._codeGenLocation == ECodeGenLocation::ClassFooter)
 		{
-			if (entity == nullptr ||
-				!(entity->entityType == EEntityType::Struct || entity->entityType == EEntityType::Class ||
-				entity->entityType == EEntityType::Method || entity->entityType == EEntityType::Field))
+			if (!(entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class ||
+				entity.entityType == EEntityType::Method || entity.entityType == EEntityType::Field))
 			{
 				continue;
 			}
@@ -175,22 +174,20 @@ bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
 	return false;
 }
 
-void MacroCodeGenUnit::generateEntityClassFooterCode(EntityInfo const* entity, CodeGenEnv& env, std::function<void(EntityInfo const*, CodeGenEnv&, std::string&)> generate) noexcept
+void MacroCodeGenUnit::generateEntityClassFooterCode(EntityInfo const& entity, CodeGenEnv& env, std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)> generate) noexcept
 {
-	assert(entity != nullptr);
-
-	if (entity->entityType == EEntityType::Struct || entity->entityType == EEntityType::Class)
+	if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
 	{
 		//If the entity is a struct/class, append to the footer of the struct/class
-		generate(entity, env, _classFooterGeneratedCode[reinterpret_cast<StructClassInfo const*>(entity)]);
+		generate(entity, env, _classFooterGeneratedCode[&reinterpret_cast<StructClassInfo const&>(entity)]);
 	}
 	else
 	{
-		assert(entity->outerEntity != nullptr);
-		assert(entity->outerEntity->entityType == EEntityType::Struct || entity->outerEntity->entityType == EEntityType::Class);
+		assert(entity.outerEntity != nullptr);
+		assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
 
 		//If the entity is NOT a struct/class, append to the footer of the outer struct/class
-		generate(entity, env, _classFooterGeneratedCode[reinterpret_cast<StructClassInfo const*>(entity->outerEntity)]);
+		generate(entity, env, _classFooterGeneratedCode[reinterpret_cast<StructClassInfo const*>(entity.outerEntity)]);
 	}
 }
 

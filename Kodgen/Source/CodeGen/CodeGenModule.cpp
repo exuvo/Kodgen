@@ -7,7 +7,7 @@
 
 using namespace kodgen;
 
-ETraversalBehaviour CodeGenModule::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
+ETraversalBehaviour CodeGenModule::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
 {
 	return generateCodeForEntity(entity, env, inout_result);
 }
@@ -31,7 +31,7 @@ bool CodeGenModule::removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen
 	return false;
 }
 
-ETraversalBehaviour CodeGenModule::callVisitorOnEntity(EntityInfo const* entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const*, CodeGenEnv&, void const*)> visitor) noexcept
+ETraversalBehaviour CodeGenModule::callVisitorOnEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
 	assert(visitor != nullptr);
 

@@ -37,10 +37,10 @@ namespace kodgen
 			* 
 			*	@return	The value returned from the visitor call.
 			*/
-			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const*									entity,
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
 															CodeGenEnv&											env,
 															std::function<ETraversalBehaviour(ICodeGenerator&,
-																							  EntityInfo const*,
+																							  EntityInfo const&,
 																							  CodeGenEnv&,
 																							  void const*)>		visitor)	noexcept final override;
 
@@ -55,7 +55,7 @@ namespace kodgen
 			* 
 			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const*	entity, 
+			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const&	entity, 
 															  CodeGenEnv&		env,
 															  std::string&		inout_result,
 															  void const*		data)										noexcept final override;
@@ -79,13 +79,13 @@ namespace kodgen
 			/**
 			*	@brief	Generate code using the provided environment as input.
 			* 
-			*	@param entity			Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.
+			*	@param entity			Entity the module is generating code for.
 			*	@param env				Data provided by the FileGenerationUnit. You can cast env to a more concrete type if you know the type provided by the FileGenerationUnit.
 			*	@param inout_result		String the method should append the generated code to.
 			* 
 			*	@return true if the code generation completed successfully, else false. If false is returned
 			*/
-			virtual ETraversalBehaviour					generateCodeForEntity(EntityInfo const*	entity,
+			virtual ETraversalBehaviour					generateCodeForEntity(EntityInfo const&	entity,
 																			  CodeGenEnv&		env,
 																			  std::string&		inout_result)		noexcept = 0;
 

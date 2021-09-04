@@ -58,7 +58,7 @@ namespace kodgen
 			*			ETraversalBehaviour::AbortWithFailure if the traversal was aborted prematurely with an error.
 			*/
 			ETraversalBehaviour			foreachCodeGenEntityPair(std::function<ETraversalBehaviour(ICodeGenerator&,
-																								   EntityInfo const*,
+																								   EntityInfo const&,
 																								   CodeGenEnv&,
 																								   void const*)>		visitor,
 																 CodeGenEnv&											env)					noexcept;
@@ -79,7 +79,7 @@ namespace kodgen
 																			NamespaceInfo const&								namespace_,
 																			CodeGenEnv&											env,
 																			std::function<ETraversalBehaviour(ICodeGenerator&,
-																											  EntityInfo const*,
+																											  EntityInfo const&,
 																											  CodeGenEnv&,
 																											  void const*)>		visitor)		noexcept;
 
@@ -99,7 +99,7 @@ namespace kodgen
 																		 StructClassInfo const&									struct_,
 																		 CodeGenEnv&											env,
 																		 std::function<ETraversalBehaviour(ICodeGenerator&,
-																		 								   EntityInfo const*,
+																		 								   EntityInfo const&,
 																		 								   CodeGenEnv&,
 																		 								   void const*)>		visitor)		noexcept;
 
@@ -118,7 +118,7 @@ namespace kodgen
 																	   EnumInfo const&										enum_,
 																	   CodeGenEnv&											env,
 																	   std::function<ETraversalBehaviour(ICodeGenerator&,
-																										 EntityInfo const*,
+																										 EntityInfo const&,
 																										 CodeGenEnv&,
 																										 void const*)>		visitor)			noexcept;
 
@@ -148,14 +148,14 @@ namespace kodgen
 			*	@brief	Method called on each entity when CodeGenUnit::generateCode is called.
 			* 
 			*	@param codeGenerator	The code generator to run for the entity.
-			*	@param entity			The entity for which the generate generates code. Can be nullptr.
+			*	@param entity			The entity for which the generate generates code.
 			*	@param env				The environment structure.
 			*	@param data				Opaque data forwarded to the codeGenerator.generateCode call.
 			* 
 			*	@return A combined value of all the codeGenerator.generateCode calls.
 			*/
 			ETraversalBehaviour		generateCodeForEntityInternal(ICodeGenerator&	codeGenerator,
-																  EntityInfo const*	entity,
+																  EntityInfo const&	entity,
 																  CodeGenEnv&		env,
 																  void const*		data)														noexcept;
 
@@ -171,9 +171,9 @@ namespace kodgen
 			*	@param entity			Target entity for this code generation pass.
 			*	@param env				Generation environment structure.
 			*/
-			virtual void					generateCodeForEntity(EntityInfo const*						entity,
+			virtual void					generateCodeForEntity(EntityInfo const&						entity,
 																  CodeGenEnv&							env,
-																  std::function<void(EntityInfo const*,
+																  std::function<void(EntityInfo const&,
 																					 CodeGenEnv&,
 																					 std::string&)>		generate)	noexcept	= 0;
 
