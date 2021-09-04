@@ -7,8 +7,8 @@ using namespace kodgen;
 
 void CodeGenManagerSettings::sanitizePaths(std::unordered_set<fs::path, PathHash>& set) noexcept
 {
-	std::vector<fs::path>	toSanitizePaths;
-	fs::path				sanitizedPath;
+	std::unordered_set<fs::path, PathHash>	sanitizedPaths;
+	fs::path								sanitizedPath;
 
 	//Modify in 2 for-loops to avoid iterator invalidations by removing/inserting elements
 	//Detect all paths that should be sanitized
@@ -16,18 +16,17 @@ void CodeGenManagerSettings::sanitizePaths(std::unordered_set<fs::path, PathHash
 	{
 		sanitizedPath = FilesystemHelpers::sanitizePath(path);
 
-		if (!sanitizedPath.empty() && path != sanitizedPath)
+		if (!sanitizedPath.empty())
 		{
-			toSanitizePaths.push_back(path);
+			sanitizedPaths.emplace(sanitizedPath);
+		}
+		else
+		{
+			sanitizedPaths.emplace(path);
 		}
 	}
 
-	//Sanitized the detected paths
-	for (fs::path const& path : toSanitizePaths)
-	{
-		set.insert(FilesystemHelpers::sanitizePath(path));
-		set.erase(path);
-	}
+	set = sanitizedPaths;
 }
 
 bool CodeGenManagerSettings::loadSettingsValues(toml::value const& tomlData, ILogger* logger) noexcept

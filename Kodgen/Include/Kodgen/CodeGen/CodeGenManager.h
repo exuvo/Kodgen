@@ -97,7 +97,7 @@ namespace kodgen
 			*	@return true if all settings are correct, else false.
 			*/
 			bool					checkGenerationSetup(FileParser const&	fileParser,
-														 CodeGenUnit const& codeGenUnit)				const	noexcept;
+														 CodeGenUnit const& codeGenUnit)						noexcept;
 
 		public:
 			/** Logger used to issue logs from the CodeGenManager. */

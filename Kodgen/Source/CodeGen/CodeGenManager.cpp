@@ -113,18 +113,16 @@ void CodeGenManager::generateMacrosFile(ParsingSettings const& parsingSettings, 
 	macrosDefinitionFile.writeLine("\n#endif");
 }
 
-bool CodeGenManager::checkGenerationSetup(FileParser const& /* fileParser */, CodeGenUnit const& codeGenUnit) const noexcept
+bool CodeGenManager::checkGenerationSetup(FileParser const& /* fileParser */, CodeGenUnit const& codeGenUnit) noexcept
 {
 	bool canLog	= logger != nullptr;
 	
 	if (CodeGenUnitSettings const* codeGenUnitSettings = codeGenUnit.getSettings())
 	{
-		auto const& ignoredDirectories = settings.getIgnoredDirectories();
-
 		//Emit a warning if the output directory content is going to be parsed
-		if (fs::exists(codeGenUnitSettings->getOutputDirectory()) &&											//abort check if the output directory doesn't exist
-			!fs::is_empty(codeGenUnitSettings->getOutputDirectory()) &&											//abort check if the output directory contains no file
-			ignoredDirectories.find(codeGenUnitSettings->getOutputDirectory()) == ignoredDirectories.cend())	//abort check if the output directory is already ignored
+		if (fs::exists(codeGenUnitSettings->getOutputDirectory()) &&					//abort check if the output directory doesn't exist
+			!fs::is_empty(codeGenUnitSettings->getOutputDirectory()) &&					//abort check if the output directory contains no file
+			!settings.isIgnoredDirectory(codeGenUnitSettings->getOutputDirectory()))	//abort check if the output directory is already ignored
 		{
 			for (fs::path const& parsedDirectory : settings.getToProcessDirectories())
 			{
