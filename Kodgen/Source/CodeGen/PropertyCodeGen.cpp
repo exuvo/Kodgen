@@ -8,21 +8,21 @@ PropertyCodeGen::PropertyCodeGen(std::string const&	propertyName, EEntityType el
 {
 }
 
-ETraversalBehaviour PropertyCodeGen::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
+ETraversalBehaviour PropertyCodeGen::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* data) noexcept
 {
 	AdditionalData const* additionalData = reinterpret_cast<AdditionalData const*>(data);
 
 	if (additionalData != nullptr)
 	{
-		return generateCode(entity, additionalData->property, additionalData->propertyIndex, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
+		return generateCodeForEntity(entity, additionalData->property, additionalData->propertyIndex, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
 	}
 	else
 	{
-		return generateCode(entity, nullptr, 0u, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
+		return generateCodeForEntity(entity, nullptr, 0u, env, inout_result) ? ETraversalBehaviour::Recurse : ETraversalBehaviour::AbortWithFailure;
 	}
 }
 
-bool PropertyCodeGen::shouldGenerateCode(EntityInfo const& entity, Property const& property, uint8 /* propertyIndex */) const noexcept
+bool PropertyCodeGen::shouldGenerateCodeForEntity(EntityInfo const& entity, Property const& property, uint8 /* propertyIndex */) const noexcept
 {
 	return property.name == _propertyName && (entity.entityType && _eligibleEntityMask);
 }
@@ -69,7 +69,7 @@ ETraversalBehaviour PropertyCodeGen::callVisitorOnEntity(EntityInfo const* entit
 				data.propertyIndex = i;
 				data.property = &entity->properties[i];
 
-				if (shouldGenerateCode(*entity, *data.property, data.propertyIndex))
+				if (shouldGenerateCodeForEntity(*entity, *data.property, data.propertyIndex))
 				{
 					if (visitor(*this, entity, env, &data) == ETraversalBehaviour::AbortWithFailure)
 					{

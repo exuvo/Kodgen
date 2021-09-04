@@ -54,10 +54,10 @@ namespace kodgen
 			* 
 			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour generateCode(EntityInfo const*	entity,
-													 CodeGenEnv&		env,
-													 std::string&		inout_result,
-													 void const*		data)												noexcept = 0;
+			virtual ETraversalBehaviour generateCodeForEntity(EntityInfo const*	entity,
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)										noexcept = 0;
 
 			/**
 			*	@brief	Initial code generation method called before the first generateCodePerEntity call.

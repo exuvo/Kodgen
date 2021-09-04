@@ -55,10 +55,10 @@ namespace kodgen
 			* 
 			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour	generateCode(EntityInfo const*	entity, 
-													 CodeGenEnv&		env,
-													 std::string&		inout_result,
-													 void const*		data)												noexcept final override;
+			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const*	entity, 
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)										noexcept final override;
 
 		protected:
 			/**
@@ -85,9 +85,9 @@ namespace kodgen
 			* 
 			*	@return true if the code generation completed successfully, else false. If false is returned
 			*/
-			virtual ETraversalBehaviour					generateCode(EntityInfo const*	entity,
-																	 CodeGenEnv&		env,
-																	 std::string&		inout_result)				noexcept = 0;
+			virtual ETraversalBehaviour					generateCodeForEntity(EntityInfo const*	entity,
+																			  CodeGenEnv&		env,
+																			  std::string&		inout_result)		noexcept = 0;
 
 			/**
 			*	@brief Getter for _propertyCodeGenerators field.

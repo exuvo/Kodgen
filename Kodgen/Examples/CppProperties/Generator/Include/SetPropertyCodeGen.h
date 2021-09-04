@@ -18,7 +18,7 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			kodgen::MacroPropertyCodeGen("Set", kodgen::EEntityType::Field)
 		{}
 
-		virtual bool preGenerateCode(kodgen::EntityInfo const* /* entity */, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
+		virtual bool preGenerateCodeForEntity(kodgen::EntityInfo const* /* entity */, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
 			if (property != nullptr)
 			{
@@ -50,8 +50,8 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return true;
 		}
 
-		virtual bool generateClassFooterCode(kodgen::EntityInfo const* entity, kodgen::Property const* /* property */, kodgen::uint8 /* propertyIndex */,
-											 kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
+		virtual bool generateClassFooterCodeForEntity(kodgen::EntityInfo const* entity, kodgen::Property const* /* property */, kodgen::uint8 /* propertyIndex */,
+													  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			if (entity == nullptr)
 			{
@@ -99,8 +99,8 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return true;
 		}
 
-		virtual bool generateSourceFileHeaderCode(kodgen::EntityInfo const* entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
-												  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
+		virtual bool generateSourceFileHeaderCodeForEntity(kodgen::EntityInfo const* entity, kodgen::Property const* property, kodgen::uint8 /* propertyIndex */,
+														   kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			if (entity == nullptr)
 			{

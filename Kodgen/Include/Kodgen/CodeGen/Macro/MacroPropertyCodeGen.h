@@ -92,11 +92,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateHeaderFileHeaderCode(EntityInfo const*	entity,
-														 Property const*	property,
-														 uint8				propertyIndex,
-														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	noexcept;
+			virtual bool	generateHeaderFileHeaderCodeForEntity(EntityInfo const*	entity,
+																  Property const*	property,
+																  uint8				propertyIndex,
+																  MacroCodeGenEnv&	env,
+																  std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Generate code in the class footer for the given entity.
@@ -110,11 +110,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateClassFooterCode(EntityInfo const*	entity,
-													Property const*		property,
-													uint8				propertyIndex,
-													MacroCodeGenEnv&	env,
-													std::string&		inout_result)		noexcept;
+			virtual bool	generateClassFooterCodeForEntity(EntityInfo const*	entity,
+															 Property const*	property,
+															 uint8				propertyIndex,
+															 MacroCodeGenEnv&	env,
+															 std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief Generate code in the header file footer for the given entity.
@@ -127,11 +127,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateHeaderFileFooterCode(EntityInfo const*	entity,
-														 Property const*	property,
-														 uint8				propertyIndex,
-														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	noexcept;
+			virtual bool	generateHeaderFileFooterCodeForEntity(EntityInfo const*	entity,
+																  Property const*	property,
+																  uint8				propertyIndex,
+																  MacroCodeGenEnv&	env,
+																  std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief Generate code in the source file header for the given entity.
@@ -144,11 +144,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateSourceFileHeaderCode(EntityInfo const*	entity,
-														 Property const*	property,
-														 uint8				propertyIndex,
-														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	noexcept;
+			virtual bool	generateSourceFileHeaderCodeForEntity(EntityInfo const*	entity,
+																  Property const*	property,
+																  uint8				propertyIndex,
+																  MacroCodeGenEnv&	env,
+																  std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Called just before calling generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -162,10 +162,10 @@ namespace kodgen
 			* 
 			*	@return true if the pre-generation completed successfully, else false.
 			*/
-			virtual bool	preGenerateCode(EntityInfo const*	entity,
-											Property const*		property,
-											uint8				propertyIndex,
-											MacroCodeGenEnv&	env)						noexcept;
+			virtual bool	preGenerateCodeForEntity(EntityInfo const*	entity,
+													 Property const*	property,
+													 uint8				propertyIndex,
+													 MacroCodeGenEnv&	env)						noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -179,10 +179,10 @@ namespace kodgen
 			* 
 			*	@return true if the post-generation completed successfully, else false.
 			*/
-			virtual bool	postGenerateCode(EntityInfo const*	entity,
-											 Property const*	property,
-											 uint8				propertyIndex,
-											 MacroCodeGenEnv&	env)						noexcept;
+			virtual bool	postGenerateCodeForEntity(EntityInfo const*	entity,
+													  Property const*	property,
+													  uint8				propertyIndex,
+													  MacroCodeGenEnv&	env)						noexcept;
 
 		public:
 			//Use the same constructor as PropertyCodeGen
@@ -201,11 +201,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateCode(EntityInfo const*	entity,
-										 Property const*	property,
-										 uint8				propertyIndex,
-										 CodeGenEnv&		env,
-										 std::string&		inout_result)		noexcept override final;
+			virtual bool	generateCodeForEntity(EntityInfo const*	entity,
+												  Property const*	property,
+												  uint8				propertyIndex,
+												  CodeGenEnv&		env,
+												  std::string&		inout_result)	noexcept override final;
 
 			/**
 			*	@brief	Generate initial code for this code generator.
@@ -218,7 +218,7 @@ namespace kodgen
 			*	@return true if the generation completed successfully, else false.
 			*/
 			virtual bool	initialGenerateCode(CodeGenEnv&		env,
-												std::string&	inout_result)	noexcept override final;
+												std::string&	inout_result)		noexcept override final;
 			
 			/**
 			*	@brief	Generate final code for this code generator.
@@ -231,6 +231,6 @@ namespace kodgen
 			*	@return true if the generation completed successfully, else false.
 			*/
 			virtual bool	finalGenerateCode(CodeGenEnv&	env,
-											  std::string&	inout_result)		noexcept override final;
+											  std::string&	inout_result)			noexcept override final;
 	};
 }

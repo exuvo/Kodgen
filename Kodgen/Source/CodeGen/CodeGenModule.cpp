@@ -7,9 +7,9 @@
 
 using namespace kodgen;
 
-ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
+ETraversalBehaviour CodeGenModule::generateCodeForEntity(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
 {
-	return generateCode(entity, env, inout_result);
+	return generateCodeForEntity(entity, env, inout_result);
 }
 
 void CodeGenModule::addPropertyCodeGen(PropertyCodeGen& propertyCodeGen) noexcept

@@ -62,10 +62,10 @@ namespace kodgen
 			* 
 			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
 			*/
-			virtual ETraversalBehaviour	generateCode(EntityInfo const*	entity, 
-													 CodeGenEnv&		env,
-													 std::string&		inout_result,
-													 void const*		data)												noexcept final override;
+			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const*	entity, 
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)										noexcept final override;
 
 			/**
 			*	@brief	Determine whether this PropertyCodeGen should recurse on the provided entity children or not.
@@ -95,11 +95,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool				generateCode(EntityInfo const*	entity,
-													 Property const*	property,
-													 uint8				propertyIndex,
-													 CodeGenEnv&		env,
-													 std::string&		inout_result)					noexcept = 0;
+			virtual bool				generateCodeForEntity(EntityInfo const*	entity,
+															  Property const*	property,
+															  uint8				propertyIndex,
+															  CodeGenEnv&		env,
+															  std::string&		inout_result)					noexcept = 0;
 
 			/**
 			*	@brief Check if this property should generate code for the provided entity/property pair.
@@ -110,23 +110,23 @@ namespace kodgen
 			*
 			*	@return true if this property should generate code for the provided entity, else false.
 			*/
-			virtual bool				shouldGenerateCode(EntityInfo const&	entity,
-														   Property const&		property,
-														   uint8				propertyIndex)	const	noexcept;
+			virtual bool				shouldGenerateCodeForEntity(EntityInfo const&	entity,
+																	Property const&		property,
+																	uint8				propertyIndex)	const	noexcept;
 
 			/**
 			*	@brief Getter for _eligibleEntityMask field.
 			* 
 			*	@return _eligibleEntityMask.
 			*/
-			inline EEntityType			getEligibleEntityMask()									const	noexcept;
+			inline EEntityType			getEligibleEntityMask()											const	noexcept;
 
 			/**
 			*	@brief Getter for _propertyName field.
 			* 
 			*	@return _propertyName.
 			*/
-			inline std::string const&	getPropertyName()										const	noexcept;
+			inline std::string const&	getPropertyName()												const	noexcept;
 	};
 
 	#include "Kodgen/CodeGen/PropertyCodeGen.inl"

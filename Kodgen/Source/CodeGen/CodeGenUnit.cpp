@@ -184,7 +184,7 @@ ETraversalBehaviour	CodeGenUnit::generateCodeForEntityInternal(ICodeGenerator& c
 
 	auto generateLambda = [&result, &codeGenerator, &data](EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result)
 	{
-		result = CodeGenHelpers::combineTraversalBehaviours(result, codeGenerator.generateCode(entity, env, inout_result, data));
+		result = CodeGenHelpers::combineTraversalBehaviours(result, codeGenerator.generateCodeForEntity(entity, env, inout_result, data));
 	};
 
 	//Result will be altered when generateLambda will be called from the CodeGenUnit::generateCodeForEntity override
