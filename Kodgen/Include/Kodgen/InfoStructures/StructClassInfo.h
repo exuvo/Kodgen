@@ -75,8 +75,16 @@ namespace kodgen
 			StructClassInfo()												noexcept;
 			StructClassInfo(CXCursor const&			cursor,
 							std::vector<Property>&&	properties,
-							EEntityType&&			entityType,
 							bool					isForwardDeclaration)	noexcept;
+
+			/**
+			*	@brief Get the kind of a struct class info from a clang cursor.
+			* 
+			*	@param cursor The target cursor.
+			* 
+			*	@return The kind of the target cursor.
+			*/
+			static CXCursorKind	getCursorKind(CXCursor cursor)	noexcept;
 
 			/**
 			*	@brief Call a visitor function on a struct/class and each nested entity of the provided type(s).

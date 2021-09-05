@@ -56,7 +56,7 @@ namespace kodgen
 			*	@param out_structClassTree	StructClassTree to update.
 			*/
 			static void								updateStructClassTreeRecursion(CXType			childType,
-																				   CXCursor			baseOfCursor,
+																				   CXCursor	const&	baseOfCursor,
 																				   StructClassTree& out_structClassTree)	noexcept;
 
 			/**
@@ -66,7 +66,16 @@ namespace kodgen
 			* 
 			*	@return true if the cursor represents a forwards declaration, else false.
 			*/
-			static bool								isForwardDeclaration(CXCursor cursor)									noexcept;
+			static bool								isForwardDeclaration(CXCursor const& cursor)							noexcept;
+
+			/**
+			*	@brief Check whether the provided cursor points to a class template instantiation
+			* 
+			*	@param cursor The target cursor.
+			* 
+			*	@return true if the cursor is a class template instantiation, else false.
+			*/
+			static bool								isClassTemplateInstantiation(CXCursor const& cursor)					noexcept;
 
 			/**
 			*	@brief Push a new clean context to prepare struct/class parsing.
@@ -111,14 +120,14 @@ namespace kodgen
 			* 
 			*	@param cursor AST cursor to the base class.
 			*/
-			void									updateStructClassTree(CXCursor cursor)						noexcept;
+			void									updateStructClassTree(CXCursor const& cursor)				noexcept;
 
 			/**
 			*	@brief Add a base class (parent class) to the currently parsed struct/class info.
 			*
 			*	@param cursor AST cursor to the base class.
 			*/
-			void									addBaseClass(CXCursor cursor)								noexcept;
+			void									addBaseClass(CXCursor const& cursor)						noexcept;
 
 			/**
 			*	@brief Add the provided struct/class result to the current class context result.
@@ -210,7 +219,7 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			CXChildVisitResult	parse(CXCursor const&			classCursor,
+			CXChildVisitResult	parse(CXCursor					classCursor,
 									  ParsingContext const&		parentContext,
 									  ClassParsingResult&		out_result)		noexcept;
 	};

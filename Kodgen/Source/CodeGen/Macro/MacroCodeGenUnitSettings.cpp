@@ -144,6 +144,16 @@ std::string MacroCodeGenUnitSettings::getClassFooterMacro(StructClassInfo const&
 
 	//Replace full name :: into _ so that it makes a valid macro
 	replaceTags(classFullName, "::", "_");
+
+	//Special case for template classes, must replace < and spaces as well
+	if (structClassInfo.type.isTemplateType())
+	{
+		replaceTags(classFullName, ">", "");
+		replaceTags(classFullName, " ", "");
+		replaceTags(classFullName, "<", "_");
+		replaceTags(classFullName, ",", "_");
+	}
+
 	replaceTags(classFooterMacroName, classNameTag, structClassInfo.name);
 	replaceTags(classFooterMacroName, classFullNameTag, classFullName);
 

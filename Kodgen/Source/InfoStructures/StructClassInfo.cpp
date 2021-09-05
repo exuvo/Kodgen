@@ -1,5 +1,7 @@
 #include "Kodgen/InfoStructures/StructClassInfo.h"
 
+#include <cassert>
+
 #include "Kodgen/InfoStructures/NestedStructClassInfo.h"
 
 using namespace kodgen;
@@ -11,12 +13,31 @@ StructClassInfo::StructClassInfo() noexcept:
 {
 }
 
-StructClassInfo::StructClassInfo(CXCursor const& cursor, std::vector<Property>&& properties, EEntityType&& entityType, bool isForwardDeclaration) noexcept:
-	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), std::forward<EEntityType>(entityType)),
+StructClassInfo::StructClassInfo(CXCursor const& cursor, std::vector<Property>&& properties, bool isForwardDeclaration) noexcept:
+	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), (cursor.kind == CXCursorKind::CXCursor_StructDecl) ? EEntityType::Struct : EEntityType::Class),
 	qualifiers{false},
 	isForwardDeclaration{isForwardDeclaration},
-	type{clang_getCursorType(cursor)}
+	type{cursor}
 {
+}
+
+CXCursorKind StructClassInfo::getCursorKind(CXCursor cursor) noexcept
+{
+	switch (cursor.kind)
+	{
+		case CXCursorKind::CXCursor_ClassDecl:
+			return CXCursorKind::CXCursor_ClassDecl;
+
+		case CXCursorKind::CXCursor_StructDecl:
+			return CXCursorKind::CXCursor_StructDecl;
+
+		case CXCursorKind::CXCursor_ClassTemplate:
+			return clang_getTemplateCursorKind(cursor);
+
+		default:
+			assert(false);
+			return CXCursorKind::CXCursor_UnexposedExpr; //Always assert first, or return an absurd value
+	}
 }
 
 void StructClassInfo::refreshOuterEntity() noexcept

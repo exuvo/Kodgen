@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <algorithm>
 
 #include "Kodgen/Misc/Helpers.h"
 
@@ -13,6 +14,11 @@ TypeInfo::TypeInfo(CXType cursorType) noexcept:
 	assert(cursorType.kind != CXTypeKind::CXType_Invalid);
 
 	initialize(cursorType);
+}
+
+TypeInfo::TypeInfo(CXCursor cursor) noexcept
+{
+	initialize(cursor);
 }
 
 void TypeInfo::initialize(CXType cursorType) noexcept
@@ -93,6 +99,82 @@ void TypeInfo::initialize(CXType cursorType) noexcept
 	}
 }
 
+std::string	TypeInfo::computeClassTemplateFullName(CXCursor cursor) noexcept
+{
+	std::string result = Helpers::getString(clang_getCursorSpelling(cursor));
+	result = result.substr(0u, result.find_first_of("<"));
+
+	CXCursor last = cursor;
+	CXCursor current = clang_getCursorSemanticParent(last);
+	while (!clang_equalCursors(last, current))
+	{
+		result = Helpers::getString(clang_getCursorSpelling(current)) + "::" + result;
+
+		last = current;
+		current = clang_getCursorSemanticParent(cursor);
+	}
+
+	return result;
+}
+
+void TypeInfo::fillTemplateTypenames(CXCursor cursor) noexcept
+{
+	if (cursor.kind == CXCursorKind::CXCursor_ClassTemplate || cursor.kind == CXCursorKind::CXCursor_TemplateTemplateParameter)
+	{
+		clang_visitChildren(cursor, [](CXCursor cursor, CXCursor /* parent */, CXClientData client_data)
+		{
+			std::vector<TypeInfo>* typenames = reinterpret_cast<std::vector<TypeInfo>*>(client_data);
+
+			switch (cursor.kind)
+			{
+				case CXCursorKind::CXCursor_TemplateTypeParameter:
+					[[fallthrough]];
+				case CXCursorKind::CXCursor_NonTypeTemplateParameter:
+					[[fallthrough]];
+				case CXCursorKind::CXCursor_TemplateTemplateParameter:
+					typenames->emplace_back(cursor);
+					break;
+
+				default:
+					return CXChildVisitResult::CXChildVisit_Break;
+			}
+
+			return CXChildVisitResult::CXChildVisit_Continue;
+		}, &_templateTypenames);
+	}
+	else
+	{
+		//Don't handle this case yet
+		assert(false);
+	}
+}
+
+void TypeInfo::initialize(CXCursor cursor) noexcept
+{
+	if (cursor.kind == CXCursorKind::CXCursor_ClassTemplate)
+	{
+		_fullName = computeClassTemplateFullName(cursor);
+		_canonicalFullName = _fullName;	//TODO: Doesn't support canonical result computation for templates for now
+		
+		fillTemplateTypenames(cursor);
+	}
+	else if (cursor.kind == CXCursorKind::CXCursor_TemplateTemplateParameter)
+	{
+		_fullName = Helpers::getString(clang_getCursorSpelling(cursor));
+		_canonicalFullName = _fullName;
+
+		fillTemplateTypenames(cursor);
+	}
+	else
+	{
+		CXType cursorType = clang_getCursorType(cursor);
+
+		assert(cursorType.kind != CXTypeKind::CXType_Invalid);
+
+		initialize(cursorType);
+	}
+}
+
 void TypeInfo::removeForwardDeclaredClassQualifier(std::string& parsingStr) const noexcept
 {
 	std::string expectedKeyword = parsingStr.substr(0, 7);
@@ -119,7 +201,7 @@ void TypeInfo::removeNamespacesAndNestedClasses(std::string& typeString) const n
 	size_t	stringStart		= 0;
 	uint8	templateLevel;
 
-	//Here comes the actual type name, remove namespace / nested class name
+	//Here comes the actual type result, remove namespace / nested class result
 	size_t charIndex;
 	while ((charIndex = typeString.find_first_of("<:", stringStart, 2)) != typeString.npos)
 	{
@@ -243,6 +325,16 @@ std::string TypeInfo::getCanonicalName(bool removeQualifiers, bool shouldRemoveN
 	}
 
 	return result;
+}
+
+std::vector<TypeInfo> const& TypeInfo::getTemplateTypenames() const noexcept
+{
+	return _templateTypenames;
+}
+
+bool TypeInfo::isTemplateType() const noexcept
+{
+	return !_templateTypenames.empty();
 }
 
 std::ostream& kodgen::operator<<(std::ostream& out_stream, TypeInfo const& typeInfo) noexcept
