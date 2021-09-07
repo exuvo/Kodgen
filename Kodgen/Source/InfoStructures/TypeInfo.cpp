@@ -106,7 +106,7 @@ std::string	TypeInfo::computeClassTemplateFullName(CXCursor cursor) noexcept
 
 	CXCursor last = cursor;
 	CXCursor current = clang_getCursorSemanticParent(last);
-	while (!clang_equalCursors(last, current))
+	while (!clang_equalCursors(last, current) && current.kind != CXCursorKind::CXCursor_TranslationUnit)
 	{
 		result = Helpers::getString(clang_getCursorSpelling(current)) + "::" + result;
 

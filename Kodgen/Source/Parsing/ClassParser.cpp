@@ -23,9 +23,7 @@ CXChildVisitResult ClassParser::parse(CXCursor classCursor, ParsingContext const
 	assert(classCursor.kind == CXCursorKind::CXCursor_ClassDecl || classCursor.kind == CXCursorKind::CXCursor_StructDecl);
 
 	//Specific case for template classes
-	bool isClassTemplate = isClassTemplateInstantiation(classCursor);
-
-	if (isClassTemplate)
+	if (isClassTemplateInstantiation(classCursor))
 	{
 		classCursor = clang_getSpecializedCursorTemplate(classCursor);
 	}
