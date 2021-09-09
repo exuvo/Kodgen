@@ -51,11 +51,11 @@ namespace kodgen
 			/**
 			*	@brief Update the context structClassTree recursively.
 			* 
-			*	@param childType			type of the child struct/class.
+			*	@param childCursor			AST cursor to the child class.
 			*	@param baseOfCursor			AST cursor to the base class.
 			*	@param out_structClassTree	StructClassTree to update.
 			*/
-			static void								updateStructClassTreeRecursion(CXType			childType,
+			static void								updateStructClassTreeRecursion(CXCursor			childCursor,
 																				   CXCursor	const&	baseOfCursor,
 																				   StructClassTree& out_structClassTree)	noexcept;
 

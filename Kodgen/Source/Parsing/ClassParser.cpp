@@ -250,27 +250,32 @@ void ClassParser::updateStructClassTree(CXCursor const& cursor) noexcept
 {
 	ParsingContext& context = getContext();
 
-	updateStructClassTreeRecursion(clang_getCanonicalType(clang_getCursorType(context.rootCursor)), cursor, *context.structClassTree);
+	updateStructClassTreeRecursion(context.rootCursor, cursor, *context.structClassTree);
 }
 
-void ClassParser::updateStructClassTreeRecursion(CXType childType, CXCursor const& baseOfCursor, StructClassTree& out_structClassTree) noexcept
+void ClassParser::updateStructClassTreeRecursion(CXCursor childCursor, CXCursor const& baseOfCursor, StructClassTree& out_structClassTree) noexcept
 {
 	//Make sure the baseOf cursor is indeed a CXCursor_CXXBaseSpecifier
+	assert(clang_getCursorKind(childCursor) == CXCursorKind::CXCursor_StructDecl ||
+		   clang_getCursorKind(childCursor) == CXCursorKind::CXCursor_ClassDecl ||
+		   clang_getCursorKind(childCursor) == CXCursorKind::CXCursor_ClassTemplate);
 	assert(clang_getCursorKind(baseOfCursor) == CXCursorKind::CXCursor_CXXBaseSpecifier);
 
-	if (out_structClassTree.addInheritanceLink(Helpers::getString(clang_getTypeSpelling(childType)),
-											   Helpers::getString(clang_getTypeSpelling(clang_getCanonicalType(clang_getCursorType(baseOfCursor)))),
+	CXCursor baseCursorTypeDeclaration = clang_getTypeDeclaration(clang_getCursorType(baseOfCursor));
+
+	if (out_structClassTree.addInheritanceLink(EntityInfo::getFullName(childCursor),
+											   EntityInfo::getFullName(baseCursorTypeDeclaration),
 											   static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(baseOfCursor))))
 	{
 		//Recursively fill inheritance tree
-		clang_visitChildren(clang_getTypeDeclaration(clang_getCursorType(baseOfCursor)), [](CXCursor cursor, CXCursor parentCursor, CXClientData clientData)
+		clang_visitChildren(baseCursorTypeDeclaration, [](CXCursor cursor, CXCursor parentCursor, CXClientData clientData)
 		{
 			StructClassTree& structClassTree = *reinterpret_cast<StructClassTree*>(clientData);
 
 			if (cursor.kind == CXCursorKind::CXCursor_CXXBaseSpecifier)
 			{
 				//Recurse on parentType's parents
-				updateStructClassTreeRecursion(clang_getCanonicalType(clang_getCursorType(parentCursor)), cursor, structClassTree);
+				updateStructClassTreeRecursion(parentCursor, cursor, structClassTree);
 
 				return CXChildVisitResult::CXChildVisit_Continue;
 			}

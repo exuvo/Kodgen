@@ -21,7 +21,6 @@ FieldInfo::FieldInfo(CXCursor const& cursor, std::vector<Property>&& properties)
 
 		// assert(field.memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Invalid);	<- Assert here on travis for some reasons...
 		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Incomplete);
-		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Dependent);
 		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_InvalidFieldName);
 
 		memoryOffset /= 8;	//From bits to bytes

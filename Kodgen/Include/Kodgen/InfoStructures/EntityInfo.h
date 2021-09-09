@@ -43,11 +43,20 @@ namespace kodgen
 					   EEntityType				entityType)		noexcept;
 
 			/**
+			*	@brief Generates the full name of this entity (with outer entities) from a clang cursor.
+			* 
+			*	@param cursor The target cursor.
+			*	
+			*	@return The full name of the cursor entity.
+			*/
+			static std::string getFullName(CXCursor const& cursor)	noexcept;
+
+			/**
 			*	@brief Generates the full name of this entity (with outer entities).
 			*	
 			*	@return The full name of the entity.
 			*/
-			std::string getFullName() const noexcept;
+			std::string getFullName()						const	noexcept;
 	};
 
 	std::ostream& operator<<(std::ostream& out_stream, EntityInfo const&) noexcept;

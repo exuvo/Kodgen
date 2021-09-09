@@ -17,6 +17,15 @@ std::string EntityInfo::getFullName() const noexcept
 	return (outerEntity != nullptr) ? outerEntity->getFullName() + "::" + name : name;
 }
 
+std::string EntityInfo::getFullName(CXCursor const& cursor) noexcept
+{
+	CXCursor parentCursor = clang_getCursorLexicalParent(cursor);
+
+	return (!clang_equalCursors(parentCursor, clang_getNullCursor()) && parentCursor.kind != CXCursorKind::CXCursor_TranslationUnit) ?
+		Helpers::getString(clang_getCursorDisplayName(parentCursor)) + "::" + Helpers::getString(clang_getCursorDisplayName(cursor)) :
+		Helpers::getString(clang_getCursorDisplayName(cursor));
+}
+
 std::ostream& kodgen::operator<<(std::ostream& out_stream, EntityInfo const& entityInfo) noexcept
 {
 	out_stream << entityInfo.name;

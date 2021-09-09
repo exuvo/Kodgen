@@ -132,8 +132,8 @@ namespace kodgen
 			*
 			*	@return The cleaned type name.
 			*/
-			std::string					getName(bool removeQualifiers						= false,
-												bool shouldRemoveNamespacesAndNestedClasses = false)				const	noexcept;
+			std::string						getName(bool removeQualifiers						= false,
+													bool shouldRemoveNamespacesAndNestedClasses = false)				const	noexcept;
 
 			/**
 			*	@brief	Get this type canonical name.
