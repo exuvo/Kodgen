@@ -19,7 +19,6 @@ FieldInfo::FieldInfo(CXCursor const& cursor, std::vector<Property>&& properties)
 	{
 		memoryOffset = clang_Cursor_getOffsetOfField(cursor);
 
-		// assert(field.memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Invalid);	<- Assert here on travis for some reasons...
 		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Incomplete);
 		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_InvalidFieldName);
 

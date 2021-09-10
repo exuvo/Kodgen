@@ -102,7 +102,7 @@ void TypeInfo::initialize(CXType cursorType) noexcept
 std::string	TypeInfo::computeClassTemplateFullName(CXCursor cursor) noexcept
 {
 	std::string result = Helpers::getString(clang_getCursorSpelling(cursor));
-	result = result.substr(0u, result.find_first_of("<"));
+	result = result.substr(0u, result.find_first_of("<")); //TODO: Remove that line to be consistent with other types
 
 	CXCursor last = cursor;
 	CXCursor current = clang_getCursorSemanticParent(last);
@@ -144,38 +144,65 @@ void TypeInfo::fillTemplateTypenames(CXCursor cursor) noexcept
 	}
 	else
 	{
-		//Don't handle this case yet
-		assert(false);
+		clang_visitChildren(cursor, [](CXCursor cursor, CXCursor /* parent */, CXClientData client_data)
+		{
+			std::vector<TypeInfo>* typenames = reinterpret_cast<std::vector<TypeInfo>*>(client_data);
+
+			switch (cursor.kind)
+			{
+				case CXCursorKind::CXCursor_TypeRef:
+					typenames->emplace_back(cursor);
+					break;
+
+				default:
+					break;
+			}
+
+			return CXChildVisitResult::CXChildVisit_Recurse;
+		}, &_templateTypenames);
 	}
 }
 
 void TypeInfo::initialize(CXCursor cursor) noexcept
 {
-	if (cursor.kind == CXCursorKind::CXCursor_ClassTemplate)
+	switch (cursor.kind)
 	{
-		_fullName = computeClassTemplateFullName(cursor);
-		_canonicalFullName = _fullName;	//TODO: Doesn't support canonical result computation for templates for now
-		
-		fillTemplateTypenames(cursor);
-	}
-	else if (cursor.kind == CXCursorKind::CXCursor_TemplateTemplateParameter)
-	{
-		_fullName = Helpers::getString(clang_getCursorSpelling(cursor));
-		_canonicalFullName = _fullName;
+		case CXCursorKind::CXCursor_ClassTemplate:
+			_fullName = computeClassTemplateFullName(cursor);
+			_canonicalFullName = _fullName;	//TODO: Doesn't support canonical result computation for templates for now
 
-		fillTemplateTypenames(cursor);
-	}
-	else
-	{
-		CXType cursorType = clang_getCursorType(cursor);
+			fillTemplateTypenames(cursor);
+			break;
 
-		assert(cursorType.kind != CXTypeKind::CXType_Invalid);
+		case CXCursorKind::CXCursor_TemplateTemplateParameter:
+			_fullName = Helpers::getString(clang_getCursorSpelling(cursor));
+			_canonicalFullName = _fullName;
 
-		initialize(cursorType);
+			fillTemplateTypenames(cursor);
+			break;
+
+		case CXCursorKind::CXCursor_TemplateTypeParameter:
+			initialize(clang_getCursorType(cursor));
+			break;
+
+		default:
+			CXType cursorType = clang_getCursorType(cursor);
+
+			assert(cursorType.kind != CXTypeKind::CXType_Invalid);
+
+			//Template type dependant on some type
+			if (clang_Type_getSizeOf(cursorType) == CXTypeLayoutError::CXTypeLayoutError_Dependent &&
+				isTemplateTypename(Helpers::getString(clang_getTypeSpelling(cursorType))))
+			{
+				fillTemplateTypenames(cursor);
+			}
+
+			initialize(cursorType);
+			break;
 	}
 }
 
-void TypeInfo::removeForwardDeclaredClassQualifier(std::string& parsingStr) const noexcept
+void TypeInfo::removeForwardDeclaredClassQualifier(std::string& parsingStr) noexcept
 {
 	std::string expectedKeyword = parsingStr.substr(0, 7);
 
@@ -196,7 +223,7 @@ void TypeInfo::removeForwardDeclaredClassQualifier(std::string& parsingStr) cons
 	}
 }
 
-void TypeInfo::removeNamespacesAndNestedClasses(std::string& typeString) const noexcept
+void TypeInfo::removeNamespacesAndNestedClasses(std::string& typeString) noexcept
 {
 	size_t	stringStart		= 0;
 	uint8	templateLevel;
@@ -210,7 +237,7 @@ void TypeInfo::removeNamespacesAndNestedClasses(std::string& typeString) const n
 			typeString.erase(0, charIndex + 2);		// +2 to remove the ::
 			stringStart = 0;
 		}
-		else	//parsingCanonicalStr.at(charIndex) == '<'
+		else	//parsingCanonicalStr.at(closingTemplateChar) == '<'
 		{
 			templateLevel	= 1;
 			stringStart		= charIndex + 1;
@@ -228,13 +255,34 @@ void TypeInfo::removeNamespacesAndNestedClasses(std::string& typeString) const n
 					templateLevel++;
 					stringStart = charIndex + 1;
 				}
-				else	//parsingCanonicalStr.at(charIndex) == '>'
+				else	//parsingCanonicalStr.at(closingTemplateChar) == '>'
 				{
 					templateLevel--;
 					stringStart = charIndex + 1;
 				}
 			}
 		}
+	}
+}
+
+void TypeInfo::removeTemplateParameters(std::string& typeString) noexcept
+{
+	size_t closingTemplateChar = typeString.find_last_of(":>");
+
+	if (closingTemplateChar != std::string::npos)
+	{
+		//If we find a : before a >, means there is no template params on the type
+		if (typeString.at(closingTemplateChar) == ':')
+		{
+			return;
+		}
+
+		//Search for the opening <
+		size_t openingTemplateChar = typeString.find_last_of('<');
+		
+		assert(openingTemplateChar < closingTemplateChar); //Assert here means there is no opening < eventhough there is a >
+
+		typeString.erase(openingTemplateChar, closingTemplateChar - openingTemplateChar + 1);
 	}
 }
 
@@ -289,7 +337,12 @@ bool TypeInfo::removeRestrictQualifier(std::string& typeString) const noexcept
 	return false;
 }
 
-std::string TypeInfo::getName(bool removeQualifiers, bool shouldRemoveNamespacesAndNestedClasses) const noexcept
+bool TypeInfo::isTemplateTypename(std::string const& typename_) noexcept
+{
+	return typename_.find('<') != std::string::npos;
+}
+
+std::string TypeInfo::getName(bool removeQualifiers, bool shouldRemoveNamespacesAndNestedClasses, bool shouldRemoveTemplateParameters) const noexcept
 {
 	std::string result = _fullName;
 
@@ -303,6 +356,11 @@ std::string TypeInfo::getName(bool removeQualifiers, bool shouldRemoveNamespaces
 	if (shouldRemoveNamespacesAndNestedClasses)
 	{
 		removeNamespacesAndNestedClasses(result);
+	}
+
+	if (shouldRemoveTemplateParameters)
+	{
+		removeTemplateParameters(result);
 	}
 
 	return result;

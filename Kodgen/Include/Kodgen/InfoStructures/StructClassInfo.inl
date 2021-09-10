@@ -56,3 +56,8 @@ void StructClassInfo::foreachEntityOfType(EEntityType entityMask, Functor visito
 		}
 	}
 }
+
+inline bool StructClassInfo::isClass() const noexcept
+{
+	return entityType == EEntityType::Class;
+}

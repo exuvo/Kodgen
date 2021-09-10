@@ -48,7 +48,28 @@ namespace kodgen
 			* 
 			*	@return The computed full name.
 			*/
-			static std::string	computeClassTemplateFullName(CXCursor cursor)			noexcept;
+			static std::string	computeClassTemplateFullName(CXCursor cursor)					noexcept;
+
+			/**
+			*	@brief Remove forward declared class qualifiers from a type string.
+			*
+			*	@param parsingStr The string we are removing the forward declared class specifier from.
+			*/
+			static void			removeForwardDeclaredClassQualifier(std::string& parsingStr)	noexcept;
+
+			/**
+			*	@brief Remove all namespaces and nested classes appearing before the actual type name.
+			*
+			*	@param typeString The string we are removing the namespaces and nested classes from.
+			*/
+			static void			removeNamespacesAndNestedClasses(std::string& typeString)		noexcept;
+
+			/**
+			*	@brief Remove the template parameters from a type string.
+			* 
+			*	@param typeString The string we are removing the template parameters from.
+			*/
+			static void			removeTemplateParameters(std::string& typeString)				noexcept;
 
 			/** Init all internal flags according to the provided type. */
 			void initialize(CXType cursorType)											noexcept;
@@ -62,20 +83,6 @@ namespace kodgen
 			*	@param cursor The template type cursor.
 			*/
 			void fillTemplateTypenames(CXCursor cursor)									noexcept;
-
-			/**
-			*	@brief Remove forward declared class qualifiers from a type string.
-			*
-			*	@param parsingStr The string we are removing the forward declared class specifier from.
-			*/
-			void removeForwardDeclaredClassQualifier(std::string& parsingStr)	const	noexcept;
-
-			/**
-			*	@brief Remove all namespaces and nested classes appearing before the actual type name.
-			*
-			*	@param typeString The string we are removing the namespaces and nested classes from.
-			*/
-			void removeNamespacesAndNestedClasses(std::string& typeString)		const	noexcept;
 
 			/**
 			*	@brief Remove the const qualifier from a type string.
@@ -125,15 +132,26 @@ namespace kodgen
 			TypeInfo(CXCursor cursor)	noexcept;
 
 			/**
+			*	@brief Check whether a type is a template type or not, by looking for the presence of a < character.
+			* 
+			*	@param typename_ The typename to check.
+			* 
+			*	@return true if the typename_ is a template, else false.
+			*/
+			static bool						isTemplateTypename(std::string const& typename_)									noexcept;
+
+			/**
 			*	@brief Get this type name by removing specified qualifiers / namespaces / nested classes.
 			*
-			*	@param removeQualifiers Should the const and volatile qualifiers be removed from the type name.
+			*	@param removeQualifiers					Should the const and volatile qualifiers be removed from the type name.
 			*	@param removeNamespacesAndNestedClasses Should the namespaces and nested classes be removed from the type name.
+			*	@param removeTemplateParameters			Should the part from < to > be removed from the type name.
 			*
 			*	@return The cleaned type name.
 			*/
 			std::string						getName(bool removeQualifiers						= false,
-													bool shouldRemoveNamespacesAndNestedClasses = false)				const	noexcept;
+													bool shouldRemoveNamespacesAndNestedClasses = false,
+													bool removeTemplateParameters				= false)				const	noexcept;
 
 			/**
 			*	@brief	Get this type canonical name.

@@ -20,7 +20,7 @@ FunctionInfo::FunctionInfo(CXCursor const& cursor, std::vector<Property>&& prope
 	prototype	= Helpers::getString(clang_getTypeSpelling(functionType));
 
 	//Define return type
-	returnType	= TypeInfo(clang_getResultType(functionType));
+	returnType	= TypeInfo(clang_getResultType(functionType));	//TODO: should be constructed with a cursor instead
 
 	//Update name without arguments
 	name = getName();

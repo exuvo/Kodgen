@@ -7,7 +7,7 @@ using namespace kodgen;
 VariableInfo::VariableInfo(CXCursor const& cursor, std::vector<Property>&& properties, EEntityType entityType) noexcept:
 	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), entityType),
 	isStatic{false},
-	type(clang_getCursorType(cursor))
+	type(cursor)
 {
 }
 

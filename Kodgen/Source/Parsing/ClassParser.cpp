@@ -297,10 +297,7 @@ void ClassParser::addBaseClass(CXCursor const& cursor) noexcept
 
 	if (getParsingResult()->parsedClass.has_value())
 	{
-		StructClassInfo&	parsedClass = getParsingResult()->parsedClass.value();
-		CXType				parentType	= clang_getCursorType(cursor);
-
-		parsedClass.parents.emplace_back(StructClassInfo::ParentInfo{ static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor)), TypeInfo(parentType) });
+		getParsingResult()->parsedClass->parents.emplace_back(StructClassInfo::ParentInfo{ static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor)), TypeInfo(cursor) });
 	}
 }
 
@@ -383,5 +380,5 @@ bool ClassParser::isForwardDeclaration(CXCursor const& cursor) noexcept
 
 bool ClassParser::isClassTemplateInstantiation(CXCursor const& cursor) noexcept
 {
-	return Helpers::getString(clang_getCursorDisplayName(cursor)).find('<') != std::string::npos;
+	return TypeInfo::isTemplateTypename(Helpers::getString(clang_getCursorDisplayName(cursor)));
 }

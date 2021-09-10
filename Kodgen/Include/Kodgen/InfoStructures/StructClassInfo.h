@@ -93,12 +93,19 @@ namespace kodgen
 			*	@param visitor		Function to call on entities.
 			*/
 			template <typename Functor, typename = std::enable_if_t<std::is_invocable_v<Functor, EntityInfo const&>>>
-			void	foreachEntityOfType(EEntityType entityMask, Functor visitor)	const	noexcept;
+			void		foreachEntityOfType(EEntityType entityMask, Functor visitor)	const	noexcept;
+
+			/**
+			*	@brief Return true if this entity is a class, false if it is a struct.
+			* 
+			*	@return true if this entity is a class, false if it is a struct.
+			*/
+			inline bool	isClass()														const	noexcept;
 
 			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.
 			*/
-			void	refreshOuterEntity()													noexcept;
+			void		refreshOuterEntity()													noexcept;
 	};
 
 	#include "Kodgen/InfoStructures/StructClassInfo.inl"
