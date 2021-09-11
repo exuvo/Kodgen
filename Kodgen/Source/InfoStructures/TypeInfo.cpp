@@ -102,7 +102,6 @@ void TypeInfo::initialize(CXType cursorType) noexcept
 std::string	TypeInfo::computeClassTemplateFullName(CXCursor cursor) noexcept
 {
 	std::string result = Helpers::getString(clang_getCursorSpelling(cursor));
-	result = result.substr(0u, result.find_first_of("<")); //TODO: Remove that line to be consistent with other types
 
 	CXCursor last = cursor;
 	CXCursor current = clang_getCursorSemanticParent(last);
