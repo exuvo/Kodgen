@@ -69,7 +69,7 @@ namespace kodgen
 			static bool								isForwardDeclaration(CXCursor const& cursor)							noexcept;
 
 			/**
-			*	@brief Check whether the provided cursor points to a class template instantiation
+			*	@brief Check that the provided cursor points to a class template instantiation.
 			* 
 			*	@param cursor The target cursor.
 			* 
@@ -91,13 +91,15 @@ namespace kodgen
 																ClassParsingResult&		out_result)				noexcept;
 
 			/**
-			*	@brief Retrieve the properties from the provided cursor if possible.
-			*
-			*	@param cursor Property cursor we retrieve information from.
-			*
-			*	@return A filled list of properties if valid, else nullopt.
+			*	@brief	Called internally only if isClassTemplateInstantiation returned true.
+			*			Check that the explicit class template instantiation has the entity macro in which case
+			*			the original class template should be parsed.
+			* 
+			*	@param cursor The target cursor.
+			* 
+			*	@return true if the cursor has 2 valid entity macros (1 from the explicit instantiation line, 1 from the original class template), else false.
 			*/
-			opt::optional<std::vector<Property>>	getProperties(CXCursor const& cursor)						noexcept;
+			bool									isMacroedClassTemplateInstantiation(CXCursor const& cursor)	noexcept;
 			
 			/**
 			*	@brief Set the parsed struct/class if it is a valid one.
@@ -219,9 +221,20 @@ namespace kodgen
 			*
 			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
 			*/
-			CXChildVisitResult	parse(CXCursor					classCursor,
-									  ParsingContext const&		parentContext,
-									  ClassParsingResult&		out_result)		noexcept;
+			CXChildVisitResult						parse(CXCursor					classCursor,
+														  ParsingContext const&		parentContext,
+														  ClassParsingResult&		out_result)			noexcept;
+
+			/**
+			*	@brief Retrieve the properties from the provided cursor if possible.
+			*
+			*	@param annotationCursor		Property cursor we retrieve information from.
+			*	@param structClassCursor	Cursor to the struct/class.
+			*
+			*	@return A filled list of properties if valid, else nullopt.
+			*/
+			opt::optional<std::vector<Property>>	getProperties(CXCursor const& annotationCursor,
+																  CXCursor const& structClassCursor)	noexcept;
 	};
 
 	#include "Kodgen/Parsing/ClassParser.inl"

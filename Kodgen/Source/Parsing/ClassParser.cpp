@@ -22,10 +22,26 @@ CXChildVisitResult ClassParser::parse(CXCursor classCursor, ParsingContext const
 	//Make sure the cursor is compatible for the class parser
 	assert(classCursor.kind == CXCursorKind::CXCursor_ClassDecl || classCursor.kind == CXCursorKind::CXCursor_StructDecl);
 
+	CXCursor specializedCursorTemplate = clang_getSpecializedCursorTemplate(classCursor);
+
 	//Specific case for template classes
-	if (isClassTemplateInstantiation(classCursor))
+	if (isClassTemplateInstantiation(classCursor) && clang_Location_isFromMainFile(clang_getCursorLocation(specializedCursorTemplate)))
 	{
-		classCursor = clang_getSpecializedCursorTemplate(classCursor);
+		if (isMacroedClassTemplateInstantiation(classCursor))
+		{
+			classCursor = specializedCursorTemplate;
+		}
+		else
+		{
+			//Ignore all non-macroed explicit class template instantiations
+			//WARNING: Explicit class specialization falls in this category, so they MUST be defined in another file to be parsed properly
+			DISABLE_WARNING_PUSH
+			DISABLE_WARNING_UNSCOPED_ENUM
+
+			return (parentContext.parsingSettings->shouldAbortParsingOnFirstError && !out_result.errors.empty()) ? CXChildVisitResult::CXChildVisit_Break : CXChildVisitResult::CXChildVisit_Continue;
+
+			DISABLE_WARNING_POP
+		}
 	}
 
 	//Init context
@@ -190,7 +206,7 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 {
 	ParsingContext& context = getContext();
 
-	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor, context.rootCursor))
 	{
 		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
 		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), isForwardDeclaration(context.rootCursor)));
@@ -199,36 +215,29 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 	}
 	else
 	{
-		if (!context.propertyParser->getParsingErrorDescription().empty())
-		{
-			context.parsingResult->errors.emplace_back(ParsingError(context.propertyParser->getParsingErrorDescription(), clang_getCursorLocation(annotationCursor)));
-		}
-
 		return CXChildVisitResult::CXChildVisit_Break;
 	}
 }
 
-opt::optional<std::vector<Property>> ClassParser::getProperties(CXCursor const& cursor) noexcept
+opt::optional<std::vector<Property>> ClassParser::getProperties(CXCursor const& cursor, CXCursor const& structClassCursor) noexcept
 {
+	assert(structClassCursor.kind == CXCursor_ClassDecl || structClassCursor.kind == CXCursor_StructDecl || structClassCursor.kind == CXCursor_ClassTemplate);
+
+	opt::optional<std::vector<Property>> properties = opt::nullopt;
 	ParsingContext& context = getContext();
 
 	context.propertyParser->clean();
 
 	if (clang_getCursorKind(cursor) == CXCursorKind::CXCursor_AnnotateAttr)
 	{
-		switch (context.rootCursor.kind)
+		switch (StructClassInfo::getCursorKind(structClassCursor))
 		{
 			case CXCursorKind::CXCursor_ClassDecl:
-				return context.propertyParser->getClassProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
+				properties = context.propertyParser->getClassProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
 				break;
 
 			case CXCursorKind::CXCursor_StructDecl:
-				return context.propertyParser->getStructProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
-				break;
-
-			case CXCursorKind::CXCursor_ClassTemplate:
-				//TODO: StructTemplate also falls in this category, no way to differentiate them
-				return context.propertyParser->getClassProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
+				properties = context.propertyParser->getStructProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
 				break;
 
 			default:
@@ -236,7 +245,12 @@ opt::optional<std::vector<Property>> ClassParser::getProperties(CXCursor const& 
 		}
 	}
 
-	return opt::nullopt;
+	if (!context.propertyParser->getParsingErrorDescription().empty())
+	{
+		context.parsingResult->errors.emplace_back(ParsingError(context.propertyParser->getParsingErrorDescription(), clang_getCursorLocation(cursor)));
+	}
+
+	return properties;
 }
 
 void ClassParser::updateAccessSpecifier(CXCursor const& cursor) noexcept
@@ -381,4 +395,46 @@ bool ClassParser::isForwardDeclaration(CXCursor const& cursor) noexcept
 bool ClassParser::isClassTemplateInstantiation(CXCursor const& cursor) noexcept
 {
 	return TypeInfo::isTemplateTypename(Helpers::getString(clang_getCursorDisplayName(cursor)));
+}
+
+bool ClassParser::isMacroedClassTemplateInstantiation(CXCursor const& cursor) noexcept
+{
+	assert(isClassTemplateInstantiation(cursor));
+
+	//Must have 2 attribute pointers for the instantiation to be considered:
+	//1 from the explicit instantiation, and 1 inherited from the original class template
+	struct Data
+	{
+		int				count;
+		ClassParser&	classParser;
+	};
+
+	Data data{0, *this};
+
+	clang_visitChildren(cursor, [](CXCursor cursor, CXCursor parent, CXClientData client_data)
+						{
+							Data* data = reinterpret_cast<Data*>(client_data);
+
+							if (cursor.kind == CXCursorKind::CXCursor_AnnotateAttr)
+							{
+								if (data->classParser.getProperties(cursor, parent))
+								{
+									data->count++;
+
+									//Abort the recursion as soon as we have found 2 valid annotations
+									if (data->count == 2)
+									{
+										return CXChildVisitResult::CXChildVisit_Break;
+									}
+								}
+								else
+								{
+									return CXChildVisitResult::CXChildVisit_Break;
+								}
+							}
+
+							return CXChildVisitResult::CXChildVisit_Recurse;
+						}, &data);
+
+	return data.count == 2;
 }
