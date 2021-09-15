@@ -26,6 +26,9 @@ namespace kodgen
 	class ThreadPool
 	{
 		private:
+			/** Are workers allowed to process queued tasks? */
+			bool									_isRunning	= true;
+
 			/** Collection of all workers in this pool. */
 			std::vector<std::thread>				_workers;
 
@@ -90,6 +93,13 @@ namespace kodgen
 			*	@brief Join all workers.
 			*/
 			void						joinWorkers()													noexcept;
+
+			/**
+			*	@brief Allow or disallow workers to process tasks.
+			* 
+			*	@param isRunning true to allow workers to process tasks, else false.
+			*/
+			void						setIsRunning(bool isRunning)									noexcept;
 
 			ThreadPool& operator=(ThreadPool const&)	= delete;
 			ThreadPool& operator=(ThreadPool&&)			= delete;

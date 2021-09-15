@@ -6,51 +6,68 @@
 */
 
 template <typename FileParserType, typename CodeGenUnitType>
-void CodeGenManager::processFilesMultithread(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, CodeGenResult& out_genResult, uint32 threadCount) const noexcept
+void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, uint8 iterationCount, CodeGenResult& out_genResult) noexcept
 {
-	ThreadPool								threadPool(threadCount, ETerminationMode::FinishAll);
-	std::vector<std::shared_ptr<TaskBase>>	generationTasks;
+	std::vector<std::shared_ptr<TaskBase>> generationTasks;
 
 	//Reserve enough space for all tasks
-	generationTasks.reserve(toProcessFiles.size());
+	generationTasks.reserve(toProcessFiles.size() * iterationCount);
+
+	//Lock the thread pool until all tasks have been pushed to avoid competing for the tasks mutex
+	_threadPool.setIsRunning(false);
 
 	//Launch all parsing -> generation processes
+	std::shared_ptr<TaskBase> parsingTask;
+	std::shared_ptr<TaskBase> generationTask;
+	
 	for (fs::path const& file : toProcessFiles)
 	{
+		auto parsingTaskLambda = [&fileParser, &file](TaskBase*) -> FileParsingResult
+		{
+			//Copy a parser for this task
+			FileParserType		fileParserCopy = fileParser;
+			FileParsingResult	parsingResult;
+
+			fileParserCopy.parse(file, parsingResult);
+
+			return parsingResult;
+		};
+
+		auto generationTaskLambda = [&codeGenUnit](TaskBase* parsingTask) -> CodeGenResult
+		{
+			CodeGenResult out_generationResult;
+
+			//Copy the generation unit model to have a fresh one for this generation unit
+			CodeGenUnitType	generationUnit = codeGenUnit;
+
+			//Get the result of the parsing task
+			FileParsingResult parsingResult = TaskHelper::getDependencyResult<FileParsingResult>(parsingTask, 0u);
+
+			//Generate the file if no errors occured during parsing
+			if (parsingResult.errors.empty())
+			{
+				out_generationResult.completed = generationUnit.generateCode(parsingResult);
+			}
+
+			return out_generationResult;
+
+		};
+
 		//Add file to the list of parsed files before starting the task to avoid having to synchronize threads
 		out_genResult.parsedFiles.push_back(file);
 
-		auto parsingTask = threadPool.submitTask([&](TaskBase*) -> FileParsingResult
-												  {
-													 //Copy a parser for this task
-													 FileParserType		fileParserCopy = fileParser;
-													 FileParsingResult	parsingResult;
+		for (int i = 0; i < iterationCount; i++)
+		{
+			//Parse files
+			//For multiple iterations on a same file, the parsing task depends on the previous generation task for the same file
+			parsingTask = _threadPool.submitTask(parsingTaskLambda, ((i != 0) ? std::vector<std::shared_ptr<TaskBase>>{ generationTask } : std::vector<std::shared_ptr<TaskBase>>{}));
 
-													 fileParserCopy.parse(file, parsingResult);
-
-													 return parsingResult;
-												  });
-
-		generationTasks.emplace_back(threadPool.submitTask([&](TaskBase* parsingTask) -> CodeGenResult
-									 {
-										 CodeGenResult out_generationResult;
-										
-										//Copy the generation unit model to have a fresh one for this generation unit
-										CodeGenUnitType	generationUnit = codeGenUnit;
-
-										//Get the result of the parsing task
-										FileParsingResult parsingResult = TaskHelper::getDependencyResult<FileParsingResult>(parsingTask, 0u);
-
-										//Generate the file if no errors occured during parsing
-										if (parsingResult.errors.empty())
-										{
-											out_generationResult.completed = generationUnit.generateCode(parsingResult);
-										}
-										
-										return out_generationResult;
-									 
-									 }, { parsingTask }));
+			//Generate code
+			generationTask = generationTasks.emplace_back(_threadPool.submitTask(generationTaskLambda, { parsingTask }));
+		}
 	}
+
+	_threadPool.setIsRunning(true);
 
 	//Merge all generation results together
 	for (std::shared_ptr<TaskBase>& generationTask : generationTasks)
@@ -60,25 +77,7 @@ void CodeGenManager::processFilesMultithread(FileParserType& fileParser, CodeGen
 }
 
 template <typename FileParserType, typename CodeGenUnitType>
-void CodeGenManager::processFilesMonothread(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, CodeGenResult& out_genResult) const noexcept
-{
-	for (fs::path const& file : toProcessFiles)
-	{
-		FileParsingResult parsingResult;
-
-		out_genResult.parsedFiles.push_back(file);
-
-		//Parse file
-		if (fileParser.parse(file, parsingResult))
-		{
-			//Generate file according to parsing result
-			out_genResult.completed &= codeGenUnit.generateCode(parsingResult);
-		}
-	}
-}
-
-template <typename FileParserType, typename CodeGenUnitType>
-CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint8 iterationCount, uint32 threadCount) noexcept
+CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint8 iterationCount) noexcept
 {
 	//Check FileParser validity
 	static_assert(std::is_base_of_v<FileParser, FileParserType>, "fileParser type must be a derived class of kodgen::FileParser.");
@@ -110,22 +109,8 @@ CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& c
 
 			generateMacrosFile(fileParser.getSettings(), codeGenUnit.getSettings()->getOutputDirectory());
 
-			threadCount = getThreadCount(threadCount);
-
-			//At this point thread count can't be 0
-			assert(threadCount > 0);
-
-			for (int i = 0; i < iterationCount; i++)
-			{
-				if (threadCount == 1u)
-				{
-					processFilesMonothread(fileParser, codeGenUnit, filesToProcess, genResult);
-				}
-				else
-				{
-					processFilesMultithread(fileParser, codeGenUnit, filesToProcess, genResult, threadCount);
-				}
-			}
+			//Start files processing
+			processFiles(fileParser, codeGenUnit, filesToProcess, iterationCount, genResult);
 		}
 
 		genResult.duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() * 0.001f;

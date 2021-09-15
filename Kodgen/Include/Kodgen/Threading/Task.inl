@@ -37,7 +37,5 @@ void Task<ReturnType>::execute() noexcept
 template <typename ReturnType>
 bool Task<ReturnType>::hasFinished() const noexcept
 {
-	assert(_result.valid());
-
-	return _result.wait_for(std::chrono::nanoseconds(0)) == std::future_status::ready;
+	return !_result.valid() || _result.wait_for(std::chrono::nanoseconds(0)) == std::future_status::ready;
 }

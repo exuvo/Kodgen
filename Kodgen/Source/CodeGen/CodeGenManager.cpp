@@ -5,6 +5,11 @@
 
 using namespace kodgen;
 
+CodeGenManager::CodeGenManager(uint32 threadCount) noexcept:
+	_threadPool(getThreadCount(threadCount), ETerminationMode::FinishAll)
+{
+}
+
 std::set<fs::path> CodeGenManager::identifyFilesToProcess(CodeGenUnit const& codeGenUnit, CodeGenResult& out_genResult, bool forceRegenerateAll) noexcept
 {
 	std::set<fs::path> result;

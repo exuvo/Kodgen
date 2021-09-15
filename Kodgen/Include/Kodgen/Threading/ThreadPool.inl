@@ -14,12 +14,9 @@ std::shared_ptr<TaskBase> ThreadPool::submitTask(Callable&& callable, std::vecto
 	std::shared_ptr<Task<ReturnType>> newTask =
 		std::make_shared<Task<ReturnType>>(std::forward<Callable>(callable), std::forward<std::vector<std::shared_ptr<TaskBase>>>(deps));
 
-	std::unique_lock lock(_taskMutex);
-
+	_taskMutex.lock();
 	_tasks.emplace_back(newTask);
-
-	//Unlock mutex before notifying
-	lock.unlock();
+	_taskMutex.unlock();
 
 	_taskCondition.notify_one();
 

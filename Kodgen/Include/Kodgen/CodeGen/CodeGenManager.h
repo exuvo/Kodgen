@@ -25,35 +25,24 @@ namespace kodgen
 	class CodeGenManager
 	{
 		private:
+			/** Thread pool used for files processing. */
+			ThreadPool	_threadPool;
+
 			/**
 			*	@brief Process all provided files on multiple threads.
 			*	
 			*	@param fileParser		Original file parser to use to parse registered files. A copy of this parser will be used for each generation thread.
 			*	@param codeGenUnit		Generation unit used to generate files. It must have a clean state when this method is called.
 			*	@param toProcessFiles	Collection of all files to process.
-			*	@param out_genResult	Reference to the generation result to fill during file generation.
-			*	@param threadCount		Number of additional threads to use to process the files.
-			*/
-			template <typename FileParserType, typename CodeGenUnitType>
-			void	processFilesMultithread(FileParserType&				fileParser,
-											CodeGenUnitType&			codeGenUnit,
-											std::set<fs::path> const&	toProcessFiles,
-											CodeGenResult&				out_genResult,
-											uint32						threadCount)					const	noexcept;
-
-			/**
-			*	@brief Process all provided files on the main thread.
-			*
-			*	@param fileParser		File parser to use to parse registered files.
-			*	@param codeGenUnit		Generation unit used to generate files. It must have a clean state when this method is called.
-			*	@param toProcessFiles	Collection of all files to process.
+			*	@param iterationCount	Number of times the files should be processed.
 			*	@param out_genResult	Reference to the generation result to fill during file generation.
 			*/
 			template <typename FileParserType, typename CodeGenUnitType>
-			void	processFilesMonothread(FileParserType&				fileParser,
-										   CodeGenUnitType&				codeGenUnit,
-										   std::set<fs::path> const&	toProcessFiles,
-										   CodeGenResult&				out_genResult)					const	noexcept;
+			void	processFiles(FileParserType&			fileParser,
+								 CodeGenUnitType&			codeGenUnit,
+								 std::set<fs::path> const&	toProcessFiles,
+								 uint8						iterationCount,
+								 CodeGenResult&				out_genResult)										noexcept;
 
 			/**
 			*	@brief Identify all files which will be parsed & regenerated.
@@ -107,6 +96,15 @@ namespace kodgen
 			CodeGenManagerSettings	settings;
 
 			/**
+			*	@brief Construct a CodeGenManager that will work with the specified number of threads.
+			* 
+			*	@param threadCount	Number of threads to use for file parsing and generation.
+			*							If 0 is provided, the number of concurrent threads supported by the implementation will be used (std::thread::hardware_concurrency(), and 8 if std::thread::hardware_concurrency() returns 0).
+			*							If 1 is provided, all the process will be handled by the main thread.
+			*/
+			CodeGenManager(uint32 threadCount = 0u)	noexcept;
+
+			/**
 			*	@brief	Parse registered files if they were modified since last generation (or don't exist)
 			*			and forward them to individual file generation unit for code generation.
 			*
@@ -115,9 +113,6 @@ namespace kodgen
 			*	@param forceRegenerateAll	Ignore the last write time check and reparse / regenerate all files.
 			*	@param iterationCount		Number of times the code gen manager should run with the same batch of files.
 			*								This is useful when one wants the generated code itself to be parsed multiple times to generate new code.
-			*	@param threadCount			Number of threads to use for file parsing and generation.
-			*								If 0 is provided, the number of concurrent threads supported by the implementation will be used (std::thread::hardware_concurrency(), and 8 if std::thread::hardware_concurrency() returns 0).
-			*								If 1 is provided, all the process will be handled by the main thread.
 			*
 			*	@return Structure containing file generation report.
 			*/
@@ -125,8 +120,7 @@ namespace kodgen
 			CodeGenResult run(FileParserType&	fileParser,
 							  CodeGenUnitType&	codeGenUnit,
 							  bool				forceRegenerateAll	= false,
-							  uint8				iterationCount		= 1u,
-							  uint32			threadCount			= 0u)		noexcept;
+							  uint8				iterationCount		= 1u)		noexcept;
 	};
 
 	#include "Kodgen/CodeGen/CodeGenManager.inl"
