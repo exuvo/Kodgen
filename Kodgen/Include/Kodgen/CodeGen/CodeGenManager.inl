@@ -68,6 +68,7 @@ void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& c
 	}
 
 	_threadPool.setIsRunning(true);
+	_threadPool.joinWorkers();
 
 	//Merge all generation results together
 	for (std::shared_ptr<TaskBase>& task : generationTasks)
