@@ -70,9 +70,9 @@ void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& c
 	_threadPool.setIsRunning(true);
 
 	//Merge all generation results together
-	for (std::shared_ptr<TaskBase>& generationTask : generationTasks)
+	for (std::shared_ptr<TaskBase>& task : generationTasks)
 	{
-		out_genResult.mergeResult(TaskHelper::getResult<CodeGenResult>(generationTask.get()));
+		out_genResult.mergeResult(TaskHelper::getResult<CodeGenResult>(task.get()));
 	}
 }
 

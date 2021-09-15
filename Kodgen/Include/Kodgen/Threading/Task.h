@@ -35,16 +35,10 @@ namespace kodgen
 			Task()														= delete;
 			Task(std::function<ReturnType(TaskBase*)>&&		task,
 				 std::vector<std::shared_ptr<TaskBase>>&&	deps = {})	noexcept;
-			Task(Task const&)											= default;
-			Task(Task&&)												= default;
-			virtual ~Task()												= default;
 
 			virtual bool	isReadyToExecute()	const	noexcept override;
 			virtual void	execute()					noexcept override;
 			virtual bool	hasFinished()		const	noexcept override;
-
-			Task& operator=(Task const&)	= default;
-			Task& operator=(Task&&)			= default;
 	};
 
 	#include "Kodgen/Threading/Task.inl"

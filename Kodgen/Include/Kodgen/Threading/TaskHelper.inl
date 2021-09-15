@@ -9,6 +9,7 @@ template <typename ResultType, typename>
 ResultType TaskHelper::getResult(TaskBase* task)
 {
 	assert(task != nullptr);
+	assert(reinterpret_cast<Task<ResultType>*>(task)->_result.valid());
 
 	return reinterpret_cast<Task<ResultType>*>(task)->_result.get();
 }
