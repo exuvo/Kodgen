@@ -97,6 +97,15 @@ namespace kodgen
 			*/
 			virtual int32				getGenerationOrder()														const	noexcept;
 
+			/**
+			*	@brief	The iteration count is the number of consecutive generations required for this generator to work properly.
+			*			In most cases the default value of 1 is perfectly fine, but sometimes generated code can be parsed again
+			*			to generate new code.
+			* 
+			*	@return The iteration count.
+			*/
+			virtual uint8				getIterationCount()															const	noexcept;
+
 			ICodeGenerator& operator=(ICodeGenerator const&)	= default;
 			ICodeGenerator& operator=(ICodeGenerator&&)			= default;
 	};

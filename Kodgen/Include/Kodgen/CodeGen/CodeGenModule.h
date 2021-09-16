@@ -90,6 +90,11 @@ namespace kodgen
 																			  std::string&		inout_result)		noexcept = 0;
 
 			/**
+			*	@return The highest iteration count in all registered property code generators.
+			*/
+			virtual int32								getGenerationOrder()								const	noexcept	override;
+
+			/**
 			*	@brief Getter for _propertyCodeGenerators field.
 			*
 			*	@return _propertyCodeGenerators.

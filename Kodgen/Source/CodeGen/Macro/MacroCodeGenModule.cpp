@@ -8,6 +8,14 @@
 
 using namespace kodgen;
 
+uint8 MacroCodeGenModule::getIterationCount() const noexcept
+{
+	uint8 highestPropertyCodeGenItCount = CodeGenModule::getIterationCount();
+
+	//Max between highestPropertyCodeGenItCount and 2
+	return (highestPropertyCodeGenItCount > 2u) ? highestPropertyCodeGenItCount : 2u;
+}
+
 ETraversalBehaviour MacroCodeGenModule::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result) noexcept
 {
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);

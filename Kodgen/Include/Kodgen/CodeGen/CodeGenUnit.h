@@ -319,6 +319,11 @@ namespace kodgen
 			CodeGenUnitSettings const*			getSettings()							const	noexcept;
 
 			/**
+			*	@brief	Get the highest iteration count between all registered modules.
+			*/
+			uint8								getIterationCount()						const	noexcept;
+
+			/**
 			*	@brief Getter for _generationModules field.
 			* 
 			*	@return _generationModules.

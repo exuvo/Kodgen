@@ -7,6 +7,17 @@
 
 using namespace kodgen;
 
+int32 CodeGenModule::getGenerationOrder() const noexcept
+{
+	auto it = std::max_element(_propertyCodeGenerators.cbegin(), _propertyCodeGenerators.cend(),
+							   [](PropertyCodeGen* const& lhs, PropertyCodeGen* const& rhs)
+							   {
+								   return lhs->getIterationCount() < rhs->getIterationCount();
+							   });
+
+	return (*it)->getIterationCount();
+}
+
 ETraversalBehaviour CodeGenModule::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
 {
 	return generateCodeForEntity(entity, env, inout_result);

@@ -1,5 +1,7 @@
 #include "Kodgen/CodeGen/CodeGenUnit.h"
 
+#include <algorithm>
+
 #include "Kodgen/CodeGen/CodeGenHelpers.h"
 #include "Kodgen/CodeGen/PropertyCodeGen.h"
 
@@ -470,6 +472,17 @@ bool CodeGenUnit::removeModule(CodeGenModule const& generationModule) noexcept
 CodeGenUnitSettings const* CodeGenUnit::getSettings() const noexcept
 {
 	return settings;
+}
+
+uint8 CodeGenUnit::getIterationCount() const noexcept
+{
+	auto it = std::max_element(_generationModules.cbegin(), _generationModules.cend(),
+							   [](CodeGenModule* const& lhs, CodeGenModule* const& rhs)
+							   {
+								   return lhs->getIterationCount() < rhs->getIterationCount();
+							   });
+
+	return (*it)->getIterationCount();
 }
 
 std::vector<CodeGenModule*>	const& CodeGenUnit::getRegisteredCodeGenModules() const noexcept

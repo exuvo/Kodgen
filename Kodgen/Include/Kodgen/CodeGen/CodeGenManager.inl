@@ -6,9 +6,10 @@
 */
 
 template <typename FileParserType, typename CodeGenUnitType>
-void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, uint8 iterationCount, CodeGenResult& out_genResult) noexcept
+void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, std::set<fs::path> const& toProcessFiles, CodeGenResult& out_genResult) noexcept
 {
-	std::vector<std::shared_ptr<TaskBase>> generationTasks;
+	std::vector<std::shared_ptr<TaskBase>>	generationTasks;
+	uint8									iterationCount = codeGenUnit.getIterationCount();
 
 	//Reserve enough space for all tasks
 	generationTasks.reserve(toProcessFiles.size() * iterationCount);
@@ -78,7 +79,7 @@ void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& c
 }
 
 template <typename FileParserType, typename CodeGenUnitType>
-CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll, uint8 iterationCount) noexcept
+CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& codeGenUnit, bool forceRegenerateAll) noexcept
 {
 	//Check FileParser validity
 	static_assert(std::is_base_of_v<FileParser, FileParserType>, "fileParser type must be a derived class of kodgen::FileParser.");
@@ -111,7 +112,7 @@ CodeGenResult CodeGenManager::run(FileParserType& fileParser, CodeGenUnitType& c
 			generateMacrosFile(fileParser.getSettings(), codeGenUnit.getSettings()->getOutputDirectory());
 
 			//Start files processing
-			processFiles(fileParser, codeGenUnit, filesToProcess, iterationCount, genResult);
+			processFiles(fileParser, codeGenUnit, filesToProcess, genResult);
 		}
 
 		genResult.duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() * 0.001f;

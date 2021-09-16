@@ -34,14 +34,12 @@ namespace kodgen
 			*	@param fileParser		Original file parser to use to parse registered files. A copy of this parser will be used for each generation thread.
 			*	@param codeGenUnit		Generation unit used to generate files. It must have a clean state when this method is called.
 			*	@param toProcessFiles	Collection of all files to process.
-			*	@param iterationCount	Number of times the files should be processed.
 			*	@param out_genResult	Reference to the generation result to fill during file generation.
 			*/
 			template <typename FileParserType, typename CodeGenUnitType>
 			void	processFiles(FileParserType&			fileParser,
 								 CodeGenUnitType&			codeGenUnit,
 								 std::set<fs::path> const&	toProcessFiles,
-								 uint8						iterationCount,
 								 CodeGenResult&				out_genResult)										noexcept;
 
 			/**
@@ -111,16 +109,13 @@ namespace kodgen
 			*	@param fileParser			Original file parser to use to parse registered files. A copy of this parser will be used for each generation thread.
 			*	@param codeGenUnit			Generation unit used to generate code. It must have a clean state when this method is called.
 			*	@param forceRegenerateAll	Ignore the last write time check and reparse / regenerate all files.
-			*	@param iterationCount		Number of times the code gen manager should run with the same batch of files.
-			*								This is useful when one wants the generated code itself to be parsed multiple times to generate new code.
 			*
 			*	@return Structure containing file generation report.
 			*/
 			template <typename FileParserType, typename CodeGenUnitType>
 			CodeGenResult run(FileParserType&	fileParser,
 							  CodeGenUnitType&	codeGenUnit,
-							  bool				forceRegenerateAll	= false,
-							  uint8				iterationCount		= 1u)		noexcept;
+							  bool				forceRegenerateAll	= false)	noexcept;
 	};
 
 	#include "Kodgen/CodeGen/CodeGenManager.inl"

@@ -118,6 +118,14 @@ namespace kodgen
 
 		public:
 			/**
+			*	@brief	Macro module needs to run at least 2 times to work properly since generated files / macros
+			*			might not exist during the first parsing pass.
+			* 
+			*	@return 2.
+			*/
+			virtual kodgen::uint8		getIterationCount()								const	noexcept override;
+
+			/**
 			*	@brief Generate code using the provided environment as input.
 			* 
 			*	@param entity			Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.
