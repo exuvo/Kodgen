@@ -145,4 +145,4 @@ void ThreadPool::setIsRunning(bool isRunning) noexcept
 			_taskCondition.notify_all();
 		}
 	}
-};
+}
