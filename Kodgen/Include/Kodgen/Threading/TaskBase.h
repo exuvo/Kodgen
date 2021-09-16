@@ -8,8 +8,8 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <memory>	//std::shared_ptr
-#include <atomic>
 
 namespace kodgen
 {
@@ -17,13 +17,18 @@ namespace kodgen
 	{
 		friend class TaskHelper;
 
+		private:
+			/** Name of the task. */
+			std::string	_name;
+
 		protected:
 			/** Dependent tasks which must terminate before this task is executed. */
 			std::vector<std::shared_ptr<TaskBase>>	dependencies;
 
 		public:
 			TaskBase()														= delete;
-			TaskBase(std::vector<std::shared_ptr<TaskBase>>&& deps = {})	noexcept;
+			TaskBase(char const*								name,
+					 std::vector<std::shared_ptr<TaskBase>>&&	deps = {})	noexcept;
 			TaskBase(TaskBase const&)										= default;
 			TaskBase(TaskBase&&)											= default;
 			virtual ~TaskBase()												= default;
@@ -34,19 +39,26 @@ namespace kodgen
 			*	
 			*	@return true if this task is ready to execute, else false.
 			*/
-			virtual bool	isReadyToExecute()	const	noexcept = 0;
+			virtual bool		isReadyToExecute()	const	noexcept = 0;
 
 			/**
 			*	@brief Execute the underlying task.
 			*/
-			virtual void	execute()					noexcept = 0;
+			virtual void		execute()					noexcept = 0;
 
 			/**
 			*	@brief Check whether this task has finished executing or not.
 			*	
 			*	@return true if this task has finished, else false.
 			*/
-			virtual bool	hasFinished()		const	noexcept = 0;
+			virtual bool		hasFinished()		const	noexcept = 0;
+
+			/**
+			*	@brief Getter for _name field.
+			* 
+			*	@return _name field.
+			*/
+			std::string const&	getName()			const	noexcept;
 
 			TaskBase& operator=(TaskBase const&)	= default;
 			TaskBase& operator=(TaskBase&&)			= default;

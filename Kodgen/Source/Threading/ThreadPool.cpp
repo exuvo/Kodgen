@@ -118,7 +118,7 @@ void ThreadPool::joinWorkers() noexcept
 		lock.unlock();
 
 		//Just wait for all workers to be blocked on the _taskCondition
-		while (_workingWorkers.load() != 0u)
+		while (_workingWorkers.load() != 0u || (_isRunning && !_tasks.empty()))
 		{
 			std::this_thread::yield();
 		}

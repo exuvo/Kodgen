@@ -60,10 +60,10 @@ void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& c
 		{
 			//Parse files
 			//For multiple iterations on a same file, the parsing task depends on the previous generation task for the same file
-			parsingTask = _threadPool.submitTask(parsingTaskLambda, ((i != 0) ? std::vector<std::shared_ptr<TaskBase>>{ generationTask } : std::vector<std::shared_ptr<TaskBase>>{}));
+			parsingTask = _threadPool.submitTask(std::string("Parsing ") + std::to_string(i), parsingTaskLambda, ((i != 0) ? std::vector<std::shared_ptr<TaskBase>>{ generationTask } : std::vector<std::shared_ptr<TaskBase>>{}));
 
 			//Generate code
-			generationTask = generationTasks.emplace_back(_threadPool.submitTask(generationTaskLambda, { parsingTask }));
+			generationTask = generationTasks.emplace_back(_threadPool.submitTask(std::string("Generation ") + std::to_string(i), generationTaskLambda, { parsingTask }));
 		}
 	}
 

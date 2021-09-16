@@ -7,12 +7,13 @@
 
 #pragma once
 
-#include <thread>
-#include <vector>
+#include <string>
 #include <list>
+#include <vector>
+#include <thread>
 #include <condition_variable>
 #include <mutex>
-#include <atomic>
+#include <atomic>		//std::atomic_uint
 #include <functional>	//std::bind
 #include <memory>		//std::shared_ptr
 #include <type_traits>	//std::invoke_result
@@ -80,13 +81,15 @@ namespace kodgen
 			/**
 			*	@brief Submit a task to the thread pool.
 			*	
+			*	@param taskName	Name of the task to submit to the thread pool.
 			*	@param callable	Callable the submitted task should execute. It must take a TaskBase* as parameter.
 			*	@param deps		Dependencies of the submitted task.
 			*
 			*	@return A pointer to the submitted task. It can be used as a dependency when submitting other tasks.
 			*/
 			template <typename Callable, typename = decltype(std::declval<Callable>()(std::declval<TaskBase*>()))>
-			std::shared_ptr<TaskBase>	submitTask(Callable&&								callable,
+			std::shared_ptr<TaskBase>	submitTask(std::string const&						taskName,
+												   Callable&&								callable,
 												   std::vector<std::shared_ptr<TaskBase>>&& deps = {})	noexcept;
 
 			/**

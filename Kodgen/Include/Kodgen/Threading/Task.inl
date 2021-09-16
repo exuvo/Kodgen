@@ -6,8 +6,8 @@
 */
 
 template <typename ReturnType>
-Task<ReturnType>::Task(std::function<ReturnType(TaskBase*)>&& task, std::vector<std::shared_ptr<TaskBase>>&& deps) noexcept:
-	TaskBase(std::forward<std::vector<std::shared_ptr<TaskBase>>>(deps)),
+Task<ReturnType>::Task(char const* name, std::function<ReturnType(TaskBase*)>&& task, std::vector<std::shared_ptr<TaskBase>>&& deps) noexcept:
+	TaskBase(name, std::forward<std::vector<std::shared_ptr<TaskBase>>>(deps)),
 	_task{std::forward<std::function<ReturnType(TaskBase*)>>(task)},
 	_result{_task.get_future()}
 {

@@ -33,12 +33,13 @@ namespace kodgen
 
 		public:
 			Task()														= delete;
-			Task(std::function<ReturnType(TaskBase*)>&&		task,
+			Task(char const*								name,
+				 std::function<ReturnType(TaskBase*)>&&		task,
 				 std::vector<std::shared_ptr<TaskBase>>&&	deps = {})	noexcept;
 
-			virtual bool	isReadyToExecute()	const	noexcept override;
-			virtual void	execute()					noexcept override;
-			virtual bool	hasFinished()		const	noexcept override;
+			virtual bool				isReadyToExecute()	const	noexcept override;
+			virtual void				execute()					noexcept override;
+			virtual bool				hasFinished()		const	noexcept override;
 	};
 
 	#include "Kodgen/Threading/Task.inl"
