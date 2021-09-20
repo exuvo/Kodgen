@@ -14,3 +14,13 @@ inline std::string const& MacroCodeGenEnv::getSeparator() const noexcept
 {
 	return _separator;
 }
+
+inline std::string const& MacroCodeGenEnv::getExportSymbolMacro() const noexcept
+{
+	return _exportSymbolMacro;
+}
+
+inline std::string const& MacroCodeGenEnv::getInternalSymbolMacro() const noexcept
+{
+	return _internalSymbolMacro;
+}

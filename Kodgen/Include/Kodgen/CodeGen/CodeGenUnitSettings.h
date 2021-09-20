@@ -44,15 +44,6 @@ namespace kodgen
 			void			loadOutputDirectory(toml::value const&	generationSettings,
 												ILogger*			logger)						noexcept;
 
-			/**
-			*	@brief Load the outputDirectory setting from toml.
-			*
-			*	@param generationSettings	Toml content.
-			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
-			*/
-			void			loadEntityMacrosFilename(toml::value const&	generationSettings,
-													 ILogger*			logger)					noexcept;
-
 		public:
 			/** Name of the header containing all entity macro definitions. */
 			static inline fs::path const entityMacrosFilename	= "EntityMacros.h";

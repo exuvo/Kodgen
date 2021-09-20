@@ -25,10 +25,16 @@ namespace kodgen
 
 		private:
 			/** Location the code should be generated in. */
-			ECodeGenLocation	_codeGenLocation	= ECodeGenLocation::Count;
+			ECodeGenLocation	_codeGenLocation		= ECodeGenLocation::Count;
 
 			/** Separator to use to split the generated code. */
 			std::string			_separator;
+
+			/** Macro to use to export a symbol when generated code is injected in a dynamic library. */
+			std::string			_exportSymbolMacro		= "";
+
+			/** Macro to use to hide a symbol when generated code is injected in a dynamic library. */
+			std::string			_internalSymbolMacro	= "";
 
 		public:
 			virtual ~MacroCodeGenEnv() = default;
@@ -38,14 +44,28 @@ namespace kodgen
 			* 
 			*	@return _codeGenLocation.
 			*/
-			inline ECodeGenLocation		getCodeGenLocation()	const	noexcept;
+			inline ECodeGenLocation		getCodeGenLocation()		const	noexcept;
 
 			/**
 			*	@brief Getter for field _separator.
 			* 
 			*	@return _separator.
 			*/
-			inline std::string const&	getSeparator()			const	noexcept;
+			inline std::string const&	getSeparator()				const	noexcept;
+
+			/**
+			*	@brief Getter for field _exportSymbolMacro.
+			* 
+			*	@return _exportSymbolMacro.
+			*/
+			inline std::string const&	getExportSymbolMacro()		const	noexcept;
+
+			/**
+			*	@brief Getter for field _internalSymbolMacro.
+			* 
+			*	@return _internalSymbolMacro.
+			*/
+			inline std::string const&	getInternalSymbolMacro()	const	noexcept;
 	};
 
 	#include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.inl"

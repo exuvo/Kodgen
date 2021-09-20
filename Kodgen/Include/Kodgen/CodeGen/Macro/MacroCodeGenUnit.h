@@ -160,7 +160,7 @@ namespace kodgen
 			*
 			*	@return true if the code generated for sourceFile is up-to-date, else false.
 			*/
-			virtual bool	isUpToDate(fs::path const& sourceFile)				const	noexcept	override;
+			virtual bool					isUpToDate(fs::path const& sourceFile)				const	noexcept	override;
 
 			/**
 			*	@brief	Add a module to the internal list of generation modules.
@@ -168,11 +168,18 @@ namespace kodgen
 			* 
 			*	@param generationModule The generation module to add.
 			*/
-			void			addModule(MacroCodeGenModule& generationModule)				noexcept;
+			void							addModule(MacroCodeGenModule& generationModule)				noexcept;
+
+			/**
+			*	@brief Getter for settings field, cast to MacroCodeGenUnitSettings.
+			* 
+			*	@return settings cast to MacroCodeGenUnitSettings.
+			*/
+			MacroCodeGenUnitSettings const*	getSettings()										const	noexcept;
 
 			/**
 			*	@brief Setter for the inherited settings field with suitable derived settings class.
 			*/
-			void			setSettings(MacroCodeGenUnitSettings const& cguSettings)	noexcept;
+			void							setSettings(MacroCodeGenUnitSettings const& cguSettings)	noexcept;
 	};
 }

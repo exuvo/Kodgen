@@ -62,6 +62,22 @@ namespace kodgen
 			std::string		_headerFileFooterMacroPattern	= "File_##FILENAME##_GENERATED";
 
 			/**
+			*	Macro used to export a symbol if the generated code is injected in a dynamic library.
+			*	On Windows, the macro should typically expand to __declspec(dllexport).
+			*	
+			*	/!\ The macro MUST evalutate to nothing when the parser is running (when KODGEN_PARSING macro is defined). /!\
+			*/
+			std::string		_exportSymbolMacroName			= "";
+
+			/**
+			*	Macro used to hide a symbol if the generated code is injected in a dynamic library.
+			*	On Unix systems, the macro should typically expand to __attribute__((visibility("hidden"))).
+			* 
+			*	/!\ The macro MUST evalutate to nothing when the parser is running (when KODGEN_PARSING macro is defined). /!\
+			*/
+			std::string		_internalSymbolMacroName		= "";
+
+			/**
 			*	@brief Replace all occurences of tag by replacement in the provided string.
 			* 
 			*	@param inout_string	String to process.
@@ -111,6 +127,24 @@ namespace kodgen
 			void			loadHeaderFileFooterMacroPattern(toml::value const&	generationSettings,
 															 ILogger*			logger)				noexcept;
 
+			/**
+			*	@brief Load the _exportSymbolMacroName field from toml.
+			*
+			*	@param generationSettings	Toml content.
+			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
+			*/
+			void			loadExportSymbolMacroName(toml::value const&	generationSettings,
+													  ILogger*				logger)					noexcept;
+
+			/**
+			*	@brief Load the _internalSymbolMacroName field from toml.
+			*
+			*	@param generationSettings	Toml content.
+			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
+			*/
+			void			loadInternalSymbolMacroName(toml::value const&	generationSettings,
+														ILogger*			logger)					noexcept;
+
 		public:
 			/**
 			*	@brief Setter for _generatedHeaderFileNamePattern.
@@ -139,6 +173,20 @@ namespace kodgen
 			*	@param headerFileFooterMacroPattern Header file footer macro pattern.
 			*/
 			void				setHeaderFileFooterMacroPattern(std::string const& headerFileFooterMacroPattern)		noexcept;
+
+			/**
+			*	@brief Setter for the field _exportSymbolMacroName.
+			* 
+			*	@param exportSymbolMacroName New _exportSymbolMacroName value.
+			*/
+			void				setExportSymbolMacroName(std::string const& exportSymbolMacroName)						noexcept;
+
+			/**
+			*	@brief Setter for the field _internalSymbolMacroName.
+			* 
+			*	@param exportSymbolMacroName New _internalSymbolMacroName value.
+			*/
+			void				setInternalSymbolMacroName(std::string const& internalSymbolMacroName)					noexcept;
 
 			/**
 			*	@brief Getter for _generatedHeaderFileNamePattern.
@@ -207,5 +255,19 @@ namespace kodgen
 			*	@return The generated header file footer macro name.
 			*/
 			virtual std::string	getHeaderFileFooterMacro(fs::path const& targetFile)							const	noexcept;
+
+			/**
+			*	@brief Getter for the field _exportSymbolMacroName.
+			* 
+			*	@return _exportSymbolMacroName.
+			*/
+			std::string const&	getExportSymbolMacroName()		const	noexcept;
+
+			/**
+			*	@brief Getter for the field _internalSymbolMacroName.
+			* 
+			*	@return _internalSymbolMacroName.
+			*/
+			std::string const&	getInternalSymbolMacroName()	const	noexcept;
 	};
 }

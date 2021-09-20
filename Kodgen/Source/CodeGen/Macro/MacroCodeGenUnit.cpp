@@ -88,6 +88,10 @@ bool MacroCodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, C
 {
 	if (CodeGenUnit::preGenerateCode(parsingResult, env))
 	{
+		MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
+		macroEnv._exportSymbolMacro = getSettings()->getExportSymbolMacroName();
+		macroEnv._internalSymbolMacro = getSettings()->getInternalSymbolMacroName();
+
 		//Reset variables before the generation step begins
 		_classFooterGeneratedCode.clear();
 
@@ -115,7 +119,7 @@ void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) noexcept
 {
 	GeneratedFile generatedHeader(getGeneratedHeaderFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
 
-	MacroCodeGenUnitSettings const* castSettings = static_cast<MacroCodeGenUnitSettings const*>(settings);
+	MacroCodeGenUnitSettings const* castSettings = getSettings();
 
 	generatedHeader.writeLine("#pragma once\n");
 
@@ -193,17 +197,22 @@ void MacroCodeGenUnit::generateEntityClassFooterCode(EntityInfo const& entity, C
 
 fs::path MacroCodeGenUnit::getGeneratedHeaderFilePath(fs::path const& sourceFile) const noexcept
 {
-	return settings->getOutputDirectory() / static_cast<MacroCodeGenUnitSettings const*>(settings)->getGeneratedHeaderFileName(sourceFile);
+	return settings->getOutputDirectory() / getSettings()->getGeneratedHeaderFileName(sourceFile);
 }
 
 fs::path MacroCodeGenUnit::getGeneratedSourceFilePath(fs::path const& sourceFile) const noexcept
 {
-	return settings->getOutputDirectory() / static_cast<MacroCodeGenUnitSettings const*>(settings)->getGeneratedSourceFileName(sourceFile);
+	return settings->getOutputDirectory() / getSettings()->getGeneratedSourceFileName(sourceFile);
 }
 
 void MacroCodeGenUnit::addModule(MacroCodeGenModule& generationModule) noexcept
 {
 	CodeGenUnit::addModule(generationModule);
+}
+
+MacroCodeGenUnitSettings const* MacroCodeGenUnit::getSettings() const noexcept
+{
+	return reinterpret_cast<MacroCodeGenUnitSettings const*>(settings);
 }
 
 void MacroCodeGenUnit::setSettings(MacroCodeGenUnitSettings const& cguSettings) noexcept
