@@ -14,6 +14,7 @@
 
 #include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/InfoStructures/TypeDescriptor.h"
+#include "Kodgen/InfoStructures/TemplateParamInfo.h"
 
 namespace kodgen
 {
@@ -33,13 +34,13 @@ namespace kodgen
 			*
 			*	i.e. const volatile ExampleNamespace::ExampleClass *const*&
 			*/
-			std::string				_fullName			= "";
+			std::string						_fullName			= "";
 
 			/** The canonical full name is the full name simplified by unwinding all aliases / typedefs. */
-			std::string				_canonicalFullName	= "";
+			std::string						_canonicalFullName	= "";
 
 			/** List of typenames of the template type, empty if this is not a template type. */
-			std::vector<TypeInfo>	_templateTypenames;
+			std::vector<TemplateParamInfo>	_templateParameters;
 
 			/**
 			*	@brief Compute a class template full name.
@@ -78,11 +79,11 @@ namespace kodgen
 			void initialize(CXCursor cursor)											noexcept;
 
 			/**
-			*	@brief Fill the _templateTypenames list with the given cursor.
+			*	@brief Fill the _templateParameters list with the given cursor.
 			* 
 			*	@param cursor The template type cursor.
 			*/
-			void fillTemplateTypenames(CXCursor cursor)									noexcept;
+			void fillTemplateParameters(CXCursor cursor)									noexcept;
 
 			/**
 			*	@brief Remove the const qualifier from a type string.
@@ -130,6 +131,8 @@ namespace kodgen
 			TypeInfo()					= default;
 			TypeInfo(CXType cursorType)	noexcept;
 			TypeInfo(CXCursor cursor)	noexcept;
+			TypeInfo(TypeInfo const&)	= delete;
+			TypeInfo(TypeInfo&&)		= default;
 
 			/**
 			*	@brief Check whether a type is a template type or not, by looking for the presence of a < character.
@@ -138,7 +141,7 @@ namespace kodgen
 			* 
 			*	@return true if the typename_ is a template, else false.
 			*/
-			static bool						isTemplateTypename(std::string const& typename_)									noexcept;
+			static bool								isTemplateTypename(std::string const& typename_)									noexcept;
 
 			/**
 			*	@brief Get this type name by removing specified qualifiers / namespaces / nested classes.
@@ -149,9 +152,9 @@ namespace kodgen
 			*
 			*	@return The cleaned type name.
 			*/
-			std::string						getName(bool removeQualifiers						= false,
-													bool shouldRemoveNamespacesAndNestedClasses = false,
-													bool removeTemplateParameters				= false)				const	noexcept;
+			std::string								getName(bool removeQualifiers						= false,
+															bool shouldRemoveNamespacesAndNestedClasses = false,
+															bool removeTemplateParameters				= false)				const	noexcept;
 
 			/**
 			*	@brief	Get this type canonical name.
@@ -162,22 +165,26 @@ namespace kodgen
 			*
 			*	@return The cleaned type name.
 			*/
-			std::string						getCanonicalName(bool removeQualifiers							= false,
-															 bool shouldRemoveNamespacesAndNestedClasses	= false)	const	noexcept;
+			std::string								getCanonicalName(bool removeQualifiers							= false,
+																	 bool shouldRemoveNamespacesAndNestedClasses	= false)	const	noexcept;
 
 			/**
-			*	@brief Getter for the field _templateTypenames.
+			*	@brief Getter for the field _templateParameters.
 			* 
-			*	@return _templateTypenames.
+			*	@return _templateParameters.
 			*/
-			std::vector<TypeInfo> const&	getTemplateTypenames()														const	noexcept;
+			std::vector<TemplateParamInfo> const&	getTemplateParameters()														const	noexcept;
 
 			/**
 			*	@brief Check whether this type is template or not.
 			* 
 			*	@return true if the type depends on other types, else false.
 			*/
-			bool							isTemplateType()															const	noexcept;
+			bool									isTemplateType()															const	noexcept;
+
+
+			TypeInfo& operator=(TypeInfo const&)	= delete;
+			TypeInfo& operator=(TypeInfo&&)			= default;
 	};
 
 	std::ostream& operator<<(std::ostream& out_stream, TypeInfo const& typeInfo) noexcept;

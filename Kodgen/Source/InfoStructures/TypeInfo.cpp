@@ -116,13 +116,13 @@ std::string	TypeInfo::computeClassTemplateFullName(CXCursor cursor) noexcept
 	return result;
 }
 
-void TypeInfo::fillTemplateTypenames(CXCursor cursor) noexcept
+void TypeInfo::fillTemplateParameters(CXCursor cursor) noexcept
 {
 	if (cursor.kind == CXCursorKind::CXCursor_ClassTemplate || cursor.kind == CXCursorKind::CXCursor_TemplateTemplateParameter)
 	{
 		clang_visitChildren(cursor, [](CXCursor cursor, CXCursor /* parent */, CXClientData client_data)
 		{
-			std::vector<TypeInfo>* typenames = reinterpret_cast<std::vector<TypeInfo>*>(client_data);
+			std::vector<TemplateParamInfo>* parameters = reinterpret_cast<std::vector<TemplateParamInfo>*>(client_data);
 
 			switch (cursor.kind)
 			{
@@ -131,7 +131,7 @@ void TypeInfo::fillTemplateTypenames(CXCursor cursor) noexcept
 				case CXCursorKind::CXCursor_NonTypeTemplateParameter:
 					[[fallthrough]];
 				case CXCursorKind::CXCursor_TemplateTemplateParameter:
-					typenames->emplace_back(cursor);
+					parameters->emplace_back(cursor);
 					break;
 
 				default:
@@ -139,7 +139,7 @@ void TypeInfo::fillTemplateTypenames(CXCursor cursor) noexcept
 			}
 
 			return CXChildVisitResult::CXChildVisit_Continue;
-		}, &_templateTypenames);
+		}, &_templateParameters);
 	}
 	else
 	{
@@ -158,7 +158,7 @@ void TypeInfo::fillTemplateTypenames(CXCursor cursor) noexcept
 			}
 
 			return CXChildVisitResult::CXChildVisit_Recurse;
-		}, &_templateTypenames);
+		}, &_templateParameters);
 	}
 }
 
@@ -170,14 +170,14 @@ void TypeInfo::initialize(CXCursor cursor) noexcept
 			_fullName = computeClassTemplateFullName(cursor);
 			_canonicalFullName = _fullName;	//TODO: Doesn't support canonical result computation for templates for now
 
-			fillTemplateTypenames(cursor);
+			fillTemplateParameters(cursor);
 			break;
 
 		case CXCursorKind::CXCursor_TemplateTemplateParameter:
 			_fullName = Helpers::getString(clang_getCursorSpelling(cursor));
 			_canonicalFullName = _fullName;
 
-			fillTemplateTypenames(cursor);
+			fillTemplateParameters(cursor);
 			break;
 
 		case CXCursorKind::CXCursor_TemplateTypeParameter:
@@ -193,7 +193,7 @@ void TypeInfo::initialize(CXCursor cursor) noexcept
 			if (clang_Type_getSizeOf(cursorType) == CXTypeLayoutError::CXTypeLayoutError_Dependent &&
 				isTemplateTypename(Helpers::getString(clang_getTypeSpelling(cursorType))))
 			{
-				fillTemplateTypenames(cursor);
+				fillTemplateParameters(cursor);
 			}
 
 			initialize(cursorType);
@@ -384,14 +384,14 @@ std::string TypeInfo::getCanonicalName(bool removeQualifiers, bool shouldRemoveN
 	return result;
 }
 
-std::vector<TypeInfo> const& TypeInfo::getTemplateTypenames() const noexcept
+std::vector<TemplateParamInfo> const& TypeInfo::getTemplateParameters() const noexcept
 {
-	return _templateTypenames;
+	return _templateParameters;
 }
 
 bool TypeInfo::isTemplateType() const noexcept
 {
-	return !_templateTypenames.empty();
+	return !_templateParameters.empty();
 }
 
 std::ostream& kodgen::operator<<(std::ostream& out_stream, TypeInfo const& typeInfo) noexcept

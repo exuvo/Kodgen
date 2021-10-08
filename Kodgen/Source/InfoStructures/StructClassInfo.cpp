@@ -14,10 +14,10 @@ StructClassInfo::StructClassInfo() noexcept:
 }
 
 StructClassInfo::StructClassInfo(CXCursor const& cursor, std::vector<Property>&& properties, bool isForwardDeclaration) noexcept:
-	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), (cursor.kind == CXCursorKind::CXCursor_StructDecl) ? EEntityType::Struct : EEntityType::Class),
+	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), (getCursorKind(cursor) == CXCursorKind::CXCursor_StructDecl) ? EEntityType::Struct : EEntityType::Class),
 	qualifiers{false},
 	isForwardDeclaration{isForwardDeclaration},
-	type{cursor}
+	type(cursor)
 {
 }
 

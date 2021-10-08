@@ -26,6 +26,7 @@ add_library(${KodgenTargetLibrary}
 					Source/InfoStructures/EnumValueInfo.cpp
 					Source/InfoStructures/TypeInfo.cpp
 					Source/InfoStructures/StructClassTree.cpp
+					Source/InfoStructures/TemplateParamInfo.cpp
 	
 					Source/Parsing/ParsingError.cpp
 					Source/Parsing/PropertyParser.cpp
