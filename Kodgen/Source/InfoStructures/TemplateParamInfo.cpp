@@ -3,12 +3,14 @@
 #include <cassert>
 
 #include "Kodgen/InfoStructures/TypeInfo.h"
+#include "Kodgen/Misc/Helpers.h"
 
 using namespace kodgen;
 
 TemplateParamInfo::TemplateParamInfo(CXCursor cursor) noexcept:
 	kind{getTemplateParamKind(cursor.kind)},
-	type{std::make_unique<TypeInfo>(cursor)}
+	type{std::make_unique<TypeInfo>(cursor)},
+	name(Helpers::getString(clang_getCursorDisplayName(cursor)))
 {
 	assert(kind != ETemplateParameterKind::Undefined);
 }

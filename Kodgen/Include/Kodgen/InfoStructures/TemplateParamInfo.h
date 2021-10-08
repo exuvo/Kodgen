@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <string>
 #include <memory>	//std::unique_ptr
 
 #include <clang-c/Index.h>
@@ -34,6 +35,12 @@ namespace kodgen
 			
 			/** Type of this template parameter. */
 			std::unique_ptr<TypeInfo>	type;
+
+			/**
+			*	Name of the template parameter. In most cases, it is the same as type->getName().
+			*	It is different in the case of non-type template parameters only.
+			*/
+			std::string					name;
 
 			TemplateParamInfo(CXCursor cursor)			noexcept;
 	};
