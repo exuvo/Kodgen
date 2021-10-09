@@ -137,9 +137,12 @@ void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) noexcept
 														//Cast is safe since we only iterate on structs & classes
 														StructClassInfo const* struct_ = reinterpret_cast<StructClassInfo const*>(&entity);
 
-														auto it = _classFooterGeneratedCode.find(struct_);
+														if (!struct_->isForwardDeclaration)
+														{
+															auto it = _classFooterGeneratedCode.find(struct_);
 
-														generatedHeader.writeMacro(castSettings->getClassFooterMacro(*struct_), (it != _classFooterGeneratedCode.end()) ? std::move(it->second) : std::string());
+															generatedHeader.writeMacro(castSettings->getClassFooterMacro(*struct_), (it != _classFooterGeneratedCode.end()) ? std::move(it->second) : std::string());
+														}
 													});
 
 	//Write header file footer code
