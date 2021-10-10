@@ -26,31 +26,31 @@ namespace kodgen
 			char			argumentEnclosers[2]	= { '(', ')' };
 
 			/** Macro to use to attach properties to a namespace. */
-			std::string		namespaceMacroName		= "Namespace";
+			std::string		namespaceMacroName		= "NAMESPACE";
 
 			/** Macro to use to attach properties to a class. */
-			std::string		classMacroName			= "Class";
+			std::string		classMacroName			= "CLASS";
 
 			/** Macro to use to attach properties to a struct. */
-			std::string		structMacroName			= "Struct";
+			std::string		structMacroName			= "STRUCT";
 
 			/** Macro to use to attach properties to a variable (non-member). */
-			std::string		variableMacroName		= "Variable";
+			std::string		variableMacroName		= "VARIABLE";
 
 			/** Macro to use to attach properties to a field. */
-			std::string		fieldMacroName			= "Field";
+			std::string		fieldMacroName			= "FIELD";
 
 			/** Macro to use to attach properties to a function. */
-			std::string		functionMacroName		= "Function";
+			std::string		functionMacroName		= "FUNCTION";
 
 			/** Macro to use to attach properties to a method. */
-			std::string		methodMacroName			= "Method";
+			std::string		methodMacroName			= "METHOD";
 
 			/** Macro to use to attach properties to an enum. */
-			std::string		enumMacroName			= "Enum";
+			std::string		enumMacroName			= "ENUM";
 
 			/** Macro to use to attach properties to an enum value. */
-			std::string		enumValueMacroName		= "EnumValue";
+			std::string		enumValueMacroName		= "ENUMVALUE";
 
 			/**
 			*	@brief Load all settings from the provided toml data.
