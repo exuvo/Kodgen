@@ -43,6 +43,12 @@ CXChildVisitResult FunctionParser::parseNestedEntity(CXCursor cursor, CXCursor /
 
 	if (context.shouldCheckProperties)
 	{
+		if (cursor.kind == CXCursorKind::CXCursor_DLLImport ||
+			cursor.kind == CXCursorKind::CXCursor_DLLExport)
+		{
+			return CXChildVisitResult::CXChildVisit_Continue;
+		}
+
 		context.shouldCheckProperties = false;
 
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)

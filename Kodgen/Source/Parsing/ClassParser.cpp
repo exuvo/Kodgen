@@ -83,6 +83,12 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 			return CXChildVisitResult::CXChildVisit_Continue;
 		}
 
+		if (cursor.kind == CXCursorKind::CXCursor_DLLImport ||
+			cursor.kind == CXCursorKind::CXCursor_DLLExport)
+		{
+			return CXChildVisitResult::CXChildVisit_Recurse;
+		}
+
 		context.shouldCheckProperties = false;
 
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
