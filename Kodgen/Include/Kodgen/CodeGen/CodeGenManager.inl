@@ -14,62 +14,63 @@ void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& c
 	//Reserve enough space for all tasks
 	generationTasks.reserve(toProcessFiles.size() * iterationCount);
 
-	//Lock the thread pool until all tasks have been pushed to avoid competing for the tasks mutex
-	_threadPool.setIsRunning(false);
-
 	//Launch all parsing -> generation processes
 	std::shared_ptr<TaskBase> parsingTask;
-	std::shared_ptr<TaskBase> generationTask;
 	
-	for (fs::path const& file : toProcessFiles)
+	for (int i = 0; i < iterationCount; i++)
 	{
-		auto parsingTaskLambda = [&fileParser, &file](TaskBase*) -> FileParsingResult
+		//Lock the thread pool until all tasks have been pushed to avoid competing for the tasks mutex
+		_threadPool.setIsRunning(false);
+
+		for (fs::path const& file : toProcessFiles)
 		{
-			//Copy a parser for this task
-			FileParserType		fileParserCopy = fileParser;
-			FileParsingResult	parsingResult;
-
-			fileParserCopy.parse(file, parsingResult);
-
-			return parsingResult;
-		};
-
-		auto generationTaskLambda = [&codeGenUnit](TaskBase* parsingTask) -> CodeGenResult
-		{
-			CodeGenResult out_generationResult;
-
-			//Copy the generation unit model to have a fresh one for this generation unit
-			CodeGenUnitType	generationUnit = codeGenUnit;
-
-			//Get the result of the parsing task
-			FileParsingResult parsingResult = TaskHelper::getDependencyResult<FileParsingResult>(parsingTask, 0u);
-
-			//Generate the file if no errors occured during parsing
-			if (parsingResult.errors.empty())
+			auto parsingTaskLambda = [&fileParser, &file](TaskBase*) -> FileParsingResult
 			{
-				out_generationResult.completed = generationUnit.generateCode(parsingResult);
-			}
+				//Copy a parser for this task
+				FileParserType		fileParserCopy = fileParser;
+				FileParsingResult	parsingResult;
 
-			return out_generationResult;
+				fileParserCopy.parse(file, parsingResult);
 
-		};
+				return parsingResult;
+			};
 
-		//Add file to the list of parsed files before starting the task to avoid having to synchronize threads
-		out_genResult.parsedFiles.push_back(file);
+			auto generationTaskLambda = [&codeGenUnit](TaskBase* parsingTask) -> CodeGenResult
+			{
+				CodeGenResult out_generationResult;
 
-		for (int i = 0; i < iterationCount; i++)
-		{
+				//Copy the generation unit model to have a fresh one for this generation unit
+				CodeGenUnitType	generationUnit = codeGenUnit;
+
+				//Get the result of the parsing task
+				FileParsingResult parsingResult = TaskHelper::getDependencyResult<FileParsingResult>(parsingTask, 0u);
+
+				//Generate the file if no errors occured during parsing
+				if (parsingResult.errors.empty())
+				{
+					out_generationResult.completed = generationUnit.generateCode(parsingResult);
+				}
+
+				return out_generationResult;
+
+			};
+
+			//Add file to the list of parsed files before starting the task to avoid having to synchronize threads
+			out_genResult.parsedFiles.push_back(file);
+
 			//Parse files
 			//For multiple iterations on a same file, the parsing task depends on the previous generation task for the same file
-			parsingTask = _threadPool.submitTask(std::string("Parsing ") + std::to_string(i), parsingTaskLambda, ((i != 0) ? std::vector<std::shared_ptr<TaskBase>>{ generationTask } : std::vector<std::shared_ptr<TaskBase>>{}));
+			parsingTask = _threadPool.submitTask(std::string("Parsing ") + std::to_string(i), parsingTaskLambda);
 
 			//Generate code
-			generationTask = generationTasks.emplace_back(_threadPool.submitTask(std::string("Generation ") + std::to_string(i), generationTaskLambda, { parsingTask }));
+			generationTasks.emplace_back(_threadPool.submitTask(std::string("Generation ") + std::to_string(i), generationTaskLambda, { parsingTask }));
 		}
-	}
 
-	_threadPool.setIsRunning(true);
-	_threadPool.joinWorkers();
+		//Wait for this iteration to complete before continuing any further
+		//(an iteration N depends on the iteration N - 1)
+		_threadPool.setIsRunning(true);
+		_threadPool.joinWorkers();
+	}
 
 	//Merge all generation results together
 	for (std::shared_ptr<TaskBase>& task : generationTasks)
