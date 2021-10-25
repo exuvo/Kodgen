@@ -303,7 +303,7 @@ void ClassParser::addBaseClass(CXCursor const& cursor) noexcept
 
 	if (getParsingResult()->parsedClass.has_value())
 	{
-		getParsingResult()->parsedClass->parents.emplace_back(StructClassInfo::ParentInfo{ static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor)), TypeInfo(cursor) });
+		getParsingResult()->parsedClass->parents.emplace_back(static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor)), TypeInfo(cursor));
 	}
 }
 

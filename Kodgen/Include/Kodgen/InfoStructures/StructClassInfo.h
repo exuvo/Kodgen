@@ -38,6 +38,8 @@ namespace kodgen
 
 				/** Type of the parent. */
 				TypeInfo			type;
+
+				ParentInfo(EAccessSpecifier access, TypeInfo&& parentType) noexcept;
 			};
 
 			static constexpr EEntityType						nestedEntityTypes = EEntityType::Class | EEntityType::Struct | EEntityType::Enum | EEntityType::Method | EEntityType::Field;

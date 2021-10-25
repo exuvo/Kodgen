@@ -42,6 +42,6 @@ namespace kodgen
 			*/
 			std::string					name;
 
-			TemplateParamInfo(CXCursor cursor)			noexcept;
+			TemplateParamInfo(CXCursor cursor)	noexcept;
 	};
 }

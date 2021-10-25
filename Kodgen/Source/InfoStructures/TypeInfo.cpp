@@ -145,7 +145,7 @@ void TypeInfo::fillTemplateParameters(CXCursor cursor) noexcept
 	{
 		clang_visitChildren(cursor, [](CXCursor cursor, CXCursor /* parent */, CXClientData client_data)
 		{
-			std::vector<TypeInfo>* typenames = reinterpret_cast<std::vector<TypeInfo>*>(client_data);
+			std::vector<TemplateParamInfo>* typenames = reinterpret_cast<std::vector<TemplateParamInfo>*>(client_data);
 
 			switch (cursor.kind)
 			{

@@ -6,6 +6,13 @@
 
 using namespace kodgen;
 
+StructClassInfo::ParentInfo::ParentInfo(EAccessSpecifier access, TypeInfo&& parentType) noexcept:
+	inheritanceAccess{access},
+	type{std::forward<TypeInfo>(parentType)}
+{
+	
+}
+
 StructClassInfo::StructClassInfo() noexcept:
 	EntityInfo(),
 	qualifiers{false},

@@ -12,7 +12,6 @@ TemplateParamInfo::TemplateParamInfo(CXCursor cursor) noexcept:
 	type{std::make_unique<TypeInfo>(cursor)},
 	name(Helpers::getString(clang_getCursorDisplayName(cursor)))
 {
-	assert(kind != ETemplateParameterKind::Undefined);
 }
 
 ETemplateParameterKind TemplateParamInfo::getTemplateParamKind(CXCursorKind cursorKind) noexcept
