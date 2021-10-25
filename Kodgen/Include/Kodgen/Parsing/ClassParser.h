@@ -91,17 +91,6 @@ namespace kodgen
 																ClassParsingResult&		out_result)				noexcept;
 
 			/**
-			*	@brief	Called internally only if isClassTemplateInstantiation returned true.
-			*			Check that the explicit class template instantiation has the entity macro in which case
-			*			the original class template should be parsed.
-			* 
-			*	@param cursor The target cursor.
-			* 
-			*	@return true if the cursor has 2 valid entity macros (1 from the explicit instantiation line, 1 from the original class template), else false.
-			*/
-			bool									isMacroedClassTemplateInstantiation(CXCursor const& cursor)	noexcept;
-			
-			/**
 			*	@brief Set the parsed struct/class if it is a valid one.
 			*
 			*	@param annotationCursor The cursor used to check struct/class validity.

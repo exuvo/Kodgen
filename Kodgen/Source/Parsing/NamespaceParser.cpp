@@ -71,6 +71,10 @@ CXChildVisitResult NamespaceParser::parseNestedEntity(CXCursor cursor, CXCursor 
 			parser->addClassResult(parser->parseClass(cursor, visitResult));
 			break;
 
+		case CXCursorKind::CXCursor_ClassTemplate:
+			parser->addClassResult(parser->parseClass(cursor, visitResult));
+			break;
+
 		case CXCursorKind::CXCursor_EnumDecl:
 			parser->addEnumResult(parser->parseEnum(cursor, visitResult));
 			break;

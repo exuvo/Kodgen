@@ -52,7 +52,6 @@ void CodeGenManager::processFiles(FileParserType& fileParser, CodeGenUnitType& c
 				}
 
 				return out_generationResult;
-
 			};
 
 			//Add file to the list of parsed files before starting the task to avoid having to synchronize threads
