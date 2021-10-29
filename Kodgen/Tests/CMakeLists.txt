@@ -8,4 +8,8 @@ add_executable(${ThreadingTestsTarget} Threading/main.cpp)
 # Link to kodgen
 target_link_libraries(${ThreadingTestsTarget} PRIVATE ${KodgenTargetLibrary})
 
+if (MSVC)
+	target_compile_options(${ThreadingTestsTarget} PRIVATE /MP)
+endif()
+
 add_test(NAME ${ThreadingTestsTarget} COMMAND ${ThreadingTestsTarget})

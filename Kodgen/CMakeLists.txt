@@ -74,12 +74,16 @@ add_library(${KodgenTargetLibrary}
 					Source/Threading/TaskBase.cpp
 				)
 
-# Setup warning level
 if (MSVC)
+
+	# Setup warning level
 	string(REGEX REPLACE " /W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")	# Remove the default flag /W3
-	target_compile_options(${KodgenTargetLibrary} PUBLIC /W4)
+	target_compile_options(${KodgenTargetLibrary} PRIVATE /W4 /MP)
+
 else ()	# Clang or GCC
-	target_compile_options(${KodgenTargetLibrary} PUBLIC -Wall -Wextra -Wpedantic)
+
+	target_compile_options(${KodgenTargetLibrary} PRIVATE -Wall -Wextra -Wpedantic)
+
 endif()
 
 # Setup compilation definitions
