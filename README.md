@@ -1,6 +1,7 @@
 # Kodgen
 
-[![Latest Release](https://badge.fury.io/gh/jsoysouvanh%2FKodgen.svg)](https://github.com/jsoysouvanh/Kodgen/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/jsoysouvanh/Kodgen)](https://github.com/jsoysouvanh/Kodgen/blob/master/LICENSE.md)
+[![Latest Release](https://img.shields.io/github/v/tag/jsoysouvanh/kodgen?label=release)](https://github.com/jsoysouvanh/Kodgen/releases/latest)
 [![Windows Build & Tests](https://github.com/jsoysouvanh/Kodgen/actions/workflows/run_tests_windows.yml/badge.svg?branch=master)](https://github.com/jsoysouvanh/Kodgen/actions/workflows/run_tests_windows.yml)
 [![Linux Build & Tests](https://github.com/jsoysouvanh/Kodgen/actions/workflows/run_tests_linux.yml/badge.svg)](https://github.com/jsoysouvanh/Kodgen/actions/workflows/run_tests_linux.yml)
 [![MacOS Build & Tests](https://github.com/jsoysouvanh/Kodgen/actions/workflows/run_tests_macos.yml/badge.svg)](https://github.com/jsoysouvanh/Kodgen/actions/workflows/run_tests_macos.yml)
