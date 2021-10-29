@@ -40,7 +40,7 @@ void ParsingSettings::refreshBuildCommandStrings(ILogger* logger) noexcept
 		}
 		else
 		{
-			logger->log("FileParserFactory compiler must be set to parse files.", kodgen::ILogger::ELogSeverity::Error);
+			logger->log("ParsingSettings::compilerExeName must be set to parse files.", kodgen::ILogger::ELogSeverity::Error);
 		}
 	}
 	catch (std::exception const& e)
@@ -177,6 +177,14 @@ void ParsingSettings::loadCompilerExeName(toml::value const& parsingSettings, IL
 			else
 			{
 				logger->log("[TOML] " + compilerExeName + " doesn't exist, is not supported or could not be run on the current computer.", ILogger::ELogSeverity::Error);
+
+#if _WIN32
+				//Failed while loading MSVC, VSWhere might not be located next to the executable
+				if (CompilerHelpers::isMSVC(compilerExeName))
+				{
+					logger->log("[TOML] Make sure that vswhere.exe is located next to your executable.", ILogger::ELogSeverity::Error);
+				}
+#endif
 			}
 		}
 	}

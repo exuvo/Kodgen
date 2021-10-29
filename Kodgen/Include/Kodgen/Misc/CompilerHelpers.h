@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -74,17 +74,6 @@ namespace kodgen
 			*/
 			static std::string				normalizeCompilerExeName(std::string const& compilerName)	noexcept;
 
-			/**
-			*	@brief Check if a name corresponds to a given compiler.
-			*	
-			*	@param normalizedName Name of the compiler executable.
-			*
-			*	@return true if the normalized compiler executable matches, else false.
-			*/
-			static bool						isMSVC(std::string const& normalizedCompilerExeName)		noexcept;
-			static bool						isClang(std::string const& normalizedCompilerExeName)		noexcept;
-			static bool						isGCC(std::string const& normalizedCompilerExeName)			noexcept;
-
 		public:
 			CompilerHelpers()	= delete;
 			~CompilerHelpers()	= delete;
@@ -108,6 +97,17 @@ namespace kodgen
 			static bool						isGCCSupported(std::string const& gccExeName)						noexcept;
 			static bool						isClangSupported(std::string const& clangExeName)					noexcept;
 			static bool						isMSVCSupported()													noexcept;
+
+			/**
+			*	@brief Check if a name corresponds to a given compiler.
+			*	
+			*	@param normalizedName Name of the compiler executable.
+			*
+			*	@return true if the normalized compiler executable matches, else false.
+			*/
+			static bool						isMSVC(std::string const& normalizedCompilerExeName)				noexcept;
+			static bool						isClang(std::string const& normalizedCompilerExeName)				noexcept;
+			static bool						isGCC(std::string const& normalizedCompilerExeName)					noexcept;
 
 			/**
 			*	@brief Retrieve all native include directories of a given compiler on the executing computer.

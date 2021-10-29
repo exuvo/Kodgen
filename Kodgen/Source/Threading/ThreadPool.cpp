@@ -22,9 +22,21 @@ ThreadPool::ThreadPool(uint32 threadCount, ETerminationMode	terminationMode) noe
 
 ThreadPool::~ThreadPool() noexcept
 {
+	_taskMutex.lock();
 	_destructorCalled = true;
+	_taskMutex.unlock();
 
-	joinWorkers();
+	//Awake threads so that they can perform necessary tests to exit their routine
+	_taskCondition.notify_all();
+
+	//Explicitely join all threads to terminate
+	for (std::thread& worker : _workers)
+	{
+		if (worker.joinable())
+		{
+			worker.join();
+		}
+	}
 }
 
 void ThreadPool::workerRoutine() noexcept
@@ -33,7 +45,7 @@ void ThreadPool::workerRoutine() noexcept
 
 	while (shouldKeepRunning())
 	{
-		if (!_tasks.empty())
+		if (!_tasks.empty() && _isRunning)
 		{
 			//We own the mutex before grabbing a task
 			std::shared_ptr<TaskBase> task = getTask();
@@ -49,13 +61,16 @@ void ThreadPool::workerRoutine() noexcept
 			}
 		}
 
-		//A worker is about to sleep, decrement working workers count
-		_workingWorkers.fetch_sub(1u);
+		if (!_destructorCalled && (_tasks.empty() || !_isRunning))
+		{
+			//A worker is about to sleep, decrement working workers count
+			_workingWorkers.fetch_sub(1u);
 
-		_taskCondition.wait(lock, [this]() { return !_tasks.empty() || _destructorCalled; });
+			_taskCondition.wait(lock);
 
-		//A worker is resuming its activity, increment working workers count
-		_workingWorkers.fetch_add(1u);
+			//A worker is resuming its activity, increment working workers count
+			_workingWorkers.fetch_add(1u);
+		}
 	}
 }
 
@@ -80,8 +95,12 @@ std::shared_ptr<TaskBase> ThreadPool::getTask() noexcept
 
 void ThreadPool::joinWorkers() noexcept
 {
+	std::unique_lock lock(_taskMutex);
+
 	if (_destructorCalled)
 	{
+		lock.unlock();
+
 		//Awake threads so that they can perform necessary tests to exit their routine
 		_taskCondition.notify_all();
 
@@ -96,8 +115,10 @@ void ThreadPool::joinWorkers() noexcept
 	}
 	else
 	{
+		lock.unlock();
+
 		//Just wait for all workers to be blocked on the _taskCondition
-		while (_workingWorkers.load() != 0u)
+		while (_workingWorkers.load() != 0u || (_isRunning && !_tasks.empty()))
 		{
 			std::this_thread::yield();
 		}
@@ -106,5 +127,22 @@ void ThreadPool::joinWorkers() noexcept
 
 bool ThreadPool::shouldKeepRunning() const noexcept
 {
-	return	!_destructorCalled	|| (terminationMode == ETerminationMode::FinishAll && _tasks.size() != 0u);
+	return	!_destructorCalled || (terminationMode == ETerminationMode::FinishAll && _tasks.size() != 0u);
+}
+
+void ThreadPool::setIsRunning(bool isRunning) noexcept
+{
+	std::unique_lock lock(_taskMutex);
+
+	if (_isRunning != isRunning)
+	{
+		_isRunning = isRunning;
+
+		lock.unlock();
+
+		if (isRunning)
+		{
+			_taskCondition.notify_all();
+		}
+	}
 }

@@ -16,6 +16,8 @@ bool MacroCodeGenUnitSettings::loadSettingsValues(toml::value const& tomlData, I
 		loadFileNamePatterns(tomlMacroCGUSettings, logger);
 		loadClassFooterMacroPattern(tomlMacroCGUSettings, logger);
 		loadHeaderFileFooterMacroPattern(tomlMacroCGUSettings, logger);
+		loadExportSymbolMacroName(tomlMacroCGUSettings, logger);
+		loadInternalSymbolMacroName(tomlMacroCGUSettings, logger);
 
 		return true;
 	}
@@ -82,6 +84,38 @@ void MacroCodeGenUnitSettings::loadHeaderFileFooterMacroPattern(toml::value cons
 	}
 }
 
+void MacroCodeGenUnitSettings::loadExportSymbolMacroName(toml::value const& generationSettings, ILogger* logger) noexcept
+{
+	std::string exportSymbolMacroName;
+
+	//Load class footer macro pattern
+	if (TomlUtility::updateSetting(generationSettings, "exportSymbolMacroName", exportSymbolMacroName, logger))
+	{
+		setExportSymbolMacroName(exportSymbolMacroName);
+
+		if (logger != nullptr)
+		{
+			logger->log("[TOML] Load export symbol macro: " + _exportSymbolMacroName);
+		}
+	}
+}
+
+void MacroCodeGenUnitSettings::loadInternalSymbolMacroName(toml::value const& generationSettings, ILogger* logger) noexcept
+{
+	std::string internalSymbolMacroName;
+
+	//Load class footer macro pattern
+	if (TomlUtility::updateSetting(generationSettings, "internalSymbolMacroName", internalSymbolMacroName, logger))
+	{
+		setInternalSymbolMacroName(internalSymbolMacroName);
+
+		if (logger != nullptr)
+		{
+			logger->log("[TOML] Load internal symbol macro: " + _internalSymbolMacroName);
+		}
+	}
+}
+
 void MacroCodeGenUnitSettings::setGeneratedHeaderFileNamePattern(std::string const& generatedHeaderFileNamePattern) noexcept
 {
 	_generatedHeaderFileNamePattern = generatedHeaderFileNamePattern;
@@ -100,6 +134,16 @@ void MacroCodeGenUnitSettings::setClassFooterMacroPattern(std::string const& cla
 void MacroCodeGenUnitSettings::setHeaderFileFooterMacroPattern(std::string const& headerFileFooterMacroPattern) noexcept
 {
 	_headerFileFooterMacroPattern = headerFileFooterMacroPattern;
+}
+
+void MacroCodeGenUnitSettings::setExportSymbolMacroName(std::string const& exportSymbolMacroName) noexcept
+{
+	_exportSymbolMacroName = exportSymbolMacroName;
+}
+
+void MacroCodeGenUnitSettings::setInternalSymbolMacroName(std::string const& internalSymbolMacroName) noexcept
+{
+	_internalSymbolMacroName = internalSymbolMacroName;
 }
 
 std::string const& MacroCodeGenUnitSettings::getGeneratedHeaderFileNamePattern() const noexcept
@@ -140,10 +184,11 @@ std::string const& MacroCodeGenUnitSettings::getClassFooterMacroPattern() const 
 std::string MacroCodeGenUnitSettings::getClassFooterMacro(StructClassInfo const& structClassInfo) const noexcept
 {
 	std::string	classFooterMacroName	= _classFooterMacroPattern;
-	std::string classFullName			= structClassInfo.getFullName();
+	std::string classFullName			= structClassInfo.type.getName(true, false, true);
 
 	//Replace full name :: into _ so that it makes a valid macro
 	replaceTags(classFullName, "::", "_");
+
 	replaceTags(classFooterMacroName, classNameTag, structClassInfo.name);
 	replaceTags(classFooterMacroName, classFullNameTag, classFullName);
 
@@ -162,6 +207,16 @@ std::string	MacroCodeGenUnitSettings::getHeaderFileFooterMacro(fs::path const& t
 	replaceTags(headerFileFooterMacroName, filenameTag, targetFile.filename().stem().string());
 
 	return headerFileFooterMacroName;
+}
+
+std::string const& MacroCodeGenUnitSettings::getExportSymbolMacroName() const noexcept
+{
+	return _exportSymbolMacroName;
+}
+
+std::string const& MacroCodeGenUnitSettings::getInternalSymbolMacroName() const noexcept
+{
+	return _internalSymbolMacroName;
 }
 
 void MacroCodeGenUnitSettings::replaceTags(std::string& inout_string, std::string_view const& tag, std::string const& replacement) noexcept

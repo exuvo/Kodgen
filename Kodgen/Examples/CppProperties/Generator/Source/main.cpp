@@ -1,36 +1,37 @@
-#include <iostream>
-
-#include <Kodgen/Misc/Filesystem.h>
-#include <Kodgen/Misc/DefaultLogger.h>
-#include <Kodgen/CodeGen/FileGenerator.h>
+#include <Kodgen/Parsing/FileParser.h>
+#include <Kodgen/CodeGen/CodeGenManager.h>
 #include <Kodgen/CodeGen/Macro/MacroCodeGenUnit.h>
 #include <Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h>
-#include <Kodgen/CodeGen/FileGeneratorSettings.h>
+#include <Kodgen/Misc/Filesystem.h>
+#include <Kodgen/Misc/DefaultLogger.h>
 
 #include "GetSetCGM.h"
 
-void initGenerationSettings(fs::path const& workingDirectory, kodgen::FileGeneratorSettings& out_generatorSettings, kodgen::MacroCodeGenUnitSettings& out_cguSettings)
+void initCodeGenUnitSettings(fs::path const& workingDirectory, kodgen::MacroCodeGenUnitSettings& out_cguSettings)
 {
-	fs::path includeDirectory	= workingDirectory / "Include";
-	fs::path generatedDirectory	= includeDirectory / "Generated";
-
-	//Parse WorkingDir/...
-	out_generatorSettings.addToParseDirectory(includeDirectory);
-
-	//Ignore generated files...
-	out_generatorSettings.addIgnoredDirectory(generatedDirectory);
-
-	//Only parse .h files
-	out_generatorSettings.addSupportedExtension(".h");
-
 	//All generated files will be located in WorkingDir/Include/Generated
-	out_cguSettings.setOutputDirectory(generatedDirectory);
+	out_cguSettings.setOutputDirectory(workingDirectory / "Include" / "Generated");
 	
 	//Setup generated files name pattern
 	out_cguSettings.setGeneratedHeaderFileNamePattern("##FILENAME##.h.h");
 	out_cguSettings.setGeneratedSourceFileNamePattern("##FILENAME##.src.h");
 	out_cguSettings.setClassFooterMacroPattern("##CLASSFULLNAME##_GENERATED");
 	out_cguSettings.setHeaderFileFooterMacroPattern("File_##FILENAME##_GENERATED");
+}
+
+void initCodeGenManagerSettings(fs::path const& workingDirectory, kodgen::CodeGenManagerSettings& out_generatorSettings)
+{
+	fs::path includeDirectory	= workingDirectory / "Include";
+	fs::path generatedDirectory	= includeDirectory / "Generated";
+
+	//Parse WorkingDir/...
+	out_generatorSettings.addToProcessDirectory(includeDirectory);
+
+	//Ignore generated files...
+	out_generatorSettings.addIgnoredDirectory(generatedDirectory);
+
+	//Only parse .h files
+	out_generatorSettings.addSupportedFileExtension(".h");
 }
 
 bool initParsingSettings(kodgen::ParsingSettings& parsingSettings)
@@ -63,9 +64,9 @@ bool initParsingSettings(kodgen::ParsingSettings& parsingSettings)
 	//In reality, the compiler used by the user machine running the generator should be set.
 	//It has nothing to see with the compiler used to compile the generator.
 #if defined(__GNUC__)
-	return parsingSettings.setCompilerExeName("gcc");
+	return parsingSettings.setCompilerExeName("g++");
 #elif defined(__clang__)
-	return parsingSettings.setCompilerExeName("clang");
+	return parsingSettings.setCompilerExeName("clang++");
 #elif defined(_MSC_VER)
 	return parsingSettings.setCompilerExeName("msvc");
 #else
@@ -93,48 +94,40 @@ int main(int argc, char** argv)
 
 	logger.log("Working Directory: " + workingDirectory.string());
 
-	//Setup parsing settings
-	kodgen::ParsingSettings parsingSettings;
+	//Setup FileParser
+	kodgen::FileParser fileParser;
+	fileParser.logger = &logger;
 
-	if (!initParsingSettings(parsingSettings))
+	if (!initParsingSettings(fileParser.getSettings()))
 	{
 		logger.log("Compiler could not be set because it is not supported on the current machine or vswhere could not be found (Windows|MSVC only).", kodgen::ILogger::ELogSeverity::Error);
 		return EXIT_FAILURE;
 	}
 
-	//Setup FileParser
-	kodgen::FileParser fileParser;
-	fileParser.logger = &logger;
-	fileParser.parsingSettings = &parsingSettings;
-
-	//Setup generation settings
-	kodgen::FileGeneratorSettings		fileGenSettings;
-	kodgen::MacroCodeGenUnitSettings	cguSettings;
-
-	initGenerationSettings(workingDirectory, fileGenSettings, cguSettings);
-
 	//Setup code generation unit
 	kodgen::MacroCodeGenUnit codeGenUnit;
 	codeGenUnit.logger = &logger;
-	codeGenUnit.setSettings(&cguSettings);
 
+	kodgen::MacroCodeGenUnitSettings cguSettings;
+	initCodeGenUnitSettings(workingDirectory, cguSettings);
+	codeGenUnit.setSettings(cguSettings);
+
+	//Add code generation modules
 	GetSetCGM getSetCodeGenModule;
 	codeGenUnit.addModule(getSetCodeGenModule);
 
-	//Setup file generator
-	kodgen::FileGenerator fileGenerator;
-	fileGenerator.logger = &logger;
-	fileGenerator.settings = &fileGenSettings;
+	//Setup CodeGenManager
+	kodgen::CodeGenManager codeGenMgr;
+	codeGenMgr.logger = &logger;
 
-	//This environment will be copied and used for each code generation unit
-	kodgen::MacroCodeGenEnv env;
+	initCodeGenManagerSettings(workingDirectory, codeGenMgr.settings);
 
 	//Kick-off code generation
-	kodgen::FileGenerationResult genResult = fileGenerator.generateFiles(fileParser, codeGenUnit, env, true);
+	kodgen::CodeGenResult genResult = codeGenMgr.run(fileParser, codeGenUnit, true);
 
 	if (genResult.completed)
 	{
-		logger.log("Generation completed successfully.");
+		logger.log("Generation completed successfully in " + std::to_string(genResult.duration) + " seconds.");
 	}
 	else
 	{

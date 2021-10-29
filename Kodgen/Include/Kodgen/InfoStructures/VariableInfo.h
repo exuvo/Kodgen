@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -17,9 +17,9 @@ namespace kodgen
 	class VariableInfo : public EntityInfo
 	{
 		protected:
-			VariableInfo(CXCursor const&	cursor,
-						 PropertyGroup&&	propertyGroup,
-						 EEntityType		entityType)		noexcept;
+			VariableInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties,
+						 EEntityType				entityType)		noexcept;
 
 		public:
 			/** Is this variable static or not. */
@@ -28,11 +28,7 @@ namespace kodgen
 			/** Type of this variable. */
 			TypeInfo			type;
 
-			VariableInfo()								= default;
-			VariableInfo(CXCursor const& cursor,
-						 PropertyGroup&& propertyGroup)	noexcept;
-			VariableInfo(VariableInfo const&)			= default;
-			VariableInfo(VariableInfo&&)				= default;
-			~VariableInfo()								= default;
+			VariableInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties)	noexcept;
 	};
 }

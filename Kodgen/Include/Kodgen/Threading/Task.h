@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -33,15 +33,13 @@ namespace kodgen
 
 		public:
 			Task()														= delete;
-			Task(std::function<ReturnType(TaskBase*)>&&		task,
+			Task(char const*								name,
+				 std::function<ReturnType(TaskBase*)>&&		task,
 				 std::vector<std::shared_ptr<TaskBase>>&&	deps = {})	noexcept;
-			Task(Task const&)											= default;
-			Task(Task&&)												= default;
-			virtual ~Task()												= default;
 
-			virtual bool	isReadyToExecute()	const	noexcept override;
-			virtual void	execute()					noexcept override;
-			virtual bool	hasFinished()		const	noexcept override;
+			virtual bool				isReadyToExecute()	const	noexcept override;
+			virtual void				execute()					noexcept override;
+			virtual bool				hasFinished()		const	noexcept override;
 	};
 
 	#include "Kodgen/Threading/Task.inl"

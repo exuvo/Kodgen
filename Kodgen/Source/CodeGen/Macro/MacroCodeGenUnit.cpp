@@ -2,50 +2,64 @@
 
 #include "Kodgen/Config.h"
 #include "Kodgen/CodeGen/GeneratedFile.h"
-#include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.h"
-#include "Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h"
 #include "Kodgen/CodeGen/CodeGenHelpers.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenModule.h"
 
 using namespace kodgen;
 
-bool MacroCodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, CodeGenEnv& env) noexcept
+std::array<std::string, static_cast<size_t>(ECodeGenLocation::Count)> const MacroCodeGenUnit::_separators =
 {
-#ifdef RTTI_ENABLED
-	 MacroCodeGenEnv* macroEnv = dynamic_cast<MacroCodeGenEnv*>(&env);
-#else
-	//unsafe because can't check whether env is castable to MacroCodeGenEnv or not
-	 MacroCodeGenEnv* macroEnv = static_cast<MacroCodeGenEnv*>(&env);
-#endif
+	"\n",	//HeaderFileHeader is not wrapped inside a macro, so can use \n without breaking the code
+	"\\\n",	//ClassFooter is wrapped in a macro so must use \ to keep multiline generated code valid
+	"\\\n",	//HeaderFileFooter is wrapped in a macro so must use \ to keep multiline generated code valid
+	"\n"	//SourceFileHeader is not wrapped in a macro, so can use \n without breaking the code
+};
 
-	if (macroEnv != nullptr)
-	{
-		//Setup macro env
-		return CodeGenUnit::preGenerateCode(parsingResult, env);
-	}
-
-	if (logger != nullptr)
-	{
-		logger->log("The provided CodeGenEnv must be castable to MacroCodeGenEnv to be used with a MacroCodeGenUnit.", ILogger::ELogSeverity::Error);
-	}
-
-	return false;
+MacroCodeGenEnv* MacroCodeGenUnit::createCodeGenEnv() const noexcept
+{
+	return new MacroCodeGenEnv();
 }
 
-ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule const& codeGenModule, EntityInfo const& entity, CodeGenEnv& env) noexcept
+void MacroCodeGenUnit::initialGenerateCode(CodeGenEnv& env, std::function<void(CodeGenEnv&, std::string&)> generate) noexcept
 {
-	ETraversalBehaviour result = CodeGenHelpers::leastPrioritizedTraversalBehaviour;
-
-	//Data MUST be a MacroCodeGenEnv or derived for this generation unit to work
 	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
 
 	//Generate code for each code location
 	for (int i = 0u; i < static_cast<int>(ECodeGenLocation::Count); i++)
 	{
-		macroEnv._codeGenLocation = static_cast<ECodeGenLocation>(i);
-		macroEnv._separator = macroEnv._separators[i];
+		macroEnv._codeGenLocation	= static_cast<ECodeGenLocation>(i);
+		macroEnv._separator			= _separators[i];
 
-		//Clear the temp string without deallocating underlying memory
-		macroEnv._generatedCodeTmp.clear();
+		/**
+		*	No initial call when the CodeGenLocation is ClassFooter
+		*/
+		if (macroEnv._codeGenLocation == ECodeGenLocation::ClassFooter)
+		{
+			continue;
+		}
+		else
+		{
+			generate(macroEnv, _generatedCodePerLocation[i]);
+		}
+	}
+}
+
+void MacroCodeGenUnit::finalGenerateCode(CodeGenEnv& env, std::function<void(CodeGenEnv&, std::string&)> generate) noexcept
+{
+	//Exactly same flow as initialGenerateCode
+	initialGenerateCode(env, generate);
+}
+
+void MacroCodeGenUnit::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)> generate)	noexcept
+{
+	MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
+
+	//Generate code for each code location
+	for (int i = 0u; i < static_cast<int>(ECodeGenLocation::Count); i++)
+	{
+		macroEnv._codeGenLocation	= static_cast<ECodeGenLocation>(i);
+		macroEnv._separator			= _separators[i];
 
 		/**
 		*	Forward ECodeGenLocation::ClassFooter generation only if the entity is a
@@ -60,67 +74,92 @@ ETraversalBehaviour MacroCodeGenUnit::runCodeGenModuleOnEntity(CodeGenModule con
 			}
 			else
 			{
-				result = CodeGenHelpers::combineTraversalBehaviours(generateEntityClassFooterCode(codeGenModule, entity, macroEnv), result);
+				generateEntityClassFooterCode(entity, macroEnv, generate);
 			}
 		}
 		else
 		{
-			result = CodeGenHelpers::combineTraversalBehaviours(codeGenModule.generateCode(&entity, env, macroEnv._generatedCodeTmp), result);
-
-			//Append the generated code to the string
-			macroEnv._generatedCodePerLocation[i] += macroEnv._generatedCodeTmp;
+			generate(entity, macroEnv, _generatedCodePerLocation[i]);
 		}
-
-		//Abort the generation if the current result is AbortWithFailure
-		if (result == ETraversalBehaviour::AbortWithFailure)
-			return result;
 	}
-
-	return result;
 }
 
-bool MacroCodeGenUnit::postGenerateCode(FileParsingResult const& parsingResult, CodeGenEnv& env) noexcept
+bool MacroCodeGenUnit::preGenerateCode(FileParsingResult const& parsingResult, CodeGenEnv& env) noexcept
+{
+	if (CodeGenUnit::preGenerateCode(parsingResult, env))
+	{
+		MacroCodeGenEnv& macroEnv = static_cast<MacroCodeGenEnv&>(env);
+		macroEnv._exportSymbolMacro = getSettings()->getExportSymbolMacroName();
+		macroEnv._internalSymbolMacro = getSettings()->getInternalSymbolMacroName();
+
+		//Reset variables before the generation step begins
+		_classFooterGeneratedCode.clear();
+
+		for (std::string& generatedCode : _generatedCodePerLocation)
+		{
+			generatedCode.clear();
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool MacroCodeGenUnit::postGenerateCode(CodeGenEnv& env) noexcept
 {
 	//Create generated header & generated source files
-	generateHeaderFile(parsingResult, static_cast<MacroCodeGenEnv&>(env));
-	generateSourceFile(parsingResult, static_cast<MacroCodeGenEnv&>(env));
+	generateHeaderFile(static_cast<MacroCodeGenEnv&>(env));
+	generateSourceFile(static_cast<MacroCodeGenEnv&>(env));
 
 	return true;
 }
 
-void MacroCodeGenUnit::generateHeaderFile(FileParsingResult const& parsingResult, MacroCodeGenEnv& env) const noexcept
+void MacroCodeGenUnit::generateHeaderFile(MacroCodeGenEnv& env) noexcept
 {
-	GeneratedFile generatedHeader(getGeneratedHeaderFilePath(parsingResult.parsedFile), parsingResult.parsedFile);
+	GeneratedFile generatedHeader(getGeneratedHeaderFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
 
-	MacroCodeGenUnitSettings const* castSettings = static_cast<MacroCodeGenUnitSettings const*>(settings);
+	MacroCodeGenUnitSettings const* castSettings = getSettings();
 
 	generatedHeader.writeLine("#pragma once\n");
 
 	//Include the entity file
-	generatedHeader.writeLine("#include \"" + CodeGenUnitSettings::entityMacrosFilename.string() + "\"");
+	generatedHeader.writeLine("#include \"" + CodeGenUnitSettings::entityMacrosFilename.string() + "\"\n");
 
 	//Write header file header code
-	generatedHeader.writeLine(std::move(env._generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileHeader)]));
+	generatedHeader.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileHeader)]));
 
-	//Write all class footer macros
-	for (auto& [structInfo, generatedCode] : env._classFooterGeneratedCode)
-	{
-		generatedHeader.writeMacro(castSettings->getClassFooterMacro(*structInfo), std::move(generatedCode));
-	}
+	//Write all struct/class footer macros
+	//We must iterate over all structs/class from scratch since registered generators are not guaranteed to traverse all struct/class
+	env.getFileParsingResult()->foreachEntityOfType(EEntityType::Class | EEntityType::Struct,
+													[this, &generatedHeader, castSettings](EntityInfo const& entity)
+													{
+														//Cast is safe since we only iterate on structs & classes
+														StructClassInfo const* struct_ = reinterpret_cast<StructClassInfo const*>(&entity);
 
-	generatedHeader.writeMacro(castSettings->getHeaderFileFooterMacro(parsingResult.parsedFile), std::move(env._generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileFooter)]));
+														if (!struct_->isForwardDeclaration)
+														{
+															auto it = _classFooterGeneratedCode.find(struct_);
+
+															generatedHeader.writeMacro(castSettings->getClassFooterMacro(*struct_), (it != _classFooterGeneratedCode.end()) ? std::move(it->second) : std::string());
+														}
+													});
+
+	//Write header file footer code
+	generatedHeader.writeMacro(castSettings->getHeaderFileFooterMacro(env.getFileParsingResult()->parsedFile),
+							   std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::HeaderFileFooter)]));
 }
 
-void MacroCodeGenUnit::generateSourceFile(FileParsingResult const& parsingResult, MacroCodeGenEnv& env) const noexcept
+void MacroCodeGenUnit::generateSourceFile(MacroCodeGenEnv& env) noexcept
 {
-	GeneratedFile generatedSource(getGeneratedSourceFilePath(parsingResult.parsedFile), parsingResult.parsedFile);
+	GeneratedFile generatedFile(getGeneratedSourceFilePath(env.getFileParsingResult()->parsedFile), env.getFileParsingResult()->parsedFile);
 
-	generatedSource.writeLine("#pragma once\n");
-	
+	generatedFile.writeLine("#pragma once\n");
+
 	//Include the header file
-	generatedSource.writeLine("#include \"" + parsingResult.parsedFile.string() + "\"\n");
+	generatedFile.writeLine("#include \"" + FilesystemHelpers::normalizeSeparator(generatedFile.getSourceFilePath().lexically_relative(generatedFile.getPath().parent_path())).string() + "\"\n");
 
-	generatedSource.writeLine(std::move(env._generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
+	generatedFile.writeLine(std::move(_generatedCodePerLocation[static_cast<int>(ECodeGenLocation::SourceFileHeader)]));
 }
 
 bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
@@ -142,40 +181,44 @@ bool MacroCodeGenUnit::isUpToDate(fs::path const& sourceFile) const noexcept
 	return false;
 }
 
-ETraversalBehaviour MacroCodeGenUnit::generateEntityClassFooterCode(CodeGenModule const& codeGenModule, EntityInfo const& entity, MacroCodeGenEnv& env) noexcept
+void MacroCodeGenUnit::generateEntityClassFooterCode(EntityInfo const& entity, CodeGenEnv& env, std::function<void(EntityInfo const&, CodeGenEnv&, std::string&)> generate) noexcept
 {
-	ETraversalBehaviour result = codeGenModule.generateCode(&entity, env, env._generatedCodeTmp);
-
-	if (result != ETraversalBehaviour::AbortWithFailure)
+	if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
 	{
-		//Append the generated code to the relevant string
-		if (entity.entityType == EEntityType::Struct || entity.entityType == EEntityType::Class)
-		{
-			env._classFooterGeneratedCode[&static_cast<StructClassInfo const&>(entity)] += env._generatedCodeTmp;
-		}
-		else
-		{
-			assert(entity.outerEntity != nullptr);
-			assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
-
-			env._classFooterGeneratedCode[static_cast<StructClassInfo const*>(entity.outerEntity)] += env._generatedCodeTmp;
-		}
+		//If the entity is a struct/class, append to the footer of the struct/class
+		generate(entity, env, _classFooterGeneratedCode[&reinterpret_cast<StructClassInfo const&>(entity)]);
 	}
+	else
+	{
+		assert(entity.outerEntity != nullptr);
+		assert(entity.outerEntity->entityType == EEntityType::Struct || entity.outerEntity->entityType == EEntityType::Class);
 
-	return result;
+		//If the entity is NOT a struct/class, append to the footer of the outer struct/class
+		generate(entity, env, _classFooterGeneratedCode[reinterpret_cast<StructClassInfo const*>(entity.outerEntity)]);
+	}
 }
 
 fs::path MacroCodeGenUnit::getGeneratedHeaderFilePath(fs::path const& sourceFile) const noexcept
 {
-	return settings->getOutputDirectory() / static_cast<MacroCodeGenUnitSettings const*>(settings)->getGeneratedHeaderFileName(sourceFile);
+	return settings->getOutputDirectory() / getSettings()->getGeneratedHeaderFileName(sourceFile);
 }
 
 fs::path MacroCodeGenUnit::getGeneratedSourceFilePath(fs::path const& sourceFile) const noexcept
 {
-	return settings->getOutputDirectory() / static_cast<MacroCodeGenUnitSettings const*>(settings)->getGeneratedSourceFileName(sourceFile);
+	return settings->getOutputDirectory() / getSettings()->getGeneratedSourceFileName(sourceFile);
 }
 
-void MacroCodeGenUnit::setSettings(MacroCodeGenUnitSettings const* cguSettings) noexcept
+void MacroCodeGenUnit::addModule(MacroCodeGenModule& generationModule) noexcept
 {
-	settings = cguSettings;
+	CodeGenUnit::addModule(generationModule);
+}
+
+MacroCodeGenUnitSettings const* MacroCodeGenUnit::getSettings() const noexcept
+{
+	return reinterpret_cast<MacroCodeGenUnitSettings const*>(settings);
+}
+
+void MacroCodeGenUnit::setSettings(MacroCodeGenUnitSettings const& cguSettings) noexcept
+{
+	settings = &cguSettings;
 }

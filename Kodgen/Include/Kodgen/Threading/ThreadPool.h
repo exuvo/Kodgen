@@ -2,17 +2,18 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
 
-#include <thread>
-#include <vector>
+#include <string>
 #include <list>
+#include <vector>
+#include <thread>
 #include <condition_variable>
 #include <mutex>
-#include <atomic>
+#include <atomic>		//std::atomic_uint
 #include <functional>	//std::bind
 #include <memory>		//std::shared_ptr
 #include <type_traits>	//std::invoke_result
@@ -26,6 +27,9 @@ namespace kodgen
 	class ThreadPool
 	{
 		private:
+			/** Are workers allowed to process queued tasks? */
+			bool									_isRunning	= true;
+
 			/** Collection of all workers in this pool. */
 			std::vector<std::thread>				_workers;
 
@@ -77,19 +81,31 @@ namespace kodgen
 			/**
 			*	@brief Submit a task to the thread pool.
 			*	
+			*	@param taskName	Name of the task to submit to the thread pool.
 			*	@param callable	Callable the submitted task should execute. It must take a TaskBase* as parameter.
 			*	@param deps		Dependencies of the submitted task.
 			*
 			*	@return A pointer to the submitted task. It can be used as a dependency when submitting other tasks.
 			*/
 			template <typename Callable, typename = decltype(std::declval<Callable>()(std::declval<TaskBase*>()))>
-			std::shared_ptr<TaskBase>	submitTask(Callable&&								callable,
+			std::shared_ptr<TaskBase>	submitTask(std::string const&						taskName,
+												   Callable&&								callable,
 												   std::vector<std::shared_ptr<TaskBase>>&& deps = {})	noexcept;
 
 			/**
 			*	@brief Join all workers.
 			*/
 			void						joinWorkers()													noexcept;
+
+			/**
+			*	@brief Allow or disallow workers to process tasks.
+			* 
+			*	@param isRunning true to allow workers to process tasks, else false.
+			*/
+			void						setIsRunning(bool isRunning)									noexcept;
+
+			ThreadPool& operator=(ThreadPool const&)	= delete;
+			ThreadPool& operator=(ThreadPool&&)			= delete;
 	};
 
 	#include "Kodgen/Threading/ThreadPool.inl"

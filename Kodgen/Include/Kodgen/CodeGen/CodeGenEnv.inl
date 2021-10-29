@@ -2,12 +2,12 @@
 *	Copyright (c) 2021 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
-inline FileParsingResult const* CodeGenEnv::getParsingResult() const noexcept
+inline FileParsingResult const* CodeGenEnv::getFileParsingResult() const noexcept
 {
-	return _parsingResult;
+	return _fileParsingResult;
 }
 
 inline ILogger* CodeGenEnv::getLogger() const noexcept

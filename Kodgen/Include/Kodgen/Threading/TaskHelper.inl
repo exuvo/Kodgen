@@ -2,13 +2,14 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 template <typename ResultType, typename>
 ResultType TaskHelper::getResult(TaskBase* task)
 {
 	assert(task != nullptr);
+	assert(reinterpret_cast<Task<ResultType>*>(task)->_result.valid());
 
 	return reinterpret_cast<Task<ResultType>*>(task)->_result.get();
 }

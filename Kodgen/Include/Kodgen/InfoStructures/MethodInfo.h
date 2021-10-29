@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -17,32 +17,30 @@ namespace kodgen
 	class MethodInfo final : public FunctionInfo
 	{
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Undefined;
+
 			/** Access of this method in its outer struct/class. */
-			EAccessSpecifier	accessSpecifier;
+			EAccessSpecifier				accessSpecifier;
 
 			/** Is this method defaulted or not. */
-			bool				isDefault		: 1;
+			bool							isDefault		: 1;
 
 			/** Is this method virtual or not. */
-			bool				isVirtual		: 1;
+			bool							isVirtual		: 1;
 
 			/** Is this method virtual pure or not. */
-			bool				isPureVirtual	: 1;
+			bool							isPureVirtual	: 1;
 
 			/** Is this method overriden or not. */
-			bool				isOverride		: 1;
+			bool							isOverride		: 1;
 
 			/** Is this method final or not. */
-			bool				isFinal			: 1;
+			bool							isFinal			: 1;
 
 			/** Is this method const or not. */
-			bool				isConst			: 1;
+			bool							isConst			: 1;
 
-			MethodInfo()								= default;
-			MethodInfo(CXCursor const& cursor,
-					   PropertyGroup&& propertyGroup)	noexcept;
-			MethodInfo(MethodInfo const&)				= default;
-			MethodInfo(MethodInfo&&)					= default;
-			~MethodInfo()								= default;
+			MethodInfo(CXCursor const&			cursor,
+					   std::vector<Property>&&	properties)	noexcept;
 	};
 }

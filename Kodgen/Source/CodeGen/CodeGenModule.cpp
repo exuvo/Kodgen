@@ -4,31 +4,33 @@
 
 #include "Kodgen/CodeGen/PropertyCodeGen.h"
 #include "Kodgen/CodeGen/CodeGenEnv.h"
-#include "Kodgen/CodeGen/CodeGenHelpers.h"
 
 using namespace kodgen;
 
-bool CodeGenModule::initialize(CodeGenEnv& env) const noexcept
+int32 CodeGenModule::getGenerationOrder() const noexcept
 {
-	for (PropertyCodeGen const* propertyCodeGen : _propertyCodeGenerators)
-	{
-		if (!propertyCodeGen->initialize(env))
-		{
-			return false;
-		}
-	}
+	auto it = std::max_element(_propertyCodeGenerators.cbegin(), _propertyCodeGenerators.cend(),
+							   [](PropertyCodeGen* const& lhs, PropertyCodeGen* const& rhs)
+							   {
+								   return lhs->getIterationCount() < rhs->getIterationCount();
+							   });
 
-	return true;
+	return (*it)->getIterationCount();
 }
 
-void CodeGenModule::addPropertyRule(PropertyCodeGen const& propertyRule) noexcept
+ETraversalBehaviour CodeGenModule::generateCodeForEntity(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result, void const* /* data */) noexcept
 {
-	_propertyCodeGenerators.push_back(&propertyRule);
+	return generateCodeForEntity(entity, env, inout_result);
 }
 
-bool CodeGenModule::removePropertyRule(PropertyCodeGen const& propertyRule) noexcept
+void CodeGenModule::addPropertyCodeGen(PropertyCodeGen& propertyCodeGen) noexcept
 {
-	auto it = std::find(_propertyCodeGenerators.cbegin(), _propertyCodeGenerators.cend(), &propertyRule);
+	_propertyCodeGenerators.push_back(&propertyCodeGen);
+}
+
+bool CodeGenModule::removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen) noexcept
+{
+	auto it = std::find(_propertyCodeGenerators.cbegin(), _propertyCodeGenerators.cend(), &propertyCodeGen);
 
 	if (it != _propertyCodeGenerators.cend())
 	{
@@ -40,49 +42,14 @@ bool CodeGenModule::removePropertyRule(PropertyCodeGen const& propertyRule) noex
 	return false;
 }
 
-ETraversalBehaviour CodeGenModule::generateCode(EntityInfo const* entity, CodeGenEnv& env, std::string& inout_result) const noexcept
+ETraversalBehaviour CodeGenModule::callVisitorOnEntity(EntityInfo const& entity, CodeGenEnv& env, std::function<ETraversalBehaviour(ICodeGenerator&, EntityInfo const&, CodeGenEnv&, void const*)> visitor) noexcept
 {
-	if (entity != nullptr)
-	{
-		//Abort the traversal with a failure if something wrong happened during property code generation
-		//Otherwise, return the least prioritized ETraversalBehaviour value to give the full control to this method overload.
-		return runPropertyCodeGenerators(*entity, env, inout_result) ? CodeGenHelpers::leastPrioritizedTraversalBehaviour : ETraversalBehaviour::AbortWithFailure;
-	}
+	assert(visitor != nullptr);
 
-	return CodeGenHelpers::leastPrioritizedTraversalBehaviour;
+	return visitor(*this, entity, env, nullptr);
 }
 
-int32 CodeGenModule::getGenerationOrder() const noexcept
-{
-	return 0u;
-}
-
-bool CodeGenModule::runPropertyCodeGenerators(EntityInfo const& entity, CodeGenEnv& env, std::string& inout_result) const noexcept
-{
-	Property const* currentProperty;
-
-	//Iterate over all entity's properties
-	for (uint8 i = 0u; i < entity.propertyGroup.properties.size(); i++)
-	{
-		currentProperty = &entity.propertyGroup.properties[i];
-
-		//Try to generate code with each registered property generator
-		for (PropertyCodeGen const* propertyCodeGen : _propertyCodeGenerators)
-		{
-			if (propertyCodeGen->shouldGenerateCode(entity, *currentProperty, i))
-			{
-				if (!propertyCodeGen->generateCode(entity, *currentProperty, i, env, inout_result))
-				{
-					return false;
-				}
-			}
-		}
-	}
-
-	return true;
-}
-
-std::vector<PropertyCodeGen const*> const& CodeGenModule::getPropertyRules() const noexcept
+std::vector<PropertyCodeGen*> const& CodeGenModule::getPropertyCodeGenerators() const noexcept
 {
 	return _propertyCodeGenerators;
 }

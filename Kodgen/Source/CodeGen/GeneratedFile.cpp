@@ -36,12 +36,12 @@ void GeneratedFile::writeLines(std::string&& line) noexcept
 
 void GeneratedFile::expandWriteMacroLines(std::string const& line) noexcept
 {
-	writeLine("\t" + line + "\n");
+	writeLine(line + "\n");
 }
 
 void GeneratedFile::expandWriteMacroLines(std::string&& line) noexcept
 {
-	writeLine("\t" + std::forward<std::string>(line) + "\n");
+	writeLine(std::forward<std::string>(line) + "\n");
 }
 
 void GeneratedFile::writeMacro(std::string&& macroName) noexcept

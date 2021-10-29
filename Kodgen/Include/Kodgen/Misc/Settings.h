@@ -2,7 +2,7 @@
 *	Copyright (c) 2021 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -30,7 +30,10 @@ namespace kodgen
 											ILogger*			logger)		noexcept = 0;
 
 		public:
-			virtual ~Settings() = default;
+			Settings()					= default;
+			Settings(Settings const&)	= default;
+			Settings(Settings&&)		= default;
+			virtual ~Settings()			= default;
 
 			/**
 			*	@brief	Setup this object's member variables with the provided toml file.
@@ -41,7 +44,10 @@ namespace kodgen
 			*
 			*	@return true if a file could be loaded, else false.
 			*/
-			bool loadSettings(fs::path const&	pathToSettingsFile,
+			bool loadFromFile(fs::path const&	pathToSettingsFile,
 							  ILogger*			logger = nullptr)	noexcept;
+
+			Settings&	operator=(Settings const&)	= default;
+			Settings&	operator=(Settings&&)		= default;
 	};
 }

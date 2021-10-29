@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -36,8 +36,6 @@ namespace kodgen
 			virtual void logError(std::string const& message)	noexcept;
 
 		public:
-			virtual ~DefaultLogger() = default;
-
 			virtual void log(std::string const&	message,
 							 ELogSeverity		logSeverity = ELogSeverity::Info)	noexcept override;
 	};

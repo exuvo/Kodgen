@@ -20,7 +20,7 @@ int main()
 	ThreadPool threadPool;
 
 	//Depends on nothing, returns an int
-	auto t1 = threadPool.submitTask([](TaskBase*) -> int
+	auto t1 = threadPool.submitTask("Print i 20 times", [](TaskBase*) -> int
 						  {
 							  for (uint64 i = 0u; i < 20u; i++)
 							  {
@@ -31,13 +31,13 @@ int main()
 						  });
 
 	//Depends on t1, return nothing
-	auto t2 = threadPool.submitTask([](TaskBase* t)
+	auto t2 = threadPool.submitTask("Print this is a task", [](TaskBase* t)
 						  {
 							  std::cout << "This is a task: " << TaskHelper::getDependencyResult<int>(t, 0u) << std::endl;
 						}, {t1});
 
 	//Depends on nothing, return nothing
-	auto t3 = threadPool.submitTask(B());
+	auto t3 = threadPool.submitTask("B", B());
 
 	//A is not callable, doesn't compile
 	//auto t4 = threadPool.submitTask(A());

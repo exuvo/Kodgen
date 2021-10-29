@@ -4,8 +4,8 @@
 
 using namespace kodgen;
 
-FieldInfo::FieldInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup) noexcept:
-	VariableInfo(cursor, std::forward<PropertyGroup>(propertyGroup), EEntityType::Field),
+FieldInfo::FieldInfo(CXCursor const& cursor, std::vector<Property>&& properties) noexcept:
+	VariableInfo(cursor, std::forward<std::vector<Property>>(properties), EEntityType::Field),
 	isMutable{clang_CXXField_isMutable(cursor) != 0u},
 	accessSpecifier{EAccessSpecifier::Invalid},
 	memoryOffset{0}
@@ -19,9 +19,7 @@ FieldInfo::FieldInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup) noex
 	{
 		memoryOffset = clang_Cursor_getOffsetOfField(cursor);
 
-		// assert(field.memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Invalid);	<- Assert here on travis for some reasons...
 		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Incomplete);
-		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_Dependent);
 		assert(memoryOffset != CXTypeLayoutError::CXTypeLayoutError_InvalidFieldName);
 
 		memoryOffset /= 8;	//From bits to bytes

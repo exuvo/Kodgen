@@ -2,17 +2,18 @@
 *	Copyright (c) 2021 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
 
 #include "Kodgen/CodeGen/PropertyCodeGen.h"
 #include "Kodgen/CodeGen/Macro/MacroCodeGenEnv.h"
+#include "Kodgen/CodeGen/Macro/MacroCodeGenerator.h"
 
 namespace kodgen
 {
-	class MacroPropertyCodeGen : public PropertyCodeGen
+	class MacroPropertyCodeGen : public PropertyCodeGen, public MacroCodeGenerator
 	{
 		protected:
 			/**
@@ -26,11 +27,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateHeaderFileHeaderCode(EntityInfo const&	entity,
-														 Property const&	property,
-														 uint8				propertyIndex,
-														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	const	noexcept;
+			virtual bool	generateHeaderFileHeaderCodeForEntity(EntityInfo const&	entity,
+																  Property const&	property,
+																  uint8				propertyIndex,
+																  MacroCodeGenEnv&	env,
+																  std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Generate code in the class footer for the given entity.
@@ -44,11 +45,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateClassFooterCode(EntityInfo const&	entity,
-													Property const&		property,
-													uint8				propertyIndex,
-													MacroCodeGenEnv&	env,
-													std::string&		inout_result)		const	noexcept;
+			virtual bool	generateClassFooterCodeForEntity(EntityInfo const&	entity,
+															 Property const&	property,
+															 uint8				propertyIndex,
+															 MacroCodeGenEnv&	env,
+															 std::string&		inout_result)		noexcept;
 
 			/**
 			*	@brief Generate code in the header file footer for the given entity.
@@ -61,11 +62,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateHeaderFileFooterCode(EntityInfo const&	entity,
-														 Property const&	property,
-														 uint8				propertyIndex,
-														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	const	noexcept;
+			virtual bool	generateHeaderFileFooterCodeForEntity(EntityInfo const&	entity,
+																  Property const&	property,
+																  uint8				propertyIndex,
+																  MacroCodeGenEnv&	env,
+																  std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief Generate code in the source file header for the given entity.
@@ -78,16 +79,16 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateSourceFileHeaderCode(EntityInfo const&	entity,
-														 Property const&	property,
-														 uint8				propertyIndex,
-														 MacroCodeGenEnv&	env,
-														 std::string&		inout_result)	const	noexcept;
+			virtual bool	generateSourceFileHeaderCodeForEntity(EntityInfo const&	entity,
+																  Property const&	property,
+																  uint8				propertyIndex,
+																  MacroCodeGenEnv&	env,
+																  std::string&		inout_result)	noexcept;
 
 			/**
 			*	@brief	Called just before calling generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
 			*			and generateSourceFileHeaderCode on a given entity.
-			*			Can be used to initialize the data structure or perform any pre generation initialization.
+			*			Can be used to initialize the data structure or perform any pre generation initialization or validity check.
 			* 
 			*	@param entity			Entity to generate code for.
 			*	@param property			Property that triggered the property generation.
@@ -96,10 +97,10 @@ namespace kodgen
 			* 
 			*	@return true if the pre-generation completed successfully, else false.
 			*/
-			virtual bool	preGenerateCode(EntityInfo const&	entity,
-											Property const&		property,
-											uint8				propertyIndex,
-											CodeGenEnv&			env)						const	noexcept;
+			virtual bool	preGenerateCodeForEntity(EntityInfo const&	entity,
+													 Property const&	property,
+													 uint8				propertyIndex,
+													 MacroCodeGenEnv&	env)						noexcept;
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
@@ -113,20 +114,14 @@ namespace kodgen
 			* 
 			*	@return true if the post-generation completed successfully, else false.
 			*/
-			virtual bool	postGenerateCode(EntityInfo const&	entity,
-											 Property const&	property,
-											 uint8				propertyIndex,
-											 CodeGenEnv&		env)						const	noexcept;
+			virtual bool	postGenerateCodeForEntity(EntityInfo const&	entity,
+													  Property const&	property,
+													  uint8				propertyIndex,
+													  MacroCodeGenEnv&	env)						noexcept;
 
 		public:
-			/**
-			*	@brief Make sure that the environment is castable to MacroCodeGenEnv.
-			* 
-			*	@param env Generation environment structure.
-			* 
-			*	@return true if the environment is castable to MacroCodeGenEnv, else false.
-			*/
-			virtual bool	initialize(CodeGenEnv& env)						const noexcept override;
+			//Use the same constructor as PropertyCodeGen
+			using PropertyCodeGen::PropertyCodeGen;
 
 			/**
 			*	@brief	Generate code for a given entity.
@@ -141,10 +136,36 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateCode(EntityInfo const&	entity,
-										 Property const&	property,
-										 uint8				propertyIndex,
-										 CodeGenEnv&		env,
-										 std::string&		inout_result)	const noexcept override;
+			virtual bool	generateCodeForEntity(EntityInfo const&	entity,
+												  Property const&	property,
+												  uint8				propertyIndex,
+												  CodeGenEnv&		env,
+												  std::string&		inout_result)	noexcept override final;
+
+			/**
+			*	@brief	Generate initial code for this code generator.
+			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
+			*			and dispatch the call to the relevant method.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	initialGenerateCode(CodeGenEnv&		env,
+												std::string&	inout_result)		noexcept override final;
+			
+			/**
+			*	@brief	Generate final code for this code generator.
+			*			This method analyzes the code location retrieved from the MacroCodeGenEnv
+			*			and dispatch the call to the relevant method.
+			*	
+			*	@param env				Generation environment structure.
+			*	@param inout_result		String the method should append the generated code to.
+			*	
+			*	@return true if the generation completed successfully, else false.
+			*/
+			virtual bool	finalGenerateCode(CodeGenEnv&	env,
+											  std::string&	inout_result)			noexcept override final;
 	};
 }

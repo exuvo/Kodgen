@@ -8,7 +8,7 @@ NestedEnumInfo::NestedEnumInfo(EnumInfo&& base, EAccessSpecifier accessSpecifier
 	entityType		= base.entityType;
 	name			= std::move(base.name);
 	id				= std::move(base.id);
-	propertyGroup	= std::move(base.propertyGroup);
+	properties		= std::move(base.properties);
 
 	type			= std::move(base.type);
 	underlyingType	= std::move(base.underlyingType);

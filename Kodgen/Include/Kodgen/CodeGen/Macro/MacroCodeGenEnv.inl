@@ -2,7 +2,7 @@
 *	Copyright (c) 2021 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 inline ECodeGenLocation MacroCodeGenEnv::getCodeGenLocation() const noexcept
@@ -13,4 +13,14 @@ inline ECodeGenLocation MacroCodeGenEnv::getCodeGenLocation() const noexcept
 inline std::string const& MacroCodeGenEnv::getSeparator() const noexcept
 {
 	return _separator;
+}
+
+inline std::string const& MacroCodeGenEnv::getExportSymbolMacro() const noexcept
+{
+	return _exportSymbolMacro;
+}
+
+inline std::string const& MacroCodeGenEnv::getInternalSymbolMacro() const noexcept
+{
+	return _internalSymbolMacro;
 }

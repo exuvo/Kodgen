@@ -2,7 +2,7 @@
 *	Copyright (c) 2021 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -10,7 +10,8 @@
 #include <string>
 #include <vector>
 
-#include "Kodgen/Misc/FundamentalTypes.h"
+#include "Kodgen/Misc/ICloneable.h"
+#include "Kodgen/CodeGen/ICodeGenerator.h"
 #include "Kodgen/CodeGen/ETraversalBehaviour.h"
 
 namespace kodgen
@@ -20,82 +21,84 @@ namespace kodgen
 	class	CodeGenEnv;
 	class	EntityInfo;
 
-	//TODO: Add module dependency functionality?
-	class CodeGenModule
+	class CodeGenModule : public ICloneable, public ICodeGenerator
 	{
 		private:
 			/** Collection of all property code generators attached to this module. */
-			std::vector<PropertyCodeGen const*> _propertyCodeGenerators;
+			std::vector<PropertyCodeGen*>	_propertyCodeGenerators;
 
 			/**
-			*	@brief Make eligible property code generators generate code for the provided entity.
+			*	@brief	Call the visitor method with the provided entity/env pair.
+			*			The forwarded data is always nullptr.
 			* 
-			*	@param entity		Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.
-			*	@param env			Data provided by the FileGenerationUnit. You can cast env to a more concrete type if you know the type provided by the FileGenerationUnit.
-			*	@param inout_result	String the method should append the generated code to.
+			*	@param entity	The entity provided to the visitor.
+			*	@param env		The environment provided to the visitor.
+			*	@param visitor	The visitor to run.
 			* 
-			*	@return true if the code generation completed successfully for all property code generators, else false.
+			*	@return	The value returned from the visitor call.
 			*/
-			bool	runPropertyCodeGenerators(EntityInfo const&		entity,
-											  CodeGenEnv&			env,
-											  std::string&			inout_result)	const	noexcept;
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
+															CodeGenEnv&											env,
+															std::function<ETraversalBehaviour(ICodeGenerator&,
+																							  EntityInfo const&,
+																							  CodeGenEnv&,
+																							  void const*)>		visitor)	noexcept final override;
+
+			/**
+			*	@brief	Generate code for the provided entity/environment pair.
+			*			Internally call the PropertyCodeGen::generateCode public method.
+			* 
+			*	@param entity		The entity this generator should generate code for.
+			*	@param env			The generation environment structure.
+			*	@param inout_result	String the generated code should be appended to.
+			*	@param data			nullptr.
+			* 
+			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
+			*/
+			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const&	entity, 
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)										noexcept final override;
+
+		protected:
+			/**
+			*	@brief Add a property code generator to this generation module.
+			* 
+			*	@param propertyCodeGen PropertyCodeGen to register.
+			*/
+			void										addPropertyCodeGen(PropertyCodeGen& propertyCodeGen)			noexcept;
+
+			/**
+			*	@brief Remove a property code generator from this generation module.
+			* 
+			*	@param propertyCodeGen PropertyCodeGen to unregister.
+			*/
+			bool										removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen)	noexcept;
 
 		public:
-			virtual ~CodeGenModule() = default;
-
-			/**
-			*	@brief	Initialize the module and the provided environment. The module must make sure that the provided
-			*			environment is valid to generate code with (i.e. that the environment inherits from all necessary class(es)
-			*			for this module to work properly).
-			*			The method is called by CodeGenUnit::preGenerateCode before any call to CodeGenModule::generateCode.
-			*
-			*	@param env Generation environment.
-			* 
-			*	@return true if the environment is valid and initialization completed successfully, else false.
-			*/
-			virtual bool								initialize(CodeGenEnv& env)								const	noexcept;
-
 			/**
 			*	@brief	Generate code using the provided environment as input.
-			*			/!\ This method calls the code generation on registered and eligible property code generators, so this base
-			*			implementation should be called in overrides. /!\
 			* 
-			*	@param entity			Entity the module is generating code for. Might be nullptr, in which case the code is not generated for a specific entity.
+			*	@param entity			Entity the module is generating code for.
 			*	@param env				Data provided by the FileGenerationUnit. You can cast env to a more concrete type if you know the type provided by the FileGenerationUnit.
 			*	@param inout_result		String the method should append the generated code to.
 			* 
 			*	@return true if the code generation completed successfully, else false. If false is returned
 			*/
-			virtual ETraversalBehaviour					generateCode(EntityInfo const*	entity,
-																	 CodeGenEnv&		env,
-																	 std::string&		inout_result)			const	noexcept;
+			virtual ETraversalBehaviour					generateCodeForEntity(EntityInfo const&	entity,
+																			  CodeGenEnv&		env,
+																			  std::string&		inout_result)		noexcept = 0;
 
 			/**
-			*	@brief	The generation order is a number defining in which order this module will generate code compared to other modules.
-			*			Modules with a low generation order will execute first, and modules a high generation order will execute last.
-			*			Modules having the same generation order value will execute in an undefined order.
+			*	@return The highest iteration count in all registered property code generators.
 			*/
-			virtual int32								getGenerationOrder()									const	noexcept;
+			virtual int32								getGenerationOrder()								const	noexcept	override;
 
 			/**
-			*	@brief Add property rule to this generation module.
-			* 
-			*	@param propertyRule PropertyRule to register.
-			*/
-			void										addPropertyRule(PropertyCodeGen const& propertyRule)			noexcept;
-
-			/**
-			*	@brief Remove a property rule from this generation module.
-			* 
-			*	@param propertyRule PropertyRule to unregister.
-			*/
-			bool										removePropertyRule(PropertyCodeGen const& propertyRule)			noexcept;
-
-			/**
-			*	@brief Getter for _propertyRules field.
+			*	@brief Getter for _propertyCodeGenerators field.
 			*
-			*	@return _propertyRules.
+			*	@return _propertyCodeGenerators.
 			*/
-			std::vector<PropertyCodeGen const*> const&	getPropertyRules()										const	noexcept;
+			std::vector<PropertyCodeGen*> const&		getPropertyCodeGenerators()							const	noexcept;
 	};
 }

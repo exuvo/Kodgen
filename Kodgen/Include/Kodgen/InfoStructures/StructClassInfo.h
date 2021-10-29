@@ -2,13 +2,14 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
 
 #include <vector>
 #include <memory>
+#include <cassert>
 
 #include <clang-c/Index.h>
 
@@ -37,13 +38,20 @@ namespace kodgen
 
 				/** Type of the parent. */
 				TypeInfo			type;
+
+				ParentInfo(EAccessSpecifier access, TypeInfo&& parentType) noexcept;
 			};
+
+			static constexpr EEntityType						nestedEntityTypes = EEntityType::Class | EEntityType::Struct | EEntityType::Enum | EEntityType::Method | EEntityType::Field;
 
 			struct ClassQualifiers
 			{
 				/** Is the class final qualified of not. */
 				bool isFinal		: 1;
 			}													qualifiers;
+
+			/** Whether this StructClassInfo represents a forward declaration or not. */
+			bool												isForwardDeclaration;
 
 			/** More detailed information on this class. */
 			TypeInfo											type;
@@ -66,17 +74,41 @@ namespace kodgen
 			/** List of all methods contained in this class. */
 			std::vector<MethodInfo>								methods;
 
-			StructClassInfo()								noexcept;
-			StructClassInfo(CXCursor const&	cursor,
-							PropertyGroup&&	propertyGroup,
-							EEntityType&&	entityType)		noexcept;
-			StructClassInfo(StructClassInfo const&)			= default;
-			StructClassInfo(StructClassInfo&&)				= default;
-			~StructClassInfo()								= default;
+			StructClassInfo()												noexcept;
+			StructClassInfo(CXCursor const&			cursor,
+							std::vector<Property>&&	properties,
+							bool					isForwardDeclaration)	noexcept;
+
+			/**
+			*	@brief Get the kind of a struct class info from a clang cursor.
+			* 
+			*	@param cursor The target cursor.
+			* 
+			*	@return The kind of the target cursor.
+			*/
+			static CXCursorKind	getCursorKind(CXCursor cursor)	noexcept;
+
+			/**
+			*	@brief Call a visitor function on a struct/class and each nested entity of the provided type(s).
+			* 
+			*	@param entityMask	All types of entities the visitor function should be called on.
+			*	@param visitor		Function to call on entities.
+			*/
+			template <typename Functor, typename = std::enable_if_t<std::is_invocable_v<Functor, EntityInfo const&>>>
+			void		foreachEntityOfType(EEntityType entityMask, Functor visitor)	const	noexcept;
+
+			/**
+			*	@brief Return true if this entity is a class, false if it is a struct.
+			* 
+			*	@return true if this entity is a class, false if it is a struct.
+			*/
+			inline bool	isClass()														const	noexcept;
 
 			/**
 			*	@brief Refresh the outerEntity field of all nested entities. Internal use only.
 			*/
-			void	refreshOuterEntity()	noexcept;
+			void		refreshOuterEntity()													noexcept;
 	};
+
+	#include "Kodgen/InfoStructures/StructClassInfo.inl"
 }

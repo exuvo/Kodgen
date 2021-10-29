@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -48,17 +48,46 @@ namespace kodgen
 		Namespace	= 1 << 8
 	};
 
-	inline EEntityType operator|(EEntityType flags1, EEntityType flags2)
+	/**
+	*	@brief Binary "or" operation between 2 EEntityType masks.
+	* 
+	*	@param mask1 First mask.
+	*	@param mask2 Second mask.
+	* 
+	*	@return The binary "or" value between the 2 provided masks.
+	*/
+	constexpr EEntityType operator|(EEntityType mask1, EEntityType mask2) noexcept
 	{
 		using UnderlyingType = std::underlying_type_t<EEntityType>;
 
-		return static_cast<EEntityType>(static_cast<UnderlyingType>(flags1) | static_cast<UnderlyingType>(flags2));
+		return static_cast<EEntityType>(static_cast<UnderlyingType>(mask1) | static_cast<UnderlyingType>(mask2));
 	}
 
-	inline EEntityType operator&(EEntityType flags1, EEntityType flags2)
+	/**
+	*	@brief Binary "and" operation between 2 EEntityType masks.
+	* 
+	*	@param mask1 First mask.
+	*	@param mask2 Second mask.
+	* 
+	*	@return The binary "and" value between the 2 provided masks.
+	*/
+	constexpr EEntityType operator&(EEntityType mask1, EEntityType mask2) noexcept
 	{
 		using UnderlyingType = std::underlying_type_t<EEntityType>;
 
-		return static_cast<EEntityType>(static_cast<UnderlyingType>(flags1) & static_cast<UnderlyingType>(flags2));
+		return static_cast<EEntityType>(static_cast<UnderlyingType>(mask1) & static_cast<UnderlyingType>(mask2));
+	}
+
+	/**
+	*	@brief Check if 2 EEntityType masks overlap.
+	* 
+	*	@param mask1 First mask to compare.
+	*	@param mask2 Second mask to compare.
+	* 
+	*	@return true if the 2 masks overlap, else false.
+	*/
+	constexpr bool operator&&(EEntityType mask1, EEntityType mask2) noexcept
+	{
+		return (mask1 & mask2) != EEntityType::Undefined;
 	}
 }

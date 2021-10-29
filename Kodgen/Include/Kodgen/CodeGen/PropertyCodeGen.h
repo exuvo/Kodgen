@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -10,40 +10,79 @@
 #include <string>
 
 #include "Kodgen/Config.h"
-#include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/CodeGen/CodeGenEnv.h"
+#include "Kodgen/CodeGen/ICodeGenerator.h"
+#include "Kodgen/Misc/FundamentalTypes.h"
 #include "Kodgen/InfoStructures/EntityInfo.h"
 
 namespace kodgen
 {
-	class PropertyCodeGen
+	class PropertyCodeGen : public ICodeGenerator
 	{
-		protected:
+		private:
+			struct AdditionalData
+			{
+				uint8			propertyIndex;
+				Property const* property;
+			};
+
+			/** Name of the property this property generator should generator code for. */
+			std::string	_propertyName;
+
+			/** Mask defining the type of entities this generator can run on. */
+			EEntityType	_eligibleEntityMask = EEntityType::Undefined;
+
 			/**
-			*	@brief Check if 2 entity types masks have at least one common entity type.
+			*	@brief	Call the visitor method once for each entity/property pair.
+			*			The forwarded data is a PropertyCodeGen::AdditionalData const*.
 			* 
-			*	@param lhs First entity type mask.
-			*	@param rhs Second entity type mask.
+			*	@param entity	The entity provided to the visitor.
+			*	@param env		The environment provided to the visitor.
+			*	@param visitor	The visitor to run.
 			* 
-			*	@return true if at least one entity type is common to the 2 provided masks, else false.
+			*	@return	AbortWithFailure if any of the visitor calls returned AbortWithFailure;
+			*			Recurse if the entity can contain entities overlapping with the _eligibleEntityMask;
+			*			Continue if the entity doesn't contain any entities overlapping with the _eligibleEntityMask;
 			*/
-			static inline bool entityTypeOverlap(EEntityType lhs, EEntityType rhs) noexcept;
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
+															CodeGenEnv&											env,
+															std::function<ETraversalBehaviour(ICodeGenerator&,
+																							  EntityInfo const&,
+																							  CodeGenEnv&,
+																							  void const*)>		visitor)	noexcept final override;
+
+			/**
+			*	@brief	Generate code for the provided entity/environment pair.
+			*			Internally call the PropertyCodeGen::generateCode public method by unwrapping the data content.
+			* 
+			*	@param entity		The entity this generator should generate code for.
+			*	@param env			The generation environment structure.
+			*	@param inout_result	String the generated code should be appended to.
+			*	@param data			PropertyCodeGen::AdditionalData const* forwarded from PropertyCodeGen::callVisitorOnEntity.
+			* 
+			*	@return A ETraversalBehaviour defining how the CodeGenUnit should pick the next entity.
+			*/
+			virtual ETraversalBehaviour	generateCodeForEntity(EntityInfo const&	entity, 
+															  CodeGenEnv&		env,
+															  std::string&		inout_result,
+															  void const*		data)										noexcept final override;
+
+			/**
+			*	@brief	Determine whether this PropertyCodeGen should recurse on the provided entity children or not.
+			* 
+			*	@param entity The entity to check.
+			* 
+			*	@return true if the generator should run on the entity's children, else false.
+			*/
+			bool						shouldIterateOnNestedEntities(EntityInfo const& entity)						const	noexcept;
 
 		public:
-			virtual ~PropertyCodeGen() = default;
-
 			/**
-			*	@brief	Initialize the property code gen and the provided environment. This method must make sure that the provided
-			*			environment is valid to generate code with (i.e. that the environment inherits from all necessary class(es)
-			*			for this property to work properly).
-			*			If the property doesn't require any specific environment, can return true right away.
-			*			The method is called by CodeGenModule::initialize before any call to PropertyCodeGen::generateCode.
-			*
-			*	@param env Generation environment.
-			* 
-			*	@return true if the environment is valid and initialization completed successfully, else false.
+			*	@param propertyName			Name of the property this property generator should generate code for.
+			*	@param eligibleEntityMask	A mask defining all the types of entity this PropertyCodeGen instance should run on.
 			*/
-			virtual bool	initialize(CodeGenEnv& env)								const	noexcept = 0;
+			PropertyCodeGen(std::string const&	propertyName,
+							EEntityType			eligibleEntityMask)	noexcept;
 
 			/**
 			*	@brief Generate code for a given entity.
@@ -56,11 +95,11 @@ namespace kodgen
 			*	
 			*	@return true if the generation completed successfully, else false.
 			*/
-			virtual bool	generateCode(EntityInfo const&	entity,
-										 Property const&	property,
-										 uint8				propertyIndex,
-										 CodeGenEnv&		env,
-										 std::string&		inout_result)			const	noexcept = 0;
+			virtual bool				generateCodeForEntity(EntityInfo const&	entity,
+															  Property const&	property,
+															  uint8				propertyIndex,
+															  CodeGenEnv&		env,
+															  std::string&		inout_result)					noexcept = 0;
 
 			/**
 			*	@brief Check if this property should generate code for the provided entity/property pair.
@@ -71,9 +110,23 @@ namespace kodgen
 			*
 			*	@return true if this property should generate code for the provided entity, else false.
 			*/
-			virtual bool	shouldGenerateCode(EntityInfo const&	entity,
-											   Property const&		property,
-											   uint8				propertyIndex)	const	noexcept = 0;
+			virtual bool				shouldGenerateCodeForEntity(EntityInfo const&	entity,
+																	Property const&		property,
+																	uint8				propertyIndex)	const	noexcept;
+
+			/**
+			*	@brief Getter for _eligibleEntityMask field.
+			* 
+			*	@return _eligibleEntityMask.
+			*/
+			inline EEntityType			getEligibleEntityMask()											const	noexcept;
+
+			/**
+			*	@brief Getter for _propertyName field.
+			* 
+			*	@return _propertyName.
+			*/
+			inline std::string const&	getPropertyName()												const	noexcept;
 	};
 
 	#include "Kodgen/CodeGen/PropertyCodeGen.inl"

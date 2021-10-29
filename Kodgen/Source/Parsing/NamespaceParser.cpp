@@ -23,7 +23,7 @@ CXChildVisitResult NamespaceParser::parse(CXCursor const& namespaceCursor, Parsi
 		//Check if the parent has the shouldParseAllNested flag set
 		if (shouldParseCurrentEntity())
 		{
-			getParsingResult()->parsedNamespace.emplace(namespaceCursor, PropertyGroup());
+			getParsingResult()->parsedNamespace.emplace(namespaceCursor, std::vector<Property>());
 		}
 	}
 
@@ -49,7 +49,7 @@ CXChildVisitResult NamespaceParser::parseNestedEntity(CXCursor cursor, CXCursor 
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
 		{
 			//Make it valid right away so init the result
-			parser->getParsingResult()->parsedNamespace.emplace(context.rootCursor, PropertyGroup());
+			parser->getParsingResult()->parsedNamespace.emplace(context.rootCursor, std::vector<Property>());
 		}
 		else
 		{
@@ -68,6 +68,10 @@ CXChildVisitResult NamespaceParser::parseNestedEntity(CXCursor cursor, CXCursor 
 		case CXCursorKind::CXCursor_StructDecl:
 			[[fallthrough]];
 		case CXCursorKind::CXCursor_ClassDecl:
+			parser->addClassResult(parser->parseClass(cursor, visitResult));
+			break;
+
+		case CXCursorKind::CXCursor_ClassTemplate:
 			parser->addClassResult(parser->parseClass(cursor, visitResult));
 			break;
 
@@ -137,12 +141,12 @@ ParsingContext& NamespaceParser::pushContext(CXCursor const& namespaceCursor, Pa
 
 CXChildVisitResult NamespaceParser::setParsedEntity(CXCursor const& annotationCursor) noexcept
 {
-	if (opt::optional<PropertyGroup> propertyGroup = getProperties(annotationCursor))
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
 	{
 		ParsingContext& context = getContext();
 
 		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
-		updateShouldParseAllNested(getParsingResult()->parsedNamespace.emplace(context.rootCursor, std::move(*propertyGroup)));
+		updateShouldParseAllNested(getParsingResult()->parsedNamespace.emplace(context.rootCursor, std::move(*properties)));
 
 		return CXChildVisitResult::CXChildVisit_Recurse;
 	}
@@ -157,7 +161,7 @@ CXChildVisitResult NamespaceParser::setParsedEntity(CXCursor const& annotationCu
 	}
 }
 
-opt::optional<PropertyGroup> NamespaceParser::getProperties(CXCursor const& cursor) noexcept
+opt::optional<std::vector<Property>> NamespaceParser::getProperties(CXCursor const& cursor) noexcept
 {
 	ParsingContext& context = getContext();
 

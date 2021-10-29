@@ -7,8 +7,8 @@
 
 using namespace kodgen;
 
-MethodInfo::MethodInfo(CXCursor const& cursor, PropertyGroup&& propertyGroup) noexcept:
-	FunctionInfo(cursor, std::forward<PropertyGroup>(propertyGroup), EEntityType::Method),
+MethodInfo::MethodInfo(CXCursor const& cursor, std::vector<Property>&& properties) noexcept:
+	FunctionInfo(cursor, std::forward<std::vector<Property>>(properties), EEntityType::Method),
 	accessSpecifier{EAccessSpecifier::Invalid},
 	isDefault{clang_CXXMethod_isDefaulted(cursor) != 0u},
 	isVirtual{clang_CXXMethod_isVirtual(cursor) != 0u},

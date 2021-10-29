@@ -17,10 +17,12 @@
 
 using namespace kodgen;
 
-CXChildVisitResult ClassParser::parse(CXCursor const& classCursor, ParsingContext const& parentContext, ClassParsingResult& out_result) noexcept
+CXChildVisitResult ClassParser::parse(CXCursor classCursor, ParsingContext const& parentContext, ClassParsingResult& out_result) noexcept
 {
 	//Make sure the cursor is compatible for the class parser
-	assert(classCursor.kind == CXCursorKind::CXCursor_ClassDecl || classCursor.kind == CXCursorKind::CXCursor_StructDecl);
+	assert(classCursor.kind == CXCursorKind::CXCursor_ClassDecl ||
+		   classCursor.kind == CXCursorKind::CXCursor_StructDecl ||
+		   classCursor.kind == CXCursorKind::CXCursor_ClassTemplate);
 
 	//Init context
 	ParsingContext& context = pushContext(classCursor, parentContext, out_result);
@@ -31,7 +33,7 @@ CXChildVisitResult ClassParser::parse(CXCursor const& classCursor, ParsingContex
 		//Check if the parent has the shouldParseAllNested flag set
 		if (shouldParseCurrentEntity())
 		{
-			getParsingResult()->parsedClass.emplace(classCursor, PropertyGroup(), (classCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
+			getParsingResult()->parsedClass.emplace(classCursor, std::vector<Property>(), isForwardDeclaration(classCursor));
 		}
 	}
 
@@ -52,12 +54,27 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 
 	if (context.shouldCheckProperties)
 	{
+		//If the parsed class is a class template, skip template parameters
+		//Template parameters are handled at the TypeInfo level.
+		if (cursor.kind == CXCursorKind::CXCursor_TemplateTypeParameter ||
+			cursor.kind == CXCursorKind::CXCursor_NonTypeTemplateParameter ||
+			cursor.kind == CXCursorKind::CXCursor_TemplateTemplateParameter)
+		{
+			return CXChildVisitResult::CXChildVisit_Continue;
+		}
+
+		if (cursor.kind == CXCursorKind::CXCursor_DLLImport ||
+			cursor.kind == CXCursorKind::CXCursor_DLLExport)
+		{
+			return CXChildVisitResult::CXChildVisit_Recurse;
+		}
+
 		context.shouldCheckProperties = false;
 
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
 		{
 			//Make it valid right away so init the result
-			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, PropertyGroup(), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct);
+			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, std::vector<Property>(), isForwardDeclaration(context.rootCursor));
 		}
 		else
 		{
@@ -93,6 +110,10 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 		case CXCursorKind::CXCursor_StructDecl:
 			[[fallthrough]];
 		case CXCursorKind::CXCursor_ClassDecl:
+			parser->addClassResult(parser->parseClass(cursor, visitResult));
+			break;
+
+		case CXCursorKind::CXCursor_ClassTemplate:
 			parser->addClassResult(parser->parseClass(cursor, visitResult));
 			break;
 
@@ -164,7 +185,7 @@ ParsingContext& ClassParser::pushContext(CXCursor const& classCursor, ParsingCon
 	newContext.parsingSettings			= parentContext.parsingSettings;
 	newContext.structClassTree			= parentContext.structClassTree;
 	newContext.parsingResult			= &out_result;
-	newContext.currentAccessSpecifier	= (classCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EAccessSpecifier::Private : EAccessSpecifier::Public;
+	newContext.currentAccessSpecifier	= (StructClassInfo::getCursorKind(classCursor) == CXCursorKind::CXCursor_ClassDecl) ? EAccessSpecifier::Private : EAccessSpecifier::Public;
 
 	contextsStack.push(std::move(newContext));
 
@@ -175,40 +196,40 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 {
 	ParsingContext& context = getContext();
 
-	if (opt::optional<PropertyGroup> propertyGroup = getProperties(annotationCursor))
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor, context.rootCursor))
 	{
 		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
-		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*propertyGroup), (context.rootCursor.kind == CXCursorKind::CXCursor_ClassDecl) ? EEntityType::Class : EEntityType::Struct));
+		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), isForwardDeclaration(context.rootCursor)));
 
 		return CXChildVisitResult::CXChildVisit_Recurse;
 	}
 	else
 	{
-		if (!context.propertyParser->getParsingErrorDescription().empty())
-		{
-			context.parsingResult->errors.emplace_back(ParsingError(context.propertyParser->getParsingErrorDescription(), clang_getCursorLocation(annotationCursor)));
-		}
-
 		return CXChildVisitResult::CXChildVisit_Break;
 	}
 }
 
-opt::optional<PropertyGroup> ClassParser::getProperties(CXCursor const& cursor) noexcept
+opt::optional<std::vector<Property>> ClassParser::getProperties(CXCursor const& cursor, CXCursor const& structClassCursor) noexcept
 {
+	assert(structClassCursor.kind == CXCursor_ClassDecl ||
+		   structClassCursor.kind == CXCursor_StructDecl ||
+		   structClassCursor.kind == CXCursor_ClassTemplate);
+
+	opt::optional<std::vector<Property>> properties = opt::nullopt;
 	ParsingContext& context = getContext();
 
 	context.propertyParser->clean();
 
 	if (clang_getCursorKind(cursor) == CXCursorKind::CXCursor_AnnotateAttr)
 	{
-		switch (context.rootCursor.kind)
+		switch (StructClassInfo::getCursorKind(structClassCursor))
 		{
 			case CXCursorKind::CXCursor_ClassDecl:
-				return context.propertyParser->getClassProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
+				properties = context.propertyParser->getClassProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
 				break;
 
 			case CXCursorKind::CXCursor_StructDecl:
-				return context.propertyParser->getStructProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
+				properties = context.propertyParser->getStructProperties(Helpers::getString(clang_getCursorSpelling(cursor)));
 				break;
 
 			default:
@@ -216,7 +237,12 @@ opt::optional<PropertyGroup> ClassParser::getProperties(CXCursor const& cursor) 
 		}
 	}
 
-	return opt::nullopt;
+	if (!context.propertyParser->getParsingErrorDescription().empty())
+	{
+		context.parsingResult->errors.emplace_back(ParsingError(context.propertyParser->getParsingErrorDescription(), clang_getCursorLocation(cursor)));
+	}
+
+	return properties;
 }
 
 void ClassParser::updateAccessSpecifier(CXCursor const& cursor) noexcept
@@ -226,31 +252,36 @@ void ClassParser::updateAccessSpecifier(CXCursor const& cursor) noexcept
 	getContext().currentAccessSpecifier = static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor));
 }
 
-void ClassParser::updateStructClassTree(CXCursor cursor) noexcept
+void ClassParser::updateStructClassTree(CXCursor const& cursor) noexcept
 {
 	ParsingContext& context = getContext();
 
-	updateStructClassTreeRecursion(clang_getCanonicalType(clang_getCursorType(context.rootCursor)), cursor, *context.structClassTree);
+	updateStructClassTreeRecursion(context.rootCursor, cursor, *context.structClassTree);
 }
 
-void ClassParser::updateStructClassTreeRecursion(CXType childType, CXCursor baseOfCursor, StructClassTree& out_structClassTree) noexcept
+void ClassParser::updateStructClassTreeRecursion(CXCursor childCursor, CXCursor const& baseOfCursor, StructClassTree& out_structClassTree) noexcept
 {
 	//Make sure the baseOf cursor is indeed a CXCursor_CXXBaseSpecifier
+	assert(clang_getCursorKind(childCursor) == CXCursorKind::CXCursor_StructDecl ||
+		   clang_getCursorKind(childCursor) == CXCursorKind::CXCursor_ClassDecl ||
+		   clang_getCursorKind(childCursor) == CXCursorKind::CXCursor_ClassTemplate);
 	assert(clang_getCursorKind(baseOfCursor) == CXCursorKind::CXCursor_CXXBaseSpecifier);
 
-	if (out_structClassTree.addInheritanceLink(Helpers::getString(clang_getTypeSpelling(childType)),
-											   Helpers::getString(clang_getTypeSpelling(clang_getCanonicalType(clang_getCursorType(baseOfCursor)))),
+	CXCursor baseCursorTypeDeclaration = clang_getTypeDeclaration(clang_getCursorType(baseOfCursor));
+
+	if (out_structClassTree.addInheritanceLink(EntityInfo::getFullName(childCursor),
+											   EntityInfo::getFullName(baseCursorTypeDeclaration),
 											   static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(baseOfCursor))))
 	{
 		//Recursively fill inheritance tree
-		clang_visitChildren(clang_getTypeDeclaration(clang_getCursorType(baseOfCursor)), [](CXCursor cursor, CXCursor parentCursor, CXClientData clientData)
+		clang_visitChildren(baseCursorTypeDeclaration, [](CXCursor cursor, CXCursor parentCursor, CXClientData clientData)
 		{
 			StructClassTree& structClassTree = *reinterpret_cast<StructClassTree*>(clientData);
 
 			if (cursor.kind == CXCursorKind::CXCursor_CXXBaseSpecifier)
 			{
 				//Recurse on parentType's parents
-				updateStructClassTreeRecursion(clang_getCanonicalType(clang_getCursorType(parentCursor)), cursor, structClassTree);
+				updateStructClassTreeRecursion(parentCursor, cursor, structClassTree);
 
 				return CXChildVisitResult::CXChildVisit_Continue;
 			}
@@ -266,16 +297,13 @@ void ClassParser::updateStructClassTreeRecursion(CXType childType, CXCursor base
 	}
 }
 
-void ClassParser::addBaseClass(CXCursor cursor) noexcept
+void ClassParser::addBaseClass(CXCursor const& cursor) noexcept
 {
 	assert(clang_getCursorKind(cursor) == CXCursorKind::CXCursor_CXXBaseSpecifier);
 
 	if (getParsingResult()->parsedClass.has_value())
 	{
-		StructClassInfo&	parsedClass = getParsingResult()->parsedClass.value();
-		CXType				parentType	= clang_getCursorType(cursor);
-
-		parsedClass.parents.emplace_back(StructClassInfo::ParentInfo{ static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor)), TypeInfo(parentType) });
+		getParsingResult()->parsedClass->parents.emplace_back(static_cast<EAccessSpecifier>(clang_getCXXAccessSpecifier(cursor)), TypeInfo(cursor));
 	}
 }
 
@@ -344,4 +372,19 @@ void ClassParser::addEnumResult(EnumParsingResult&& result) noexcept
 	}
 
 	getParsingResult()->appendResultErrors(result);
+}
+
+bool ClassParser::isForwardDeclaration(CXCursor const& cursor) noexcept
+{
+	assert(cursor.kind == CXCursorKind::CXCursor_ClassDecl || cursor.kind == CXCursorKind::CXCursor_StructDecl || cursor.kind == CXCursorKind::CXCursor_ClassTemplate);
+
+	CXCursor definition = clang_getCursorDefinition(cursor);
+
+	return	clang_equalCursors(definition, clang_getNullCursor()) ||	//Couldn't find the definition in the TU
+			!clang_equalCursors(cursor, definition);					//Found a definition but it's not the same as the checked cursor
+}
+
+bool ClassParser::isClassTemplateInstantiation(CXCursor const& cursor) noexcept
+{
+	return TypeInfo::isTemplateTypename(Helpers::getString(clang_getCursorDisplayName(cursor)));
 }

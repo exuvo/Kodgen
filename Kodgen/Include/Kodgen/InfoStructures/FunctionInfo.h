@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -29,11 +29,13 @@ namespace kodgen
 			std::string getName() const noexcept;
 
 		protected:
-			FunctionInfo(CXCursor const&	cursor,
-						 PropertyGroup&&	propertyGroup,
-						 EEntityType		entityType)		noexcept;
+			FunctionInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties,
+						 EEntityType				entityType)		noexcept;
 
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Undefined;
+
 			/** Prototype of this function as a string. */
 			std::string						prototype;
 
@@ -49,12 +51,8 @@ namespace kodgen
 			/** Is this function static or not. */
 			bool isStatic	: 1;
 
-			FunctionInfo()									= default;
-			FunctionInfo(CXCursor const&	cursor,
-						 PropertyGroup&&	propertyGroup)	noexcept;
-			FunctionInfo(FunctionInfo const&)				= default;
-			FunctionInfo(FunctionInfo&&)					= default;
-			~FunctionInfo()									= default;
+			FunctionInfo(CXCursor const&			cursor,
+						 std::vector<Property>&&	properties)	noexcept;
 
 			/**
 			*	@brief Get the prototype of this function.

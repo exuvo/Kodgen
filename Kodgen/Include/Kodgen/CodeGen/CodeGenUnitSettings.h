@@ -2,7 +2,7 @@
 *	Copyright (c) 2021 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -22,7 +22,7 @@ namespace kodgen
 
 		protected:
 			/** Toml section name containing settings for CodeGenUnitSettings. */
-			static constexpr char const*	tomlSectionName = "CodeGenUnit";
+			static constexpr char const*	tomlSectionName = "CodeGenUnitSettings";
 
 			/**
 			*	@brief Load all settings from the provided toml data.
@@ -43,15 +43,6 @@ namespace kodgen
 			*/
 			void			loadOutputDirectory(toml::value const&	generationSettings,
 												ILogger*			logger)						noexcept;
-
-			/**
-			*	@brief Load the outputDirectory setting from toml.
-			*
-			*	@param generationSettings	Toml content.
-			*	@param logger				Optional logger used to issue loading logs. Can be nullptr.
-			*/
-			void			loadEntityMacrosFilename(toml::value const&	generationSettings,
-													 ILogger*			logger)					noexcept;
 
 		public:
 			/** Name of the header containing all entity macro definitions. */

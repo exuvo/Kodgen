@@ -26,6 +26,7 @@ add_library(${KodgenTargetLibrary}
 					Source/InfoStructures/EnumValueInfo.cpp
 					Source/InfoStructures/TypeInfo.cpp
 					Source/InfoStructures/StructClassTree.cpp
+					Source/InfoStructures/TemplateParamInfo.cpp
 	
 					Source/Parsing/ParsingError.cpp
 					Source/Parsing/PropertyParser.cpp
@@ -53,29 +54,36 @@ add_library(${KodgenTargetLibrary}
 					Source/Misc/Settings.cpp
 	
 					Source/CodeGen/CodeGenUnit.cpp
-					Source/CodeGen/FileGenerationResult.cpp
-					Source/CodeGen/FileGenerator.cpp
+					Source/CodeGen/CodeGenResult.cpp
+					Source/CodeGen/CodeGenManager.cpp
 					Source/CodeGen/GeneratedFile.cpp
 					Source/CodeGen/CodeGenModule.cpp
 					Source/CodeGen/CodeGenUnitSettings.cpp
-					Source/CodeGen/FileGeneratorSettings.cpp
+					Source/CodeGen/CodeGenManagerSettings.cpp
 					Source/CodeGen/CodeGenHelpers.cpp
+					Source/CodeGen/PropertyCodeGen.cpp
+					Source/CodeGen/ICodeGenerator.cpp
 
 					Source/CodeGen/Macro/MacroCodeGenUnit.cpp
-					Source/CodeGen/Macro/MacroPropertyCodeGen.cpp
 					Source/CodeGen/Macro/MacroCodeGenUnitSettings.cpp
+					Source/CodeGen/Macro/MacroCodeGenerator.cpp
 					Source/CodeGen/Macro/MacroCodeGenModule.cpp
+					Source/CodeGen/Macro/MacroPropertyCodeGen.cpp
 
 					Source/Threading/ThreadPool.cpp
 					Source/Threading/TaskBase.cpp
 				)
 
-# Setup warning level
 if (MSVC)
+
+	# Setup warning level
 	string(REGEX REPLACE " /W[0-4]" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")	# Remove the default flag /W3
-	target_compile_options(${KodgenTargetLibrary} PUBLIC /W4)
+	target_compile_options(${KodgenTargetLibrary} PRIVATE /W4 /MP)
+
 else ()	# Clang or GCC
-	target_compile_options(${KodgenTargetLibrary} PUBLIC -Wall -Wextra -Wpedantic)
+
+	target_compile_options(${KodgenTargetLibrary} PRIVATE -Wall -Wextra -Wpedantic)
+
 endif()
 
 # Setup compilation definitions

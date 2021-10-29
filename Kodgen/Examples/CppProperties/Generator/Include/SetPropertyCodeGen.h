@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -14,13 +14,14 @@
 class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 {
 	public:
-		virtual ~SetPropertyCodeGen() = default;
+		SetPropertyCodeGen() noexcept:
+			kodgen::MacroPropertyCodeGen("Set", kodgen::EEntityType::Field)
+		{}
 
-		virtual bool generateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 propertyIndex,
-								  kodgen::CodeGenEnv& env, std::string& inout_result) const noexcept override
+		virtual bool preGenerateCodeForEntity(kodgen::EntityInfo const& /* entity */, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */, kodgen::MacroCodeGenEnv& env) noexcept override
 		{
 			std::string errorMessage;
-			
+
 			//Check that Set property arguments are valid
 			if (property.arguments.size() > 1)
 			{
@@ -43,16 +44,11 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			}
 
 			//If arguments are valid, dispatch the generation call normally
-			return kodgen::MacroPropertyCodeGen::generateCode(entity, property, propertyIndex, env, inout_result);
+			return true;
 		}
 
-		virtual bool shouldGenerateCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */) const noexcept override
-		{
-			return property.name == "Set" && entityTypeOverlap(entity.entityType, kodgen::EEntityType::Field);
-		}
-
-		virtual bool generateClassFooterCode(kodgen::EntityInfo const& entity, kodgen::Property const& /* property */, kodgen::uint8 /* propertyIndex */,
-											 kodgen::MacroCodeGenEnv& env, std::string& inout_result) const noexcept override
+		virtual bool generateClassFooterCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const& /* property */, kodgen::uint8 /* propertyIndex */,
+													  kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
 
@@ -95,8 +91,8 @@ class SetPropertyCodeGen : public kodgen::MacroPropertyCodeGen
 			return true;
 		}
 
-		virtual bool generateSourceFileHeaderCode(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
-												  kodgen::MacroCodeGenEnv& env, std::string& inout_result) const noexcept override
+		virtual bool generateSourceFileHeaderCodeForEntity(kodgen::EntityInfo const& entity, kodgen::Property const& property, kodgen::uint8 /* propertyIndex */,
+														   kodgen::MacroCodeGenEnv& env, std::string& inout_result) noexcept override
 		{
 			kodgen::FieldInfo const& field = static_cast<kodgen::FieldInfo const&>(entity);
 

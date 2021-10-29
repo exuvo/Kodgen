@@ -37,7 +37,7 @@ CXChildVisitResult EnumValueParser::parseNestedEntity(CXCursor cursor, CXCursor 
 	return CXChildVisitResult::CXChildVisit_Break;
 }
 
-opt::optional<PropertyGroup> EnumValueParser::getProperties(CXCursor const& cursor) noexcept
+opt::optional<std::vector<Property>> EnumValueParser::getProperties(CXCursor const& cursor) noexcept
 {
 	ParsingContext& context = getContext();
 
@@ -55,9 +55,9 @@ void EnumValueParser::setProperties(CXCursor const& annotationCursor) noexcept
 {
 	ParsingContext& context = getContext();
 
-	if (opt::optional<PropertyGroup> propertyGroup = getProperties(annotationCursor))
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
 	{
-		getParsingResult()->parsedEnumValue->propertyGroup = std::move(*propertyGroup);
+		getParsingResult()->parsedEnumValue->properties = std::move(*properties);
 	}
 	else if (!context.propertyParser->getParsingErrorDescription().empty())
 	{

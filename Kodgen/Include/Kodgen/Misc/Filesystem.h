@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -42,7 +42,16 @@ namespace kodgen
 			*	
 			*	@return A canonical path if the provided path was valid, else an empty path.
 			*/
-			static fs::path sanitizePath(fs::path const& path)	noexcept;
+			static fs::path sanitizePath(fs::path const& path)			noexcept;
+
+			/**
+			*	@brief Replace all \ by / since this format is supported on both Windows and Unix systems.
+			* 
+			*	@param path The path to transform.
+			* 
+			*	@return the normalized path.
+			*/
+			static fs::path normalizeSeparator(fs::path const& path)	noexcept;
 
 			/**
 			*	@brief	Check that a path is a child of another path, i.e. it is contained (directly or not)
@@ -54,6 +63,6 @@ namespace kodgen
 			*	@return true if child is contained in other, else false.
 			*/
 			static bool		isChildPath(fs::path const& child,
-										fs::path const& other)	noexcept;
+										fs::path const& other)			noexcept;
 	};
 }

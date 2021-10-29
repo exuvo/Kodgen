@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -197,7 +197,7 @@ namespace kodgen
 			*	@brief	Setter for _compilerExeName field.
 			*			This will also check that the compiler is indeed available on the running computer.
 			*			If the compiler is not available on the running computer, the field is not set.
-			*			As for now, supported values are "clang", "gcc" and "msvc".
+			*			As for now, supported values are "clang++", "g++" and "msvc".
 			*	
 			*	@return true if the compiler is valid on the running computer, else false.
 			*/

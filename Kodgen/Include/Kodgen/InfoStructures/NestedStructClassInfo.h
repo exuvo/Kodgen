@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -17,14 +17,12 @@ namespace kodgen
 	class NestedStructClassInfo : public StructClassInfo
 	{
 		public:
-			/** Access specifier of this nested struct/class. */
-			EAccessSpecifier	accessSpecifier;
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Class | EEntityType::Struct | EEntityType::Enum | EEntityType::Method | EEntityType::Field;
 
-			NestedStructClassInfo()										= default;
+			/** Access specifier of this nested struct/class. */
+			EAccessSpecifier				accessSpecifier;
+
 			NestedStructClassInfo(StructClassInfo&& base,
 								  EAccessSpecifier	accessSpecifier)	noexcept;
-			NestedStructClassInfo(NestedStructClassInfo const&)			= default;
-			NestedStructClassInfo(NestedStructClassInfo&&)				= default;
-			~NestedStructClassInfo()									= default;
 	};
 }

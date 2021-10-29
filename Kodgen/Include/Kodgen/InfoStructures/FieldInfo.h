@@ -2,7 +2,7 @@
 *	Copyright (c) 2020 Julien SOYSOUVANH - All Rights Reserved
 *
 *	This file is part of the Kodgen library project which is released under the MIT License.
-*	See the README.md file for full license details.
+*	See the LICENSE.md file for full license details.
 */
 
 #pragma once
@@ -17,20 +17,18 @@ namespace kodgen
 	class FieldInfo final : public VariableInfo
 	{
 		public:
+			static constexpr EEntityType	nestedEntityTypes = EEntityType::Undefined;
+
 			/** Is this field mutable qualified? */
-			bool isMutable : 1;
+			bool							isMutable : 1;
 
 			/** Access of this field in its outer struct/class. */
-			EAccessSpecifier	accessSpecifier;
+			EAccessSpecifier				accessSpecifier;
 
 			/** Memory offset in bytes. */
-			int64				memoryOffset;
+			int64							memoryOffset;
 
-			FieldInfo()									= default;
-			FieldInfo(CXCursor const& cursor,
-					  PropertyGroup&& propertyGroup)	noexcept;
-			FieldInfo(FieldInfo const&)					= default;
-			FieldInfo(FieldInfo&&)						= default;
-			~FieldInfo()								= default;
+			FieldInfo(CXCursor const&			cursor,
+					  std::vector<Property>&&	propertyGroup)	noexcept;
 	};
 }

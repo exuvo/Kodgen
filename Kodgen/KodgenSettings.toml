@@ -1,59 +1,59 @@
-[FileGenerationSettings]
-# Generated files will use this extension
-generatedFilesExtension = ".rfk.h"
-
-# List of supported extensions
-supportedExtensions		= [".h", ".hpp"]
-
-entityMacrosFilename	= "EntityMacros.h"
-
-# Generated files will be located here
-outputDirectory			= '''Path/To/Output/Dir'''
+[CodeGenManagerSettings]
+# List of supported file extensions
+supportedFileExtensions = [".h", ".hpp"]
 
 # Files contained in the directories of this list will be parsed
-toParseDirectories		= [
+toProcessDirectories = [
 #	'''Path/To/Directory/To/Parse'''
 ]
 
 # Files to parse which are not included in any directory of toParseDirectories
-toParseFiles			= []
+toProcessFiles = []
 
 # Files contained in the directories of this list will be ignored
-ignoredDirectories		= [
+ignoredDirectories = [
 #	'''Path/To/Output/Dir''',
 #	'''Path/To/Directory/To/Ignore'''
 ]
 
 # Files not to parse which are not included in any directory of ignoredDirectories
-ignoredFiles			= []
+ignoredFiles = []
 
 
-[FileParsingSettings]
-# Abort parsing on first encountered error
-shouldAbortParsingOnFirstError	= true
+[CodeGenUnitSettings]
+# Generated files will be located here
+outputDirectory = '''Path/To/Output/Dir'''
 
-# Should all entities be parsed whether they are tagged with the macro or not
-shouldParseAllEntities			= false
 
+[ParsingSettings]
 # Include directories of the project
-projectIncludeDirectories		= [
+projectIncludeDirectories = [
 #	'''Path/To/RefurekuLibrary/Include''',
 #	'''Path/To/Your/Project/Include'''
 ]
 
 # Must be one of "msvc", "clang++", "g++"
-compilerExeName					= "clang++"
+compilerExeName = "clang++"
 
-[FileParsingSettings.Properties]
+# Abort parsing on first encountered error
+shouldAbortParsingOnFirstError = true
+
+# Should all entities be parsed whether they are tagged with the macro or not
+shouldParseAllEntities = false
+
+shouldLogDiagnostic = false
+
 propertySeparator = ","
-subPropertySeparator = ","
-subPropertyStartEncloser = "("
-subPropertyEndEncloser = ")"
+argumentSeparator = ","
+argumentStartEncloser = "("
+argumentEndEncloser = ")"
 
-namespaceMacroName = "Namespace"
-classmacroName = "Class"
-structMacroName = "Struct"
-fieldMacroName = "Field"
-methodMacroName = "Method"
-enumMacroName = "Enum"
-enumValueMacroName = "EnumVal"
+namespaceMacroName = "NAMESPACE"
+classMacroName = "CLASS"
+structMacroName = "STRUCT"
+variableMacroName = "VARIABLE"
+fieldMacroName = "FIELD"
+functionMacroName = "FUNCTION"
+methodMacroName = "METHOD"
+enumMacroName = "ENUM"
+enumValueMacroName = "ENUMVALUE"
