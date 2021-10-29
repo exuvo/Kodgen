@@ -28,7 +28,6 @@ outputDirectory = '''Path/To/Output/Dir'''
 [ParsingSettings]
 # Include directories of the project
 projectIncludeDirectories = [
-#	'''Path/To/RefurekuLibrary/Include''',
 #	'''Path/To/Your/Project/Include'''
 ]
 

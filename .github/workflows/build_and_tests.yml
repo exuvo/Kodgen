@@ -118,7 +118,7 @@ jobs:
           mv Build/Release/Lib/libKodgen.a KodgenBinaries/Linux/Lib/
 
           mv Kodgen/Include KodgenBinaries/Include
-          mv Build/Release/Bin/KodgenSettings.toml KodgenBinaries/
+          mv Kodgen/KodgenSettings.toml KodgenBinaries/
          
           mv README.md KodgenBinaries/ 
           mv LICENSE.md KodgenBinaries/
@@ -171,7 +171,7 @@ jobs:
           mkdir KodgenBinaries/Mac/
           mkdir KodgenBinaries/Mac/Bin
           mkdir KodgenBinaries/Mac/Lib
-          mv Build/Release/Lib/libRefureku.a KodgenBinaries/Mac/Lib/
+          mv Build/Release/Lib/libKodgen.a KodgenBinaries/Mac/Lib/
           mv Kodgen/ThirdParty/x64/Shared/libclang.dylib KodgenBinaries/Mac/Bin/
 
       - name: Upload Binaries Artifact

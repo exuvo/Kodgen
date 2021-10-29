@@ -25,7 +25,7 @@ namespace kodgen
 	{
 		private:
 			/** Collection of all property code generators attached to this module. */
-			std::vector<PropertyCodeGen*>	_propertyCodeGenerators;
+			std::vector<PropertyCodeGen*> _propertyCodeGenerators;
 
 			/**
 			*	@brief	Call the visitor method with the provided entity/env pair.
@@ -37,8 +37,8 @@ namespace kodgen
 			* 
 			*	@return	The value returned from the visitor call.
 			*/
-			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&									entity,
-															CodeGenEnv&											env,
+			virtual ETraversalBehaviour	callVisitorOnEntity(EntityInfo const&	entity,
+															CodeGenEnv&			env,
 															std::function<ETraversalBehaviour(ICodeGenerator&,
 																							  EntityInfo const&,
 																							  CodeGenEnv&,
@@ -66,14 +66,14 @@ namespace kodgen
 			* 
 			*	@param propertyCodeGen PropertyCodeGen to register.
 			*/
-			void										addPropertyCodeGen(PropertyCodeGen& propertyCodeGen)			noexcept;
+			void	addPropertyCodeGen(PropertyCodeGen& propertyCodeGen)			noexcept;
 
 			/**
 			*	@brief Remove a property code generator from this generation module.
 			* 
 			*	@param propertyCodeGen PropertyCodeGen to unregister.
 			*/
-			bool										removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen)	noexcept;
+			bool	removePropertyCodeGen(PropertyCodeGen const& propertyCodeGen)	noexcept;
 
 		public:
 			/**
@@ -85,20 +85,20 @@ namespace kodgen
 			* 
 			*	@return true if the code generation completed successfully, else false. If false is returned
 			*/
-			virtual ETraversalBehaviour					generateCodeForEntity(EntityInfo const&	entity,
+			virtual ETraversalBehaviour				generateCodeForEntity(EntityInfo const&	entity,
 																			  CodeGenEnv&		env,
-																			  std::string&		inout_result)		noexcept = 0;
+																			  std::string&		inout_result)	noexcept = 0;
 
 			/**
 			*	@return The highest iteration count in all registered property code generators.
 			*/
-			virtual int32								getGenerationOrder()								const	noexcept	override;
+			virtual int32							getGenerationOrder()								const	noexcept override;
 
 			/**
 			*	@brief Getter for _propertyCodeGenerators field.
 			*
 			*	@return _propertyCodeGenerators.
 			*/
-			std::vector<PropertyCodeGen*> const&		getPropertyCodeGenerators()							const	noexcept;
+			std::vector<PropertyCodeGen*> const&	getPropertyCodeGenerators()							const	noexcept;
 	};
 }
