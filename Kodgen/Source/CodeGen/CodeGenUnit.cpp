@@ -476,13 +476,20 @@ CodeGenUnitSettings const* CodeGenUnit::getSettings() const noexcept
 
 uint8 CodeGenUnit::getIterationCount() const noexcept
 {
-	auto it = std::max_element(_generationModules.cbegin(), _generationModules.cend(),
-							   [](CodeGenModule* const& lhs, CodeGenModule* const& rhs)
-							   {
-								   return lhs->getIterationCount() < rhs->getIterationCount();
-							   });
+	if (_generationModules.empty())
+	{
+		return 1u;
+	}
+	else
+	{
+		auto it = std::max_element(_generationModules.cbegin(), _generationModules.cend(),
+								   [](CodeGenModule* const& lhs, CodeGenModule* const& rhs)
+								   {
+									   return lhs->getIterationCount() < rhs->getIterationCount();
+								   });
 
-	return (*it)->getIterationCount();
+		return (*it)->getIterationCount();
+	}
 }
 
 std::vector<CodeGenModule*>	const& CodeGenUnit::getRegisteredCodeGenModules() const noexcept
