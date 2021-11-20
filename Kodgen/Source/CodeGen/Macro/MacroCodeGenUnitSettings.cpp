@@ -227,16 +227,15 @@ std::string const& MacroCodeGenUnitSettings::getInternalSymbolMacroName() const 
 
 bool MacroCodeGenUnitSettings::sanitizeMacroName(std::string& inout_macroName) noexcept
 {
-	bool		altered		= false;
+	bool altered = false;
 
 	if (!inout_macroName.empty())
 	{
-		unsigned char const	underscore	= '_';
+		char const			underscore	= '_';
 		std::locale const&	cLocale		= std::locale::classic();
-		unsigned char		currentChar	= static_cast<unsigned char>(inout_macroName[0]);
 
 		//First char can be a letter or underscore
-		if (currentChar != underscore && !std::isalpha(currentChar, cLocale))
+		if (inout_macroName[0] != underscore && !std::isalpha(inout_macroName[0], cLocale))
 		{
 			inout_macroName[0] = underscore;
 			altered = true;
@@ -245,11 +244,9 @@ bool MacroCodeGenUnitSettings::sanitizeMacroName(std::string& inout_macroName) n
 		//Following chars can be letter/digit/underscore
 		for (std::size_t i = 1u; i < inout_macroName.size(); i++)
 		{
-			currentChar = static_cast<unsigned char>(inout_macroName[i]);
-
-			if (currentChar != underscore &&
-				!std::isalpha(currentChar, cLocale) &&
-				!std::isdigit(currentChar))
+			if (inout_macroName[i] != underscore &&
+				!std::isalpha(inout_macroName[i], cLocale) &&
+				!std::isdigit(static_cast<unsigned char>(inout_macroName[i])))
 			{
 				inout_macroName[i] = underscore;
 				altered = true;
