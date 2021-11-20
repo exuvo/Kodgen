@@ -77,6 +77,17 @@ namespace kodgen
 			*/
 			std::string		_internalSymbolMacroName		= "";
 
+		protected:
+			/**
+			*	@brief	Modifies a macro name if necessary to make it a valid C++ macro name.
+			*			All invalid characters are replaced by the underscore character '_'.
+			* 
+			*	@param inout_macroName Name of the macro to sanitize.
+			* 
+			*	@return true if the macro was modified my the method, else false.
+			*/
+			static bool		sanitizeMacroName(std::string&	inout_macroName)						noexcept;
+
 			/**
 			*	@brief Replace all occurences of tag by replacement in the provided string.
 			* 
@@ -84,11 +95,10 @@ namespace kodgen
 			*	@param tag			Tag to replace in the provided string.
 			*	@param replacement	String all tags should be replaced by.
 			*/
-			static void replaceTags(std::string&			inout_string,
-									std::string_view const&	tag,
-									std::string const&		replacement)	noexcept;
+			static void		replaceTags(std::string&		inout_string,
+										std::string_view	tag,
+										std::string const&	replacement)							noexcept;
 
-		protected:
 			/**
 			*	@brief Load all settings from the provided toml data.
 			* 

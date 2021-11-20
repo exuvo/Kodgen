@@ -1,6 +1,8 @@
 #include "Kodgen/CodeGen/Macro/MacroCodeGenUnitSettings.h"
 
 #include <algorithm>
+#include <locale>		//std::isalpha
+#include <cctype>		//std::isdigit
 
 #include "Kodgen/InfoStructures/StructClassInfo.h"
 #include "Kodgen/Misc/TomlUtility.h"
@@ -192,6 +194,8 @@ std::string MacroCodeGenUnitSettings::getClassFooterMacro(StructClassInfo const&
 	replaceTags(classFooterMacroName, classNameTag, structClassInfo.name);
 	replaceTags(classFooterMacroName, classFullNameTag, classFullName);
 
+	sanitizeMacroName(classFooterMacroName);
+
 	return classFooterMacroName;
 }
 
@@ -206,6 +210,8 @@ std::string	MacroCodeGenUnitSettings::getHeaderFileFooterMacro(fs::path const& t
 
 	replaceTags(headerFileFooterMacroName, filenameTag, targetFile.filename().stem().string());
 
+	sanitizeMacroName(headerFileFooterMacroName);
+
 	return headerFileFooterMacroName;
 }
 
@@ -219,7 +225,42 @@ std::string const& MacroCodeGenUnitSettings::getInternalSymbolMacroName() const 
 	return _internalSymbolMacroName;
 }
 
-void MacroCodeGenUnitSettings::replaceTags(std::string& inout_string, std::string_view const& tag, std::string const& replacement) noexcept
+bool MacroCodeGenUnitSettings::sanitizeMacroName(std::string& inout_macroName) noexcept
+{
+	bool		altered		= false;
+
+	if (!inout_macroName.empty())
+	{
+		unsigned char const	underscore	= '_';
+		std::locale const&	cLocale		= std::locale::classic();
+		unsigned char		currentChar	= static_cast<unsigned char>(inout_macroName[0]);
+
+		//First char can be a letter or underscore
+		if (currentChar != underscore && !std::isalpha(currentChar, cLocale))
+		{
+			inout_macroName[0] = underscore;
+			altered = true;
+		}
+
+		//Following chars can be letter/digit/underscore
+		for (std::size_t i = 1u; i < inout_macroName.size(); i++)
+		{
+			currentChar = static_cast<unsigned char>(inout_macroName[i]);
+
+			if (currentChar != underscore &&
+				!std::isalpha(currentChar, cLocale) &&
+				!std::isdigit(currentChar))
+			{
+				inout_macroName[i] = underscore;
+				altered = true;
+			}
+		}
+	}
+
+	return altered;
+}
+
+void MacroCodeGenUnitSettings::replaceTags(std::string& inout_string, std::string_view tag, std::string const& replacement) noexcept
 {
 	size_t index = inout_string.find(tag, 0u);
 
@@ -227,6 +268,6 @@ void MacroCodeGenUnitSettings::replaceTags(std::string& inout_string, std::strin
 	{
 		inout_string.replace(index, tag.size(), replacement);
 
-		index = inout_string.find(tag, 0u);
+		index = inout_string.find(tag, index + replacement.size());
 	}
 }
