@@ -50,6 +50,14 @@ namespace kodgen
 			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)		noexcept;
 
 			/**
+			*	@brief	Check whether the current variable should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllVariables" flag check.
+			* 
+			*	@return true if the current variable should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()								noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare variable parsing.
 			*
 			*	@param methodCursor		Root cursor of the variable to parse.

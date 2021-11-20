@@ -9,7 +9,7 @@ inline bool EntityParser::shouldParseCurrentEntity() const noexcept
 {
 	ParsingContext const& context = getContext();
 
-	return context.parsingSettings->shouldParseAllEntities || (context.parentContext != nullptr && context.parentContext->shouldParseAllNested);
+	return context.parentContext != nullptr && context.parentContext->shouldParseAllNested;
 }
 
 inline ParsingContext& EntityParser::getContext() noexcept

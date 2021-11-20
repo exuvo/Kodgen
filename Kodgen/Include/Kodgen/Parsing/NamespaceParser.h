@@ -59,6 +59,14 @@ namespace kodgen
 			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)		noexcept;
 
 			/**
+			*	@brief	Check whether the current namespace should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllNamespaces" flag check.
+			* 
+			*	@return true if the current namespace should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()								noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare namespace parsing.
 			*
 			*	@param namespaceCursor	Root cursor of the namespace to parse.

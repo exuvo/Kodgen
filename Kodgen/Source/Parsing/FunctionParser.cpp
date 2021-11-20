@@ -112,6 +112,11 @@ opt::optional<std::vector<Property>> FunctionParser::getProperties(CXCursor cons
 		opt::nullopt;
 }
 
+bool FunctionParser::shouldParseCurrentEntity() noexcept
+{
+	return getContext().parsingSettings->shouldParseAllFunctions || EntityParser::shouldParseCurrentEntity();
+}
+
 ParsingContext& FunctionParser::pushContext(CXCursor const& methodCursor, ParsingContext const&	parentContext, FunctionParsingResult& out_result) noexcept
 {
 	ParsingContext newContext;

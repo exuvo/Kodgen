@@ -89,6 +89,11 @@ opt::optional<std::vector<Property>> FieldParser::getProperties(CXCursor const& 
 				opt::nullopt;
 }
 
+bool FieldParser::shouldParseCurrentEntity() noexcept
+{
+	return getContext().parsingSettings->shouldParseAllFields || EntityParser::shouldParseCurrentEntity();
+}
+
 ParsingContext& FieldParser::pushContext(CXCursor const& fieldCursor, ParsingContext const& parentContext, FieldParsingResult& out_result) noexcept
 {
 	ParsingContext newContext;

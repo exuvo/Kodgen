@@ -67,10 +67,10 @@ namespace kodgen
 			void	refreshCompilationArguments(ILogger* logger)							noexcept;
 
 			/**
-			*	@brief Load the shouldParseAllEntities setting from toml.
+			*	@brief Load all shouldParse[EntityType] settings from toml.
 			*
-			*	@param table	Toml content.
-			*	@param logger	Optional logger used to issue loading logs. Can be nullptr.
+			*	@param parsingSettings	Toml content.
+			*	@param logger			Optional logger used to issue loading logs. Can be nullptr.
 			*/
 			void	loadShouldParseAllEntities(toml::value const&	parsingSettings,
 											   ILogger*				logger)					noexcept;
@@ -78,8 +78,8 @@ namespace kodgen
 			/**
 			*	@brief Load the shouldLogDiagnostic setting from toml.
 			*
-			*	@param table	Toml content.
-			*	@param logger	Optional logger used to issue loading logs. Can be nullptr.
+			*	@param parsingSettings	Toml content.
+			*	@param logger			Optional logger used to issue loading logs. Can be nullptr.
 			*/
 			void	loadShouldLogDiagnostic(toml::value const&	parsingSettings,
 											ILogger*			logger)						noexcept;
@@ -87,8 +87,8 @@ namespace kodgen
 			/**
 			*	@brief Load the shouldAbortParsingOnFirstError setting from toml.
 			*
-			*	@param table	Toml content.
-			*	@param logger	Optional logger used to issue loading logs. Can be nullptr.
+			*	@param parsingSettings	Toml content.
+			*	@param logger			Optional logger used to issue loading logs. Can be nullptr.
 			*/
 			void	loadShouldAbortParsingOnFirstError(toml::value const&	parsingSettings,
 													   ILogger*				logger)			noexcept;
@@ -123,12 +123,36 @@ namespace kodgen
 			/** Settings used when parsing C++ entities. */
 			PropertyParsingSettings					propertyParsingSettings;
 
-			/** If set to true, will parse all C++ entities, whether they are annotated or not. */
-			bool									shouldParseAllEntities			= false;
+			/** If set to true, will parse all namespaces, whether they are annotated or not. */
+			bool									shouldParseAllNamespaces		= false;
+
+			/** If set to true, will parse all classes, whether they are annotated or not. */
+			bool									shouldParseAllClasses			= false;
+
+			/** If set to true, will parse all structs, whether they are annotated or not. */
+			bool									shouldParseAllStructs			= false;
+
+			/** If set to true, will parse all variables, whether they are annotated or not. */
+			bool									shouldParseAllVariables			= false;
+
+			/** If set to true, will parse all fields, whether they are annotated or not. */
+			bool									shouldParseAllFields			= false;
+
+			/** If set to true, will parse all functions, whether they are annotated or not. */
+			bool									shouldParseAllFunctions			= false;
+
+			/** If set to true, will parse all methods, whether they are annotated or not. */
+			bool									shouldParseAllMethods			= false;
+
+			/** If set to true, will parse all enums, whether they are annotated or not. */
+			bool									shouldParseAllEnums				= false;
+
+			/** If set to true, will parse all enum values, whether they are annotated or not. */
+			bool									shouldParseAllEnumValues		= true;
 
 			/**
-			*	Should the parsing be aborted when an error is encountered or not
-			*	If set to false, errors will be collected for the whole parsing
+			*	Should parsing be aborted when an error is encountered or not.
+			*	If set to false, errors will be collected for the whole parsing.
 			*/
 			bool									shouldAbortParsingOnFirstError	= true;
 

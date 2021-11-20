@@ -40,20 +40,39 @@ namespace kodgen
 			opt::optional<std::vector<Property>>	getProperties(CXCursor const& cursor)				noexcept;
 
 			/**
+			*	@brief Set the parsed enum value into the context result if it is a valid one.
+			*
+			*	@param annotationCursor The cursor used to check enum validity.
+			*
+			*	@return An enum which indicates how to choose the next cursor to parse in the AST.
+			*/
+			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)	noexcept;
+
+			/**
 			*	@brief Fill the enum value result properties.
 			*
-			*	@param annotationCursor The AST cursor to the enum value annotation.
+			*	@param annotationCursor The AST cursor to the enum value.
 			*/
 			void									setProperties(CXCursor const& annotationCursor)		noexcept;
 
 			/**
+			*	@brief	Check whether the current enum value should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllEnumValues" flag check.
+			* 
+			*	@return true if the current enum value should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()							noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare enum value parsing.
 			*
-			*	@param enumCursor		Root cursor of the enum to parse.
+			*	@param enumValueCursor	Root cursor of the enum value to parse.
 			*	@param parentContext	Context the new context will inherit from.
 			*	@param out_result		Result to fill during parsing.
+			* 
+			*	@return The new context.
 			*/
-			void									pushContext(CXCursor const&			enumCursor,
+			ParsingContext&							pushContext(CXCursor const&			enumValueCursor,
 																ParsingContext const&	parentContext,
 																EnumValueParsingResult&	out_result)		noexcept;
 

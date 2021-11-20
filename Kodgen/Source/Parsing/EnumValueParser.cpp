@@ -13,12 +13,17 @@ CXChildVisitResult EnumValueParser::parse(CXCursor const& enumValueCursor, Parsi
 	assert(enumValueCursor.kind == CXCursorKind::CXCursor_EnumConstantDecl);
 
 	//Init context
-	pushContext(enumValueCursor, parentContext, out_result);
+	ParsingContext& context = pushContext(enumValueCursor, parentContext, out_result);
 
-	//An enum value is always valid regardless it has properties attached or not
-	out_result.parsedEnumValue.emplace(EnumValueInfo(enumValueCursor));
-
-	clang_visitChildren(enumValueCursor, &EnumValueParser::parseNestedEntity, this);
+	if (!clang_visitChildren(enumValueCursor, &EnumValueParser::parseNestedEntity, this) && context.shouldCheckProperties)
+	{
+		//If we reach this point, the cursor had no child (no annotation)
+		//Check if the parent has the shouldParseAllNested flag set
+		if (shouldParseCurrentEntity())
+		{
+			getParsingResult()->parsedEnumValue.emplace(enumValueCursor, std::vector<Property>());
+		}
+	}
 
 	popContext();
 
@@ -32,8 +37,26 @@ CXChildVisitResult EnumValueParser::parse(CXCursor const& enumValueCursor, Parsi
 
 CXChildVisitResult EnumValueParser::parseNestedEntity(CXCursor cursor, CXCursor /* parentCursor */, CXClientData clientData) noexcept
 {
-	reinterpret_cast<EnumValueParser*>(clientData)->setProperties(cursor);
+	EnumValueParser*	parser	= reinterpret_cast<EnumValueParser*>(clientData);
+	ParsingContext&		context = parser->getContext();
 
+	if (context.shouldCheckProperties)
+	{
+		context.shouldCheckProperties = false;
+
+		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
+		{
+			//Make it valid right away so init the result
+			parser->getParsingResult()->parsedEnumValue.emplace(context.rootCursor, std::vector<Property>());
+		}
+		else
+		{
+			//Set parsed enum value in result if it is valid
+			return parser->setParsedEntity(cursor);
+		}
+	}
+
+	//There's nothing more to parse in enum values, break right away
 	return CXChildVisitResult::CXChildVisit_Break;
 }
 
@@ -51,6 +74,28 @@ opt::optional<std::vector<Property>> EnumValueParser::getProperties(CXCursor con
 	return opt::nullopt;
 }
 
+CXChildVisitResult EnumValueParser::setParsedEntity(CXCursor const& annotationCursor) noexcept
+{
+	ParsingContext& context = getContext();
+
+	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor))
+	{
+		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
+		getParsingResult()->parsedEnumValue.emplace(context.rootCursor, std::move(*properties));
+
+		return CXChildVisitResult::CXChildVisit_Recurse;
+	}
+	else
+	{
+		if (!context.propertyParser->getParsingErrorDescription().empty())
+		{
+			context.parsingResult->errors.emplace_back(ParsingError(context.propertyParser->getParsingErrorDescription(), clang_getCursorLocation(annotationCursor)));
+		}
+
+		return CXChildVisitResult::CXChildVisit_Break;
+	}
+}
+
 void EnumValueParser::setProperties(CXCursor const& annotationCursor) noexcept
 {
 	ParsingContext& context = getContext();
@@ -66,7 +111,12 @@ void EnumValueParser::setProperties(CXCursor const& annotationCursor) noexcept
 	}
 }
 
-void EnumValueParser::pushContext(CXCursor const& enumValueCursor, ParsingContext const& parentContext, EnumValueParsingResult& out_result) noexcept
+bool EnumValueParser::shouldParseCurrentEntity() noexcept
+{
+	return getContext().parsingSettings->shouldParseAllEnumValues || EntityParser::shouldParseCurrentEntity();
+}
+
+ParsingContext& EnumValueParser::pushContext(CXCursor const& enumValueCursor, ParsingContext const& parentContext, EnumValueParsingResult& out_result) noexcept
 {
 	ParsingContext newContext;
 
@@ -78,4 +128,6 @@ void EnumValueParser::pushContext(CXCursor const& enumValueCursor, ParsingContex
 	newContext.parsingResult			= &out_result;
 
 	contextsStack.push(std::move(newContext));
+
+	return contextsStack.top();
 }

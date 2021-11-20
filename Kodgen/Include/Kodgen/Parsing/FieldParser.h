@@ -50,6 +50,14 @@ namespace kodgen
 			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)		noexcept;
 
 			/**
+			*	@brief	Check whether the current field should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllFields" flag check.
+			* 
+			*	@return true if the current field should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()								noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare field parsing.
 			*
 			*	@param fieldCursor		Root cursor of the field to parse.

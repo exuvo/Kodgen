@@ -119,10 +119,9 @@ bool ParsingSettings::loadSettingsValues(toml::value const& tomlData, ILogger* l
 	{
 		toml::value const& tomlParsingSettings = toml::find(tomlData, _tomlSectionName);
 
-		TomlUtility::updateSetting(tomlParsingSettings, "shouldParseAllEntities", shouldParseAllEntities, logger);
-		TomlUtility::updateSetting(tomlParsingSettings, "shouldAbortParsingOnFirstError", shouldAbortParsingOnFirstError, logger);
-		TomlUtility::updateSetting(tomlParsingSettings, "shouldLogDiagnostic", shouldLogDiagnostic, logger);
-
+		loadShouldParseAllEntities(tomlParsingSettings, logger);
+		loadShouldAbortParsingOnFirstError(tomlParsingSettings, logger);
+		loadShouldLogDiagnostic(tomlParsingSettings, logger);
 		loadCompilerExeName(tomlParsingSettings, logger);
 		loadProjectIncludeDirectories(tomlParsingSettings, logger);
 
@@ -138,9 +137,49 @@ bool ParsingSettings::loadSettingsValues(toml::value const& tomlData, ILogger* l
 
 void ParsingSettings::loadShouldParseAllEntities(toml::value const& tomlFileParsingSettings, ILogger* logger) noexcept
 {
-	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllEntities", shouldParseAllEntities, logger) && logger != nullptr)
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllNamespaces", shouldParseAllNamespaces, logger) && logger != nullptr)
 	{
-		logger->log("[TOML] Load shouldParseAllEntities: " + Helpers::toString(shouldParseAllEntities));
+		logger->log("[TOML] Load shouldParseAllNamespaces: " + Helpers::toString(shouldParseAllNamespaces));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllClasses", shouldParseAllClasses, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllClasses: " + Helpers::toString(shouldParseAllClasses));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllStructs", shouldParseAllStructs, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllStructs: " + Helpers::toString(shouldParseAllStructs));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllVariables", shouldParseAllVariables, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllVariables: " + Helpers::toString(shouldParseAllVariables));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllFields", shouldParseAllFields, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllFields: " + Helpers::toString(shouldParseAllFields));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllFunctions", shouldParseAllFunctions, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllFunctions: " + Helpers::toString(shouldParseAllFunctions));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllMethods", shouldParseAllMethods, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllMethods: " + Helpers::toString(shouldParseAllMethods));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllEnums", shouldParseAllEnums, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllEnums: " + Helpers::toString(shouldParseAllEnums));
+	}
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "shouldParseAllEnumValues", shouldParseAllEnumValues, logger) && logger != nullptr)
+	{
+		logger->log("[TOML] Load shouldParseAllEnumValues: " + Helpers::toString(shouldParseAllEnumValues));
 	}
 }
 

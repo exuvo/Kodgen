@@ -174,6 +174,17 @@ MethodParsingResult	ClassParser::parseMethod(CXCursor const& methodCursor, CXChi
 	return methodResult;
 }
 
+bool ClassParser::shouldParseCurrentEntity() noexcept
+{
+	ParsingContext const& context = getContext();
+
+	bool result = (StructClassInfo::getCursorKind(context.rootCursor) == CXCursorKind::CXCursor_ClassDecl) ?
+					context.parsingSettings->shouldParseAllClasses :
+					context.parsingSettings->shouldParseAllStructs;
+
+	return result || EntityParser::shouldParseCurrentEntity();
+}
+
 ParsingContext& ClassParser::pushContext(CXCursor const& classCursor, ParsingContext const& parentContext, ClassParsingResult& out_result) noexcept
 {
 	ParsingContext newContext;

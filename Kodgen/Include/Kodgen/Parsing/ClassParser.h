@@ -78,6 +78,14 @@ namespace kodgen
 			static bool								isClassTemplateInstantiation(CXCursor const& cursor)					noexcept;
 
 			/**
+			*	@brief	Check whether the current struct/class should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllStructs/shouldParseAllClasses" flag check.
+			* 
+			*	@return true if the current struct/class should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()									noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare struct/class parsing.
 			*
 			*	@param classCursor		Root cursor of the struct/class to parse.

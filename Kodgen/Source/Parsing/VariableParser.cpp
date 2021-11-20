@@ -98,6 +98,11 @@ opt::optional<std::vector<Property>> VariableParser::getProperties(CXCursor cons
 		opt::nullopt;
 }
 
+bool VariableParser::shouldParseCurrentEntity() noexcept
+{
+	return getContext().parsingSettings->shouldParseAllVariables || EntityParser::shouldParseCurrentEntity();
+}
+
 ParsingContext& VariableParser::pushContext(CXCursor const& methodCursor, ParsingContext const&	parentContext, VariableParsingResult& out_result) noexcept
 {
 	ParsingContext newContext;

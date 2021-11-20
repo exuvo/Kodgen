@@ -121,6 +121,11 @@ VariableParsingResult NamespaceParser::parseVariable(CXCursor const& variableCur
 	return variableResult;
 }
 
+bool NamespaceParser::shouldParseCurrentEntity() noexcept
+{
+	return getContext().parsingSettings->shouldParseAllNamespaces || EntityParser::shouldParseCurrentEntity();
+}
+
 ParsingContext& NamespaceParser::pushContext(CXCursor const& namespaceCursor, ParsingContext const& parentContext, NamespaceParsingResult& out_result) noexcept
 {
 	//Add a new context to the contexts stack

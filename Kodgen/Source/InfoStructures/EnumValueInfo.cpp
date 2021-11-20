@@ -2,8 +2,8 @@
 
 using namespace kodgen;
 
-EnumValueInfo::EnumValueInfo(CXCursor const& cursor) noexcept:
-	EntityInfo(cursor, std::vector<Property>(), EEntityType::EnumValue),
+EnumValueInfo::EnumValueInfo(CXCursor const& cursor, std::vector<Property>&& properties) noexcept:
+	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), EEntityType::EnumValue),
 	value{clang_getEnumConstantDeclValue(cursor)}
 {
 }

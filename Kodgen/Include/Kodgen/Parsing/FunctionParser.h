@@ -50,6 +50,14 @@ namespace kodgen
 			CXChildVisitResult						setParsedEntity(CXCursor const& annotationCursor)		noexcept;
 
 			/**
+			*	@brief	Check whether the current function should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllFunctions" flag check.
+			* 
+			*	@return true if the current function should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()								noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare function parsing.
 			*
 			*	@param methodCursor		Root cursor of the function to parse.

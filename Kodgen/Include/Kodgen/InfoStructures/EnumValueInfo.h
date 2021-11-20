@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <clang-c/Index.h>
 
 #include "Kodgen/InfoStructures/EntityInfo.h"
@@ -22,10 +24,8 @@ namespace kodgen
 			/** Default integer value for this enum value. */
 			int64							value				= 0;
 
-			EnumValueInfo()							= default;
-			EnumValueInfo(CXCursor const& cursor)	noexcept;
-			EnumValueInfo(EnumValueInfo const&)		= default;
-			EnumValueInfo(EnumValueInfo&&)			= default;
-			~EnumValueInfo()						= default;
+			EnumValueInfo()										= default;
+			EnumValueInfo(CXCursor const&			cursor,
+						  std::vector<Property>&&	properties)	noexcept;
 	};
 }

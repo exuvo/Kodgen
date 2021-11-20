@@ -60,13 +60,21 @@ namespace kodgen
 			void									addEnumValueResult(EnumValueParsingResult&& result)	noexcept;
 
 			/**
+			*	@brief	Check whether the current enum should be parsed or not.
+			*			Shadow the parent implementation to add the "shouldParseAllEnums" flag check.
+			* 
+			*	@return true if the current enum should be parsed, else false.
+			*/
+			bool									shouldParseCurrentEntity()							noexcept;
+
+			/**
 			*	@brief Push a new clean context to prepare enum parsing.
 			*
 			*	@param enumCursor		Root cursor of the enum to parse.
 			*	@param parentContext	Context the new context will inherit from.
 			*	@param out_result		Result to fill during parsing.
 			*
-			*	@param The new context.
+			*	@return The new context.
 			*/
 			ParsingContext&							pushContext(CXCursor const&			enumCursor,
 																ParsingContext const&	parentContext,

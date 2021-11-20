@@ -127,6 +127,11 @@ void EnumParser::addEnumValueResult(EnumValueParsingResult&& result) noexcept
 	getParsingResult()->appendResultErrors(result);
 }
 
+bool EnumParser::shouldParseCurrentEntity() noexcept
+{
+	return getContext().parsingSettings->shouldParseAllEnums || EntityParser::shouldParseCurrentEntity();
+}
+
 ParsingContext& EnumParser::pushContext(CXCursor const& enumCursor, ParsingContext const& parentContext, EnumParsingResult& out_result) noexcept
 {
 	ParsingContext newContext;
