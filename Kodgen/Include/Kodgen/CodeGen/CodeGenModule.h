@@ -86,19 +86,19 @@ namespace kodgen
 			*	@return true if the code generation completed successfully, else false. If false is returned
 			*/
 			virtual ETraversalBehaviour				generateCodeForEntity(EntityInfo const&	entity,
-																			  CodeGenEnv&		env,
-																			  std::string&		inout_result)	noexcept = 0;
+																		  CodeGenEnv&		env,
+																		  std::string&		inout_result)	noexcept = 0;
 
 			/**
 			*	@return The highest iteration count in all registered property code generators.
 			*/
-			virtual int32							getGenerationOrder()								const	noexcept override;
+			virtual int32							getGenerationOrder()							const	noexcept override;
 
 			/**
 			*	@brief Getter for _propertyCodeGenerators field.
 			*
 			*	@return _propertyCodeGenerators.
 			*/
-			std::vector<PropertyCodeGen*> const&	getPropertyCodeGenerators()							const	noexcept;
+			std::vector<PropertyCodeGen*> const&	getPropertyCodeGenerators()						const	noexcept;
 	};
 }

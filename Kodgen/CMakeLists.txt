@@ -88,7 +88,14 @@ endif()
 
 # Setup compilation definitions
 if (KODGEN_DEV)
+
 	target_compile_definitions(${KodgenTargetLibrary} PRIVATE KODGEN_DEV=1)
+
+	if (NOT MSVC) # Clang or GCC
+		target_compile_options(${KodgenTargetLibrary} PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+		target_link_options(${KodgenTargetLibrary} PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+	endif()
+
 endif()
 
 # Setup language requirements

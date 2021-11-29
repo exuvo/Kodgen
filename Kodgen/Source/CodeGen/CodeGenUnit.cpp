@@ -103,6 +103,7 @@ bool CodeGenUnit::isFileNewerThan(fs::path const& file, fs::path const& referenc
 
 bool CodeGenUnit::generateCode(FileParsingResult const& parsingResult) noexcept
 {
+	//TODO: Should probably use std::unique_ptr here instead of a raw pointer to be exception-safe
 	CodeGenEnv* env = createCodeGenEnv();
 	
 	//If you assert/crash here, means the createCodeGenEnv method returned nullptr

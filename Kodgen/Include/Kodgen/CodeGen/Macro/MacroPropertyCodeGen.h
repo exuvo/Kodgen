@@ -87,7 +87,7 @@ namespace kodgen
 
 			/**
 			*	@brief	Called just before calling generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
-			*			and generateSourceFileHeaderCode on a given entity.
+			*			and generateSourceFileHeaderCode on a given entity/property pair.
 			*			Can be used to initialize the data structure or perform any pre generation initialization or validity check.
 			* 
 			*	@param entity			Entity to generate code for.
@@ -104,7 +104,7 @@ namespace kodgen
 
 			/**
 			*	@brief	Called right after generateHeaderFileHeaderCode, generateClassFooterCode, generateHeaderFileFooterCode,
-			*			and generateSourceFileHeaderCode have been called on a given entity.
+			*			and generateSourceFileHeaderCode have been called on a given entity/property pair.
 			*			Can be used to modify the data structure or perform any post generation cleanup.
 			* 
 			*	@param entity			Entity to generate code for.
