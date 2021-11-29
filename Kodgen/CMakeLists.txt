@@ -11,67 +11,67 @@ set(KodgenTargetLibrary Kodgen)
 
 add_library(${KodgenTargetLibrary}
 				STATIC
-					Source/Properties/PropertyParsingSettings.cpp
+					"Source/Properties/PropertyParsingSettings.cpp"
 					
-					Source/InfoStructures/EntityInfo.cpp
-					Source/InfoStructures/NamespaceInfo.cpp
-					Source/InfoStructures/VariableInfo.cpp
-					Source/InfoStructures/FieldInfo.cpp
-					Source/InfoStructures/FunctionInfo.cpp
-					Source/InfoStructures/MethodInfo.cpp
-					Source/InfoStructures/StructClassInfo.cpp
-					Source/InfoStructures/NestedStructClassInfo.cpp
-					Source/InfoStructures/EnumInfo.cpp
-					Source/InfoStructures/NestedEnumInfo.cpp
-					Source/InfoStructures/EnumValueInfo.cpp
-					Source/InfoStructures/TypeInfo.cpp
-					Source/InfoStructures/StructClassTree.cpp
-					Source/InfoStructures/TemplateParamInfo.cpp
+					"Source/InfoStructures/EntityInfo.cpp"
+					"Source/InfoStructures/NamespaceInfo.cpp"
+					"Source/InfoStructures/VariableInfo.cpp"
+					"Source/InfoStructures/FieldInfo.cpp"
+					"Source/InfoStructures/FunctionInfo.cpp"
+					"Source/InfoStructures/MethodInfo.cpp"
+					"Source/InfoStructures/StructClassInfo.cpp"
+					"Source/InfoStructures/NestedStructClassInfo.cpp"
+					"Source/InfoStructures/EnumInfo.cpp"
+					"Source/InfoStructures/NestedEnumInfo.cpp"
+					"Source/InfoStructures/EnumValueInfo.cpp"
+					"Source/InfoStructures/TypeInfo.cpp"
+					"Source/InfoStructures/StructClassTree.cpp"
+					"Source/InfoStructures/TemplateParamInfo.cpp"
 	
-					Source/Parsing/ParsingError.cpp
-					Source/Parsing/PropertyParser.cpp
-					Source/Parsing/EntityParser.cpp
-					Source/Parsing/NamespaceParser.cpp
-					Source/Parsing/ClassParser.cpp
-					Source/Parsing/VariableParser.cpp
-					Source/Parsing/FieldParser.cpp
-					Source/Parsing/FunctionParser.cpp
-					Source/Parsing/MethodParser.cpp
-					Source/Parsing/EnumParser.cpp
-					Source/Parsing/EnumValueParser.cpp
-					Source/Parsing/FileParser.cpp
-					Source/Parsing/ParsingSettings.cpp
+					"Source/Parsing/ParsingError.cpp"
+					"Source/Parsing/PropertyParser.cpp"
+					"Source/Parsing/EntityParser.cpp"
+					"Source/Parsing/NamespaceParser.cpp"
+					"Source/Parsing/ClassParser.cpp"
+					"Source/Parsing/VariableParser.cpp"
+					"Source/Parsing/FieldParser.cpp"
+					"Source/Parsing/FunctionParser.cpp"
+					"Source/Parsing/MethodParser.cpp"
+					"Source/Parsing/EnumParser.cpp"
+					"Source/Parsing/EnumValueParser.cpp"
+					"Source/Parsing/FileParser.cpp"
+					"Source/Parsing/ParsingSettings.cpp"
 
-					Source/Parsing/ParsingResults/ParsingResultBase.cpp
+					"Source/Parsing/ParsingResults/ParsingResultBase.cpp"
 					
-					Source/Misc/EAccessSpecifier.cpp
-					Source/Misc/Helpers.cpp
-					Source/Misc/DefaultLogger.cpp
-					Source/Misc/CompilerHelpers.cpp
-					Source/Misc/System.cpp
-					Source/Misc/Filesystem.cpp
-					Source/Misc/TomlUtility.cpp
-					Source/Misc/Settings.cpp
+					"Source/Misc/EAccessSpecifier.cpp"
+					"Source/Misc/Helpers.cpp"
+					"Source/Misc/DefaultLogger.cpp"
+					"Source/Misc/CompilerHelpers.cpp"
+					"Source/Misc/System.cpp"
+					"Source/Misc/Filesystem.cpp"
+					"Source/Misc/TomlUtility.cpp"
+					"Source/Misc/Settings.cpp"
 	
-					Source/CodeGen/CodeGenUnit.cpp
-					Source/CodeGen/CodeGenResult.cpp
-					Source/CodeGen/CodeGenManager.cpp
-					Source/CodeGen/GeneratedFile.cpp
-					Source/CodeGen/CodeGenModule.cpp
-					Source/CodeGen/CodeGenUnitSettings.cpp
-					Source/CodeGen/CodeGenManagerSettings.cpp
-					Source/CodeGen/CodeGenHelpers.cpp
-					Source/CodeGen/PropertyCodeGen.cpp
-					Source/CodeGen/ICodeGenerator.cpp
+					"Source/CodeGen/CodeGenUnit.cpp"
+					"Source/CodeGen/CodeGenResult.cpp"
+					"Source/CodeGen/CodeGenManager.cpp"
+					"Source/CodeGen/GeneratedFile.cpp"
+					"Source/CodeGen/CodeGenModule.cpp"
+					"Source/CodeGen/CodeGenUnitSettings.cpp"
+					"Source/CodeGen/CodeGenManagerSettings.cpp"
+					"Source/CodeGen/CodeGenHelpers.cpp"
+					"Source/CodeGen/PropertyCodeGen.cpp"
+					"Source/CodeGen/ICodeGenerator.cpp"
 
-					Source/CodeGen/Macro/MacroCodeGenUnit.cpp
-					Source/CodeGen/Macro/MacroCodeGenUnitSettings.cpp
-					Source/CodeGen/Macro/MacroCodeGenerator.cpp
-					Source/CodeGen/Macro/MacroCodeGenModule.cpp
-					Source/CodeGen/Macro/MacroPropertyCodeGen.cpp
+					"Source/CodeGen/Macro/MacroCodeGenUnit.cpp"
+					"Source/CodeGen/Macro/MacroCodeGenUnitSettings.cpp"
+					"Source/CodeGen/Macro/MacroCodeGenerator.cpp"
+					"Source/CodeGen/Macro/MacroCodeGenModule.cpp"
+					"Source/CodeGen/Macro/MacroPropertyCodeGen.cpp"
 
-					Source/Threading/ThreadPool.cpp
-					Source/Threading/TaskBase.cpp
+					"Source/Threading/ThreadPool.cpp"
+					"Source/Threading/TaskBase.cpp"
 				)
 
 if (MSVC)

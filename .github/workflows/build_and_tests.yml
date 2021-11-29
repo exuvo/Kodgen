@@ -59,9 +59,6 @@ jobs:
         with:
           cmake-version: '3.15.0'
 
-      - name: Install Valgrind
-        run: sudo apt-get install valgrind
-
       - name: Substitute Compiler Name
         uses: bluwy/substitute-string-action@v1
         id: replace_compiler
@@ -83,8 +80,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          cd Build/${{ matrix.build_config }} && ctest -C ${{ matrix.build_config }} -T memcheck -V
-          cat ./Testing/Temporary/MemoryChecker.*.log
+          cd Build/${{ matrix.build_config }} && ctest -C ${{ matrix.build_config }} -V
 
   macos:
     name: MacOS | Clang
