@@ -296,7 +296,10 @@ void ClassParser::updateStructClassTreeRecursion(CXCursor childCursor, CXCursor 
 
 				return CXChildVisitResult::CXChildVisit_Continue;
 			}
-			else if (cursor.kind == CXCursorKind::CXCursor_CXXFinalAttr || cursor.kind == CXCursorKind::CXCursor_AnnotateAttr)
+			else if (cursor.kind == CXCursorKind::CXCursor_CXXFinalAttr ||
+					 cursor.kind == CXCursorKind::CXCursor_AnnotateAttr ||
+					 cursor.kind == CXCursorKind::CXCursor_DLLImport ||
+					 cursor.kind == CXCursorKind::CXCursor_DLLExport)
 			{
 				return CXChildVisitResult::CXChildVisit_Continue;
 			}
