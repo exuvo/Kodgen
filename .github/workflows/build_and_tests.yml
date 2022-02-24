@@ -23,9 +23,6 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Install MSVC Build Tools
-        run: choco install visualstudio2019-workload-nativedesktop
-
       - name: Generate Project
         run: cmake -B Build/${{ matrix.build_config }} -DCMAKE_BUILD_TYPE=${{ matrix.build_config }} -DKODGEN_DEV=1 -G "Visual Studio 16 2019" -A x64
 
