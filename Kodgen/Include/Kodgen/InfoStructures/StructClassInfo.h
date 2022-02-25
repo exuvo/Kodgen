@@ -53,6 +53,9 @@ namespace kodgen
 			/** Whether this StructClassInfo represents a forward declaration or not. */
 			bool												isForwardDeclaration;
 
+			/** Is this class imported from or exported for a dynamic library or not. */
+			bool												isImportExport;
+
 			/** More detailed information on this class. */
 			TypeInfo											type;
 
@@ -77,7 +80,8 @@ namespace kodgen
 			StructClassInfo()												noexcept;
 			StructClassInfo(CXCursor const&			cursor,
 							std::vector<Property>&&	properties,
-							bool					isForwardDeclaration)	noexcept;
+							bool					isForwardDeclaration,
+							bool					isImportExport)			noexcept;
 
 			/**
 			*	@brief Get the kind of a struct class info from a clang cursor.

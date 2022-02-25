@@ -33,7 +33,7 @@ CXChildVisitResult ClassParser::parse(CXCursor classCursor, ParsingContext const
 		//Check if the parent has the shouldParseAllNested flag set
 		if (shouldParseCurrentEntity())
 		{
-			getParsingResult()->parsedClass.emplace(classCursor, std::vector<Property>(), isForwardDeclaration(classCursor));
+			getParsingResult()->parsedClass.emplace(classCursor, std::vector<Property>(), isForwardDeclaration(classCursor), context.isParsingImportExportSymbol);
 		}
 	}
 
@@ -66,6 +66,7 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 		if (cursor.kind == CXCursorKind::CXCursor_DLLImport ||
 			cursor.kind == CXCursorKind::CXCursor_DLLExport)
 		{
+			context.isParsingImportExportSymbol = true;
 			return CXChildVisitResult::CXChildVisit_Recurse;
 		}
 
@@ -74,7 +75,7 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 		if (parser->shouldParseCurrentEntity() && cursor.kind != CXCursorKind::CXCursor_AnnotateAttr)
 		{
 			//Make it valid right away so init the result
-			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, std::vector<Property>(), isForwardDeclaration(context.rootCursor));
+			parser->getParsingResult()->parsedClass.emplace(context.rootCursor, std::vector<Property>(), isForwardDeclaration(context.rootCursor), context.isParsingImportExportSymbol);
 		}
 		else
 		{
@@ -129,6 +130,17 @@ CXChildVisitResult ClassParser::parseNestedEntity(CXCursor cursor, CXCursor /* p
 
 		case CXCursorKind::CXCursor_CXXMethod:
 			parser->addMethodResult(parser->parseMethod(cursor, visitResult));
+			break;
+
+		case CXCursorKind::CXCursor_DLLImport:
+			[[fallthrough]];
+		case CXCursorKind::CXCursor_DLLExport:
+			context.isParsingImportExportSymbol = true;
+
+			if (parser->getParsingResult()->parsedClass.has_value())
+			{
+				parser->getParsingResult()->parsedClass->isImportExport = true;
+			}
 			break;
 
 		default:
@@ -210,7 +222,7 @@ CXChildVisitResult ClassParser::setParsedEntity(CXCursor const& annotationCursor
 	if (opt::optional<std::vector<Property>> properties = getProperties(annotationCursor, context.rootCursor))
 	{
 		//Set the parsing entity in the result and update the shouldParseAllNested flag in the context
-		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), isForwardDeclaration(context.rootCursor)));
+		updateShouldParseAllNested(getParsingResult()->parsedClass.emplace(context.rootCursor, std::move(*properties), isForwardDeclaration(context.rootCursor), context.isParsingImportExportSymbol));
 
 		return CXChildVisitResult::CXChildVisit_Recurse;
 	}

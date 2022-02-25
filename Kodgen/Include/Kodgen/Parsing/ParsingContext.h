@@ -23,30 +23,34 @@ namespace kodgen
 	{
 		public:
 			/** Parent context of this context. */
-			ParsingContext const*	parentContext			= nullptr;
+			ParsingContext const*	parentContext				= nullptr;
 
 			/** Root cursor of this parsing context. */
-			CXCursor				rootCursor				= clang_getNullCursor();
+			CXCursor				rootCursor					= clang_getNullCursor();
 			
 			/** Current access specifier */
-			EAccessSpecifier		currentAccessSpecifier	= EAccessSpecifier::Invalid;
+			EAccessSpecifier		currentAccessSpecifier		= EAccessSpecifier::Invalid;
 
 			/** Should check for properties (annotate) at the next parsing step? */
-			bool					shouldCheckProperties	= true;
+			bool					shouldCheckProperties		= true;
 
 			/** Should parse all nested entities whether or not they are annotated? */
-			bool					shouldParseAllNested	= false;
+			bool					shouldParseAllNested		= false;
+
+
+			/** Is the rootCursor a symbol for dynamic library import/export? */
+			bool					isParsingImportExportSymbol	= false;
 
 			/** Parser used to parse entity properties. */
-			PropertyParser*			propertyParser			= nullptr;
+			PropertyParser*			propertyParser				= nullptr;
 
 			/** ParsingSettings used. */
-			ParsingSettings const*	parsingSettings			= nullptr;
+			ParsingSettings const*	parsingSettings				= nullptr;
 
 			/** Inheritance tree of all structs/classes contained in the translation unit. */
-			StructClassTree*		structClassTree			= nullptr;
+			StructClassTree*		structClassTree				= nullptr;
 
 			/** Result of the parsing. */
-			ParsingResultBase*		parsingResult			= nullptr;
+			ParsingResultBase*		parsingResult				= nullptr;
 	};
 }

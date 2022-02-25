@@ -10,20 +10,21 @@ StructClassInfo::ParentInfo::ParentInfo(EAccessSpecifier access, TypeInfo&& pare
 	inheritanceAccess{access},
 	type{std::forward<TypeInfo>(parentType)}
 {
-	
 }
 
 StructClassInfo::StructClassInfo() noexcept:
 	EntityInfo(),
 	qualifiers{false},
-	isForwardDeclaration{false}
+	isForwardDeclaration{false},
+	isImportExport{false}
 {
 }
 
-StructClassInfo::StructClassInfo(CXCursor const& cursor, std::vector<Property>&& properties, bool isForwardDeclaration) noexcept:
+StructClassInfo::StructClassInfo(CXCursor const& cursor, std::vector<Property>&& properties, bool isForwardDeclaration, bool isImportExport) noexcept:
 	EntityInfo(cursor, std::forward<std::vector<Property>>(properties), (getCursorKind(cursor) == CXCursorKind::CXCursor_StructDecl) ? EEntityType::Struct : EEntityType::Class),
 	qualifiers{false},
 	isForwardDeclaration{isForwardDeclaration},
+	isImportExport{isImportExport},
 	type(cursor)
 {
 }
