@@ -24,6 +24,9 @@ ignoredFiles = []
 # Generated files will be located here
 outputDirectory = '''Path/To/Output/Dir'''
 
+# Uncomment if you generate code for an (dynamic) exported library
+# Define the export macro so that the generator can export generated code as well when necessary
+# exportSymbolMacroName = "EXAMPLE_IMPORT_EXPORT_MACRO"
 
 [ParsingSettings]
 # Include directories of the project
