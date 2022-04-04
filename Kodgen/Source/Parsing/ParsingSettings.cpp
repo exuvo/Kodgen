@@ -7,6 +7,21 @@
 
 using namespace kodgen;
 
+opt::optional<ECppVersion> ParsingSettings::getMatchingCppVersion(uint8 cppVersionAsInt) noexcept
+{
+	switch (cppVersionAsInt)
+	{
+		case 17u:
+			return ECppVersion::Cpp17;
+
+		case 20u:
+			return ECppVersion::Cpp20;
+
+		default:
+			return opt::nullopt;
+	}
+}
+
 void ParsingSettings::init(ILogger* logger) noexcept
 {
 	refreshCompilationArguments(logger);
@@ -121,6 +136,7 @@ bool ParsingSettings::loadSettingsValues(toml::value const& tomlData, ILogger* l
 	{
 		toml::value const& tomlParsingSettings = toml::find(tomlData, _tomlSectionName);
 
+		loadCppVersion(tomlParsingSettings, logger);
 		loadShouldParseAllEntities(tomlParsingSettings, logger);
 		loadShouldAbortParsingOnFirstError(tomlParsingSettings, logger);
 		loadShouldLogDiagnostic(tomlParsingSettings, logger);
@@ -135,6 +151,31 @@ bool ParsingSettings::loadSettingsValues(toml::value const& tomlData, ILogger* l
 	}
 
 	return false;
+}
+
+void ParsingSettings::loadCppVersion(toml::value const& tomlFileParsingSettings, ILogger* logger) noexcept
+{
+	uint8 loadedCppVersion;
+
+	if (TomlUtility::updateSetting(tomlFileParsingSettings, "cppVersion", loadedCppVersion, logger))
+	{
+		opt::optional<ECppVersion> cppVersionEnumValue = ParsingSettings::getMatchingCppVersion(loadedCppVersion);
+
+		//Check that the loaded c++ version is valid
+		if (cppVersionEnumValue.has_value())
+		{
+			cppVersion = cppVersionEnumValue.value();
+
+			if (logger != nullptr)
+			{
+				logger->log("[TOML] Load cppVersion: c++" + std::to_string(static_cast<uint8>(cppVersion)));
+			}
+		}
+		else if (logger != nullptr)
+		{
+			logger->log("[TOML] Failed to load cppVersion: c++" + std::to_string(loadedCppVersion) + " is not supported. Supported versions are 17 and 20.", ILogger::ELogSeverity::Warning);
+		}
+	}
 }
 
 void ParsingSettings::loadShouldParseAllEntities(toml::value const& tomlFileParsingSettings, ILogger* logger) noexcept
