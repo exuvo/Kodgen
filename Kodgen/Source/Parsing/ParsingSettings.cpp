@@ -14,6 +14,8 @@ void ParsingSettings::init(ILogger* logger) noexcept
 
 void ParsingSettings::refreshBuildCommandStrings(ILogger* logger) noexcept
 {
+	_cppVersionCommandLine = "-std=c++" + std::to_string(static_cast<uint8>(cppVersion));
+
 	_namespacePropertyMacro	= "-D" + propertyParsingSettings.namespaceMacroName	+ "(...)=__attribute__((annotate(\"KGN:\"#__VA_ARGS__)))";
 	_classPropertyMacro		= "-D" + propertyParsingSettings.classMacroName		+ "(...)=__attribute__((annotate(\"KGC:\"#__VA_ARGS__)))";
 	_structPropertyMacro	= "-D" + propertyParsingSettings.structMacroName	+ "(...)=__attribute__((annotate(\"KGS:\"#__VA_ARGS__)))";
@@ -91,8 +93,8 @@ void ParsingSettings::refreshCompilationArguments(ILogger* logger) noexcept
 	_compilationArguments.emplace_back("-v");
 #endif
 
-	//Use C++17
-	_compilationArguments.emplace_back("-std=c++1z"); 
+	//Use the user-specified C++ version
+	_compilationArguments.emplace_back(_cppVersionCommandLine.data());
 
 	//Macro set when we are parsing with Kodgen
 	_compilationArguments.emplace_back(_kodgenParsingMacro.data());

@@ -13,6 +13,7 @@
 #include "Kodgen/Properties/PropertyParsingSettings.h"
 #include "Kodgen/Misc/Settings.h"
 #include "Kodgen/Misc/Filesystem.h"
+#include "Kodgen/Misc/ECppVersion.h"
 
 namespace kodgen
 {
@@ -38,6 +39,7 @@ namespace kodgen
 
 			/** Variables used to build compilation command line. */
 			std::string								_kodgenParsingMacro			= "-D" + parsingMacro;
+			std::string								_cppVersionCommandLine;
 			std::vector<std::string>				_projectIncludeDirs;
 
 			std::string								_namespacePropertyMacro;
@@ -122,6 +124,9 @@ namespace kodgen
 
 			/** Settings used when parsing C++ entities. */
 			PropertyParsingSettings					propertyParsingSettings;
+
+			/** C++ version used to parse the source code. Must match the C++ version you use to compile your project. */
+			ECppVersion								cppVersion						= ECppVersion::Cpp17;
 
 			/** If set to true, will parse all namespaces, whether they are annotated or not. */
 			bool									shouldParseAllNamespaces		= false;
