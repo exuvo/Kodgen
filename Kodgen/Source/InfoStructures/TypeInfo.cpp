@@ -110,7 +110,7 @@ std::string	TypeInfo::computeClassTemplateFullName(CXCursor cursor) noexcept
 		result = Helpers::getString(clang_getCursorSpelling(current)) + "::" + result;
 
 		last = current;
-		current = clang_getCursorSemanticParent(cursor);
+		current = clang_getCursorSemanticParent(current);
 	}
 
 	return result;
