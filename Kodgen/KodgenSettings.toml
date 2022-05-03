@@ -29,6 +29,9 @@ outputDirectory = '''Path/To/Output/Dir'''
 # exportSymbolMacroName = "EXAMPLE_IMPORT_EXPORT_MACRO"
 
 [ParsingSettings]
+# Used c++ version (supported values are: 17, 20)
+cppVersion = 17
+
 # Include directories of the project
 projectIncludeDirectories = [
 #	'''Path/To/Your/Project/Include'''

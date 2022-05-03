@@ -13,6 +13,8 @@
 #include "Kodgen/Properties/PropertyParsingSettings.h"
 #include "Kodgen/Misc/Settings.h"
 #include "Kodgen/Misc/Filesystem.h"
+#include "Kodgen/Misc/Optional.h"
+#include "Kodgen/Misc/ECppVersion.h"
 
 namespace kodgen
 {
@@ -38,6 +40,7 @@ namespace kodgen
 
 			/** Variables used to build compilation command line. */
 			std::string								_kodgenParsingMacro			= "-D" + parsingMacro;
+			std::string								_cppVersionCommandLine;
 			std::vector<std::string>				_projectIncludeDirs;
 
 			std::string								_namespacePropertyMacro;
@@ -53,6 +56,15 @@ namespace kodgen
 			std::vector<char const*>				_compilationArguments;
 
 			/**
+			*	@brief Try to convert an integer to a ECppVersion enum value.
+			* 
+			*	@param cppVersionAsInt An integer representing the C++ version.
+			* 
+			*	@return A filled optional with the matching C++ version if any, else an empty optional.
+			*/
+			static opt::optional<ECppVersion>	getMatchingCppVersion(uint8 cppVersionAsInt)	noexcept;
+
+			/**
 			*	@brief Refresh all internal compilation macros to pass to the compiler.
 			* 
 			*	@param logger Optional logger used to issue logs in case of error. Can be nullptr.
@@ -65,6 +77,15 @@ namespace kodgen
 			*	@param logger Optional logger used to issue logs in case of error. Can be nullptr.
 			*/
 			void	refreshCompilationArguments(ILogger* logger)							noexcept;
+
+			/**
+			*	@brief Load the cppVersion setting from toml.
+			* 
+			*	@param parsingSettings	Toml content.
+			*	@param logger			Optional logger used to issue loading logs. Can be nullptr.
+			*/
+			void	loadCppVersion(toml::value const&	parsingSettings,
+								   ILogger*				logger)								noexcept;
 
 			/**
 			*	@brief Load all shouldParse[EntityType] settings from toml.
@@ -122,6 +143,9 @@ namespace kodgen
 
 			/** Settings used when parsing C++ entities. */
 			PropertyParsingSettings					propertyParsingSettings;
+
+			/** C++ version used to parse the source code. Must match the C++ version you use to compile your project. */
+			ECppVersion								cppVersion						= ECppVersion::Cpp17;
 
 			/** If set to true, will parse all namespaces, whether they are annotated or not. */
 			bool									shouldParseAllNamespaces		= false;

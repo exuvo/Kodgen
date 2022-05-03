@@ -100,22 +100,27 @@ void CodeGenManager::generateMacrosFile(ParsingSettings const& parsingSettings, 
 {
 	GeneratedFile macrosDefinitionFile(outputDirectory / CodeGenUnitSettings::entityMacrosFilename);
 
-	//Define empty entity macros to allow compilation outside of the Kodgen parsing
 	macrosDefinitionFile.writeLines("#pragma once",
-									"",
-									"#ifndef " + ParsingSettings::parsingMacro,
-									"",
-									"#define " + parsingSettings.propertyParsingSettings.namespaceMacroName	+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.classMacroName		+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.structMacroName	+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.variableMacroName	+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.fieldMacroName		+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.methodMacroName	+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.enumMacroName		+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.enumValueMacroName	+ "(...)",
-									"#define " + parsingSettings.propertyParsingSettings.functionMacroName	+ "(...)");
+									"");
 
-	macrosDefinitionFile.writeLine("\n#endif");
+	//Define empty entity macros to allow compilation outside of the Kodgen parsing
+	auto defineMacroIfNdef = [&macrosDefinitionFile](std::string const& macroName)
+	{
+		macrosDefinitionFile.writeLines("#ifndef " + macroName,
+										"\t#define " + macroName + "(...)",
+										"#endif",
+										"");
+	};
+
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.namespaceMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.classMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.structMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.variableMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.fieldMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.methodMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.enumMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.enumValueMacroName);
+	defineMacroIfNdef(parsingSettings.propertyParsingSettings.functionMacroName);
 }
 
 bool CodeGenManager::checkGenerationSetup(FileParser const& /* fileParser */, CodeGenUnit const& codeGenUnit) noexcept
