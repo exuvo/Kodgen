@@ -65,7 +65,7 @@ void MacroCodeGenUnitSettings::loadClassFooterMacroPattern(toml::value const& ge
 
 		if (logger != nullptr)
 		{
-			logger->log("[TOML] Load class footer macro pattern: " + _generatedHeaderFileNamePattern);
+			logger->log("[TOML] Load class footer macro pattern: " + _classFooterMacroPattern);
 		}
 	}
 }
@@ -81,7 +81,7 @@ void MacroCodeGenUnitSettings::loadHeaderFileFooterMacroPattern(toml::value cons
 
 		if (logger != nullptr)
 		{
-			logger->log("[TOML] Load header file footer macro pattern: " + _generatedHeaderFileNamePattern);
+			logger->log("[TOML] Load header file footer macro pattern: " + _headerFileFooterMacroPattern);
 		}
 	}
 }
